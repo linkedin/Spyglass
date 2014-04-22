@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mention_selected">#0077b5</color>
+    <color name="mention_unselected">#00a0dc</color>
+    <color name="mention_user_text">#e58422</color>
+
+    <color name="editor_text">#343434</color>
+</resources>

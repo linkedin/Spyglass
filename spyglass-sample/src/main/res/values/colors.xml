@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="action_bar">#2e8dd7</color>
+    <color name="person_mention_text">#3F51B5</color>
+    <color name="city_mention_text">#4CAF50</color>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Theme.SpyglassSample" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/action_bar</item>
+    </style>
+
+</resources>

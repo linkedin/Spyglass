@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#BDBDBD">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/multi_source_mentions_description"/>
+
+        <CheckBox
+            android:id="@+id/person_checkbox"
+            android:textColor="@color/person_mention_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/person_mentions"
+            android:checked="true" />
+
+        <CheckBox
+            android:id="@+id/city_checkbox"
+            android:textColor="@color/city_mention_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/city_mentions"
+            android:checked="true" />
+
+    </LinearLayout>
+
+    <com.linkedin.android.spyglass.ui.RichEditorView
+            android:id="@+id/editor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>

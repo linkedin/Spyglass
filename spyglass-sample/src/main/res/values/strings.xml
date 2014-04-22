@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Spyglass Samples</string>
+
+    <string name="person_mentions">Person Mentions</string>
+    <string name="city_mentions">City Mentions</string>
+    <string name="type_person">Mention a person&#8230;</string>
+    <string name="type_city">Mention a city&#8230;</string>
+    <string name="type_both">Mention either a person or a city&#8230;</string>
+    <string name="type_neither">Mentions disabled&#8230;</string>
+
+    <string name="simple_mentions_sample">Basic Demo</string>
+    <string name="simple_mentions_description">A basic mentions widget with as little code as possible.</string>
+
+    <string name="networked_mentions_sample">Network Demo</string>
+    <string name="networked_mentions_description">Shows the effect of a simulated network latency.</string>
+
+    <string name="multi_source_mentions_sample">Multiple Suggestion Sources Demo</string>
+    <string name="multi_source_mentions_description">Demonstrates using multiple suggestion sources for mentions. Person mentions have a 10ms delay (i.e. from database). City mentions have a 2 second delay (i.e. from network).</string>
+
+    <string name="grid_mentions_sample">Grid Suggestions Demo</string>
+    <string name="grid_mentions_description">Shows using the MentionsEditText interfacing with a separate RecyclerView to load mentions with images into a grid.</string>
+</resources>
