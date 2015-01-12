@@ -56,28 +56,12 @@ robolectric {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     //compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:support-v4:19.1.0'
     compile 'com.android.support:support-annotations:20.0.0'
     androidTestCompile 'junit:junit:4.11'
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
     androidTestCompile 'org.robolectric:robolectric:2.3'
 }
 
-//for uploadChives to local directory
-//def groupId = 'com.linkedin.android'
-//def artifactId = 'spyglass'
-//def version = '1.0.0'
-//def localReleaseDest = "${buildDir}/release/${version}"
-//
-//
-//uploadArchives {
-//    repositories.mavenDeployer {
-//        pom.groupId = groupId
-//        pom.artifactId = artifactId
-//        pom.version = version
-//        repository(url: "file://${localReleaseDest}")
-//    }
-//}
-//upload to https://oss.sonatype.org/content/repositories/snapshots/com/linkedin/android/spyglass
-//apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+
 apply from: 'gradle-mvn-push.gradle'

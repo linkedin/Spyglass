@@ -76,12 +76,16 @@ afterEvaluate { project ->
                         }
                     }
 
-//                    developers {
-//                        developer {
-//                            id POM_DEVELOPER_ID
-//                            name POM_DEVELOPER_NAME
-//                        }
-//                    }
+                    developers {
+                        developer {
+                            id 'nhibner'
+                            name 'Nathan Hibner'
+                        }
+                        developer {
+                            id 'sli1'
+                            name 'Shoulong Li'
+                        }
+                    }
                 }
             }
         }
