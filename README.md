@@ -22,14 +22,14 @@ Getting Started
 Grab via Maven:
 ```xml
 <dependency>
-  <groupId>com.linkedin.android</groupId>
+  <groupId>com.linkedin.android.spyglass</groupId>
   <artifactId>spyglass</artifactId>
   <version>1.0.0</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-compile 'com.linkedin.android:spyglass:1.0.0'
+compile 'com.linkedin.android.spyglass:spyglass:1.0.0'
 ```
 
 Overview
