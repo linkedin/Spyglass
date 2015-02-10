@@ -2,6 +2,8 @@ Spyglass
 ========
 
 
+[![Build Status](https://magnum.travis-ci.com/linkedin/Spyglass.svg?token=txL7sAqUryPT7MEJpVw6&branch=master)](https://magnum.travis-ci.com/linkedin/Spyglass)
+
 A powerful Android library that provides highly-customizable widgets (with smart defaults) to easily add social-media-esque mention (aka tag) support to your app
 
 *For a broad overview, check out our [blog post](https://engineering.linkedin.com/android/announcing-spyglass-flexible-library-implementing-mentions-android) at the LinkedIn engineering blog.*
