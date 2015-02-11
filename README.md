@@ -1,6 +1,8 @@
 Spyglass
 ========
 
+[![Build Status](https://travis-ci.org/linkedin/Spyglass.svg?branch=master)](https://travis-ci.org/linkedin/Spyglass)
+
 A powerful Android library that provides highly-customizable widgets (with smart defaults) to easily add social-media-esque mention (aka tag) support to your app
 
 Features
