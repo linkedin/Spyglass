@@ -93,7 +93,7 @@ public class SuggestionsAdapter extends BaseAdapter {
      * Add mention suggestions to a given bucket in the adapter. The adapter tracks the latest result for every given
      * bucket, and passes this information to the SuggestionsManager to construct the list of suggestions in the
      * appropriate order.
-     * <p/>
+     * <p>
      * Note: This should be called exactly once for every bucket returned from the query client.
      *
      * @param result a {@link SuggestionsResult} containing the suggestions to add

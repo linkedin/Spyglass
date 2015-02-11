@@ -196,7 +196,7 @@ public class MentionsEditText extends EditText implements TokenSource {
 
     /**
      * Gets the {@link MentionSpan} from the {@link MentionsEditText} that was tapped.
-     * <p/>
+     * <p>
      * Note: Almost all of this code is taken directly from the Android source code, see:
      * {@link LinkMovementMethod#onTouchEvent(TextView, Spannable, MotionEvent)}
      *

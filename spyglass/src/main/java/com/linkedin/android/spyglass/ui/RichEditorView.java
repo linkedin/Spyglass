@@ -52,7 +52,7 @@ import java.util.List;
 
 /**
  * Custom view for the RichEditor. Manages three subviews:
- * <p/>
+ * <p>
  * 1. EditText - contains text typed by user
  * 2. TextView - displays count of the number of characters in the EditText
  * 3. ListView - displays mention suggestions when relevant
@@ -154,7 +154,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     /**
      * Determine whether the internal {@link EditText} should match the full height of the {@link RichEditorView}
      * initially or if it should wrap its content in height and expand to fill it as the user types.
-     * <p/>
+     * <p>
      * Note: The {@link EditText} will always match the parent (i.e. the {@link RichEditorView} in width.
      * Additionally, the {@link ListView} containing mention suggestions will always fill the rest
      * of the height in the {@link RichEditorView}.

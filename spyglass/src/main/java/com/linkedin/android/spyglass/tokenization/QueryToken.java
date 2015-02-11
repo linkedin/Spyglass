@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * Class that represents a token from a {@link Tokenizer} that can be used to query for suggestions.
- * <p/>
+ * <p>
  * Note that if the query is explicit, the explicit character has not been removed from the start of the token string.
  * To get the string without any explicit character, use {@link #getKeywords()}.
  */

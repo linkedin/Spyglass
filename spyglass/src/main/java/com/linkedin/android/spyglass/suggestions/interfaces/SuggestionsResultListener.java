@@ -28,7 +28,7 @@ public interface SuggestionsResultListener {
     /**
      * Callback to return a {@link SuggestionsResult} so that the suggestions it contains can be added to a
      * {@link SuggestionsAdapter} and rendered accordingly.
-     * <p/>
+     * <p>
      * Note that for any given {@link QueryToken} that the {@link QueryTokenReceiver} handles, onReceiveSuggestionsResult
      * may be called multiple times. For example, if you can suggest both people and companies, the
      * {@link QueryTokenReceiver} will receive a single {@link QueryToken}, but it should call onReceiveSuggestionsResult
