@@ -18,7 +18,7 @@ import android.annotation.TargetApi;
 import android.text.Spanned;
 import android.text.style.SuggestionSpan;
 
-import com.linkedin.android.unittest.LinkedInRobolectricRunner;
+import com.linkedin.android.unittest.SpyglassRobolectricRunner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ import org.robolectric.annotation.Config;
 import static junit.framework.Assert.assertEquals;
 
 @Config(emulateSdk = 18)
-@RunWith(LinkedInRobolectricRunner.class)
+@RunWith(SpyglassRobolectricRunner.class)
 public class MentionsEditableTest {
 
     private MentionsEditable mEditable;

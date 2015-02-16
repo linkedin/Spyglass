@@ -16,7 +16,7 @@ package com.linkedin.android.spyglass.ui;
 
 import android.view.MotionEvent;
 
-import com.linkedin.android.unittest.LinkedInRobolectricRunner;
+import com.linkedin.android.unittest.SpyglassRobolectricRunner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
  * call protected methods in the test.
  */
 @Config(emulateSdk = 18)
-@RunWith(LinkedInRobolectricRunner.class)
+@RunWith(SpyglassRobolectricRunner.class)
 public class MentionsEditTextTest {
 
     private MentionsEditText mEditText;

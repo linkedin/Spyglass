@@ -25,7 +25,7 @@ import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
 import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
-import com.linkedin.android.unittest.LinkedInRobolectricRunner;
+import com.linkedin.android.unittest.SpyglassRobolectricRunner;
 import com.linkedin.android.utils.TestUtils;
 
 import org.junit.Before;
@@ -37,7 +37,7 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.linkedin.android.unittest.LinkedInRobolectricRunner.startFragment;
+import static com.linkedin.android.unittest.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -50,7 +50,7 @@ import static org.mockito.Mockito.verify;
  * call protected methods in the test.
  */
 @Config(emulateSdk = 18)
-@RunWith(LinkedInRobolectricRunner.class)
+@RunWith(SpyglassRobolectricRunner.class)
 public class RichEditorViewTest {
 
     private RichEditorView mRichEditor;
@@ -70,7 +70,7 @@ public class RichEditorViewTest {
         mRichEditor.setText(hello);
         TestUtils.invokePrivateMethod(mRichEditor, "updateEditorTextCount");
 
-        TextView textCountView = (TextView) TestUtils.getPrivateField(mRichEditor, "mTextCounterView");
+        TextView textCountView = TestUtils.getPrivateField(mRichEditor, "mTextCounterView");
         assertEquals("text count should be set", String.valueOf(hello.length()), textCountView.getText().toString());
     }
 

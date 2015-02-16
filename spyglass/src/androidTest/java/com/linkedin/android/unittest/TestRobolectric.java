@@ -14,11 +14,10 @@
 
 package com.linkedin.android.unittest;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(LinkedInRobolectricRunner.class)
+@RunWith(SpyglassRobolectricRunner.class)
 public class TestRobolectric {
 
     @Test

@@ -20,7 +20,7 @@ import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.TestMention;
 import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
 import com.linkedin.android.spyglass.ui.RichEditorView;
-import com.linkedin.android.unittest.LinkedInRobolectricRunner;
+import com.linkedin.android.unittest.SpyglassRobolectricRunner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,13 +28,13 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
-import static com.linkedin.android.unittest.LinkedInRobolectricRunner.startFragment;
+import static com.linkedin.android.unittest.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 @Config(emulateSdk = 18)
-@RunWith(LinkedInRobolectricRunner.class)
+@RunWith(SpyglassRobolectricRunner.class)
 public class WordTokenizerTest {
 
     private RichEditorFragment mRichEditorFragment;

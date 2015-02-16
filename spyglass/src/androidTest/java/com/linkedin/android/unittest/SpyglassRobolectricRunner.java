@@ -14,6 +14,12 @@
 
 package com.linkedin.android.unittest;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import org.junit.runners.model.InitializationError;
 import org.robolectric.AndroidManifest;
 import org.robolectric.Robolectric;
@@ -21,15 +27,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.res.Fs;
 
-import android.app.Activity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+public class SpyglassRobolectricRunner extends RobolectricTestRunner {
 
-public class LinkedInRobolectricRunner extends RobolectricTestRunner {
-
-    public LinkedInRobolectricRunner(Class testClass) throws InitializationError {
+    public SpyglassRobolectricRunner(Class testClass) throws InitializationError {
         super(testClass);
     }
 
@@ -50,6 +50,7 @@ public class LinkedInRobolectricRunner extends RobolectricTestRunner {
         startFragment(fragment, activity, null);
     }
 
+    @TargetApi(11)
     public static void startFragment(Fragment fragment, FragmentActivity activity, String tag) {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
