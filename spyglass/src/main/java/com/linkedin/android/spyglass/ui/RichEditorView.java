@@ -368,6 +368,8 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
     /**
      * Convenience method for {@link MentionsEditText#getCurrentTokenString()}.
+     * 
+     * @return a string representing currently being considered for a possible query, as the user typed it
      */
     @NonNull
     public String getCurrentTokenString() {
@@ -379,6 +381,8 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
     /**
      * Convenience method for {@link MentionsEditText#getCurrentKeywordsString()}.
+     * 
+     * @return a String representing current keywords in the underlying {@link EditText}
      */
     @NonNull
     public String getCurrentKeywordsString() {
@@ -410,6 +414,8 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
     /**
      * Adds an {@link TextWatcher} to the internal {@link MentionsEditText}.
+     * 
+     * @param hostTextWatcher the {TextWatcher} to add
      */
     public void addTextChangedListener(final @Nullable TextWatcher hostTextWatcher) {
         if (mMentionsEditText != null) {

@@ -46,6 +46,8 @@ public interface Mentionable extends Suggestible {
     /**
      * Get the string representing what the mention should currently be displaying, depending on the given
      * {@link MentionDisplayMode}.
+     * 
+     * @param mode the {@link MentionDisplayMode} tp ise
      *
      * @return the current text to display to the user
      */

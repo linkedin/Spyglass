@@ -448,6 +448,7 @@ public class WordTokenizer implements Tokenizer {
      * Returns the index of the beginning of the first span after the cursor or
      * length of the text if there are no spans after the cursor.
      *
+     * @param text   the {@link Spanned} to examine
      * @param cursor position of the cursor in text
      *
      * @return the furthest behind the cursor to search for the current keywords
