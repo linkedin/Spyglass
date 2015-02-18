@@ -14,7 +14,9 @@
 
 package com.linkedin.android.spyglass.ui;
 
+import android.text.InputType;
 import android.text.Spanned;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -108,4 +110,17 @@ public class RichEditorViewTest {
         verify(suggestionsList).setSelection(0);
     }
 
+    @Test
+    public void testSuggestionsListDisablesSpellingSuggestions() throws Exception {
+        EditText input = TestUtils.getPrivateField(mRichEditor, "mMentionsEditText");
+        int originalInputType = input.getInputType();
+
+        mRichEditor.displaySuggestions(true);
+        // should be no suggestions
+        assertEquals(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS, input.getInputType());
+
+        mRichEditor.displaySuggestions(false);
+        // should be back to original type
+        assertEquals(originalInputType, input.getInputType());
+    }
 }
