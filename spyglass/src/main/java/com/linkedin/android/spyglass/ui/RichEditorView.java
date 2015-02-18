@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -60,6 +61,7 @@ import java.util.List;
 public class RichEditorView extends RelativeLayout implements TextWatcher, QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
 
     private MentionsEditText mMentionsEditText;
+    private int mOriginalInputType = InputType.TYPE_CLASS_TEXT; // Default to plain text
     private TextView mTextCounterView;
     private ListView mSuggestionsList;
 
@@ -297,6 +299,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
         // Change view depending on whether suggestions are being shown or not
         if (display) {
+            disableSpellingSuggestions(true);
             mTextCounterView.setVisibility(View.GONE);
             mSuggestionsList.setVisibility(View.VISIBLE);
             mPrevEditTextParams = mMentionsEditText.getLayoutParams();
@@ -316,6 +319,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
                 mActionListener.onSuggestionsDisplayed();
             }
         } else {
+            disableSpellingSuggestions(false);
             mTextCounterView.setVisibility(View.VISIBLE);
             mSuggestionsList.setVisibility(View.GONE);
             mMentionsEditText.setPadding(mMentionsEditText.getPaddingLeft(), mMentionsEditText.getPaddingTop(), mMentionsEditText.getPaddingRight(), mPrevEditTextBottomPadding);
@@ -339,6 +343,26 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
      */
     public boolean isDisplayingSuggestions() {
         return mSuggestionsList.getVisibility() == View.VISIBLE;
+    }
+
+    /**
+     * Disables spelling suggestions from the user's keyboard.
+     * This is necessary because some keyboards will replace the input text with
+     * spelling suggestions automatically, which changes the suggestion results.
+     * This results in a confusing user experience.
+     *
+     * @param disable {@code true} if spelling suggestions should be disabled, otherwise {@code false}
+     */
+    private void disableSpellingSuggestions(boolean disable) {
+        if (disable) {
+            // store the previous input type
+            mOriginalInputType = mMentionsEditText.getInputType();
+        }
+        // toggling suggestions often resets the cursor location, but we don't want that to happen
+        int start = mMentionsEditText.getSelectionStart();
+        int end = mMentionsEditText.getSelectionEnd();
+        mMentionsEditText.setInputType(disable ? InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS : mOriginalInputType);
+        mMentionsEditText.setSelection(start, end);
     }
 
     // --------------------------------------------------
