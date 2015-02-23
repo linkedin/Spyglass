@@ -15,13 +15,11 @@
 package com.linkedin.android.spyglass.tokenization.impl;
 
 import android.text.Spanned;
-
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.TestMention;
-import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
 import com.linkedin.android.spyglass.ui.RichEditorView;
+import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
 import com.linkedin.android.unittest.SpyglassRobolectricRunner;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,8 +49,10 @@ public class WordTokenizerTest {
         mRichEditor.setSelection(0);
 
         // Configure the tokenizer with custom settings
-        final String lineSeparator = System.getProperty("line.separator");
-        WordTokenizer.Configuration config = new WordTokenizer.Configuration(lineSeparator, 3, 2, "@", ". " + lineSeparator);
+        WordTokenizerConfig config = new WordTokenizerConfig.Builder()
+                                                            .setThreshold(3)
+                                                            .setMaxNumKeywords(2)
+                                                            .build();
         mTokenizer = new WordTokenizer(config);
         mRichEditor.setTokenizer(mTokenizer);
     }

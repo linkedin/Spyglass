@@ -14,12 +14,12 @@
 
 package com.linkedin.android.spyglass.tokenization.impl;
 
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.EditText;
-
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 
@@ -28,56 +28,14 @@ import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
  */
 public class WordTokenizer implements Tokenizer {
 
-    private final Configuration mConfig;
+    private final WordTokenizerConfig mConfig;
 
     public WordTokenizer() {
-        this(new Configuration());
+        this(new WordTokenizerConfig.Builder().build());
     }
 
-    public WordTokenizer(final @NonNull Configuration config) {
+    public WordTokenizer(final @NonNull WordTokenizerConfig config) {
         mConfig = config;
-    }
-
-    // --------------------------------------------------
-    // Tokenizer Configuration Class
-    // --------------------------------------------------
-
-    /**
-     * Class used to configure various parsing options for the {@link WordTokenizer}.
-     */
-    public static class Configuration {
-
-        public final String LINE_SEPARATOR;
-
-        // Number of characters required in a word before returning a mention suggestion starting with the word
-        // Note: These characters are required to be either letters or digits
-        public int THRESHOLD;
-
-        // Max number of words to consider as keywords in a query
-        public int MAX_NUM_KEYWORDS;
-
-        // Characters to use as explicit mention indicators
-        public final String EXPLICIT_CHARS;
-
-        // Characters to use to separate words
-        public final String WORD_BREAK_CHARS;
-
-        public Configuration() {
-            // Default values (requires 4 characters and only considers word being typed currently)
-            this(System.getProperty("line.separator"), 4, 1, "@", " ." + System.getProperty("line.separator"));
-        }
-
-        public Configuration(final @NonNull String lineSeparator,
-                             final int threshold,
-                             final int maxNumKeywords,
-                             final @NonNull String explicitChars,
-                             final @NonNull String wordBreakChars) {
-            LINE_SEPARATOR = lineSeparator;
-            THRESHOLD = threshold;
-            MAX_NUM_KEYWORDS = maxNumKeywords;
-            EXPLICIT_CHARS = explicitChars;
-            WORD_BREAK_CHARS = wordBreakChars;
-        }
     }
 
     // --------------------------------------------------

@@ -31,7 +31,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.Mentionable;
@@ -41,10 +40,11 @@ import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.impl.BasicSuggestionsListBuilder;
 import com.linkedin.android.spyglass.suggestions.interfaces.OnSuggestionsVisibilityChangeListener;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsListBuilder;
-import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
 import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig;
 import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 
@@ -106,7 +106,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
         // Create the tokenizer to use for the editor
         // TODO: Allow customization of configuration via XML attributes
-        WordTokenizer.Configuration config = new WordTokenizer.Configuration();
+        WordTokenizerConfig config = new WordTokenizerConfig.Builder().build();
         WordTokenizer tokenizer = new WordTokenizer(config);
         mMentionsEditText.setTokenizer(tokenizer);
 
@@ -392,7 +392,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
     /**
      * Convenience method for {@link MentionsEditText#getCurrentTokenString()}.
-     * 
+     *
      * @return a string representing currently being considered for a possible query, as the user typed it
      */
     @NonNull
@@ -405,7 +405,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
     /**
      * Convenience method for {@link MentionsEditText#getCurrentKeywordsString()}.
-     * 
+     *
      * @return a String representing current keywords in the underlying {@link EditText}
      */
     @NonNull
@@ -438,7 +438,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 
     /**
      * Adds an {@link TextWatcher} to the internal {@link MentionsEditText}.
-     * 
+     *
      * @param hostTextWatcher the {TextWatcher} to add
      */
     public void addTextChangedListener(final @Nullable TextWatcher hostTextWatcher) {
