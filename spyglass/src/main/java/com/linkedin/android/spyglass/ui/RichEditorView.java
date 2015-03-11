@@ -354,13 +354,17 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
      * @param disable {@code true} if spelling suggestions should be disabled, otherwise {@code false}
      */
     private void disableSpellingSuggestions(boolean disable) {
+        // toggling suggestions often resets the cursor location, but we don't want that to happen
+        int start = mMentionsEditText.getSelectionStart();
+        int end = mMentionsEditText.getSelectionEnd();
+        // -1 means there is no selection or cursor.
+        if (start == -1 || end == -1) {
+            return;
+        }
         if (disable) {
             // store the previous input type
             mOriginalInputType = mMentionsEditText.getInputType();
         }
-        // toggling suggestions often resets the cursor location, but we don't want that to happen
-        int start = mMentionsEditText.getSelectionStart();
-        int end = mMentionsEditText.getSelectionEnd();
         mMentionsEditText.setInputType(disable ? InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS : mOriginalInputType);
         mMentionsEditText.setSelection(start, end);
     }
