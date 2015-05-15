@@ -14,9 +14,13 @@
 
 package com.linkedin.android.spyglass.ui;
 
+import android.text.Editable;
 import android.view.MotionEvent;
 
 import com.linkedin.android.unittest.SpyglassRobolectricRunner;
+
+import com.linkedin.android.spyglass.mentions.Mentionable;
+import com.linkedin.android.spyglass.mentions.TestMention;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +33,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+
+import static junit.framework.Assert.assertTrue;
 
 /**
  * This is a series of tests for the MentionsEditText. It will use hard
@@ -70,4 +76,25 @@ public class MentionsEditTextTest {
         verify(mEditText).setAvoidedPrefix("a");
     }
 
+    @Test
+    public void testLastNameMention() throws Exception {
+        // first name only
+        testMention("Hello FirstName", new TestMention("FirstName"));
+
+        // first+last name
+        testMention("Hello LastName", new TestMention("FirstName LastName"));
+
+        // first+middle+last name
+        testMention("Hello LastName", new TestMention("FirstName MiddleName LastName"));
+    }
+
+    private void testMention(String hello, Mentionable mention) throws Exception {
+        Editable editable = mEditText.getEditableText();
+        editable.append(hello);
+        mEditText.setSelection(hello.length() - 1);
+        mEditText.insertMention(mention);
+
+        // ensure mention does not clobber existing text
+        assertTrue(mEditText.getText().toString().startsWith("Hello "));
+    }
 }

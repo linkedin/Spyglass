@@ -638,11 +638,13 @@ public class MentionsEditText extends EditText implements TokenSource {
             String tokenString = getCurrentTokenString().toLowerCase();
             String[] tsNames = tokenString.split(" ");
             String[] mentionNames = mention.getPrimaryText().split(" ");
-            String firstName = mentionNames[0].toLowerCase();
             for (String tsName : tsNames) {
-                if (firstName.startsWith(tsName)) {
-                    start = initialStart + tokenString.indexOf(tsName);
-                    break;
+                for (String mentionName : mentionNames) {
+                    mentionName = mentionName.toLowerCase();
+                    if (mentionName.startsWith(tsName)) {
+                        start = initialStart + tokenString.indexOf(tsName);
+                        break;
+                    }
                 }
             }
         }
