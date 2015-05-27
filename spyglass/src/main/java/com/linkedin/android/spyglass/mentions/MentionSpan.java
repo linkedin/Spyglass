@@ -26,7 +26,6 @@ import android.widget.EditText;
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.Mentionable.MentionDisplayMode;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
-import com.linkedin.android.spyglass.ui.RichEditorView;
 
 /**
  * Class representing a spannable {@link Mentionable} in an {@link EditText}. This class is
@@ -58,11 +57,15 @@ public class MentionSpan extends ClickableSpan {
     @Override
     public void onClick(View widget) {
 
-        // Get reference to the RichEditor
-        EditText editText = (EditText) widget;
+        if (!(widget instanceof MentionsEditText)) {
+            return;
+        }
+
+        // Get reference to the MentionsEditText
+        MentionsEditText editText = (MentionsEditText) widget;
         Editable text = editText.getText();
-        RichEditorView richEditor = (RichEditorView) widget.getParent();
-        if (richEditor == null || text == null) {
+
+        if (text == null) {
             return;
         }
 
@@ -73,14 +76,14 @@ public class MentionSpan extends ClickableSpan {
         // If we are going to select this span, deselect all others
         boolean isSelected = isSelected();
         if (!isSelected) {
-            richEditor.deselectAllSpans();
+            editText.deselectAllSpans();
         }
 
         // Toggle whether the view is selected
         setSelected(!isSelected());
 
         // Update the span (forces it to redraw)
-        richEditor.updateSpan(this);
+        editText.updateSpan(this);
     }
 
     @Override
