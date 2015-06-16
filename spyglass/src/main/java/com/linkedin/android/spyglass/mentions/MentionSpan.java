@@ -17,6 +17,8 @@ package com.linkedin.android.spyglass.mentions;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
@@ -31,7 +33,7 @@ import com.linkedin.android.spyglass.ui.MentionsEditText;
  * Class representing a spannable {@link Mentionable} in an {@link EditText}. This class is
  * specifically used by the {@link MentionsEditText}.
  */
-public class MentionSpan extends ClickableSpan {
+public class MentionSpan extends ClickableSpan implements Parcelable {
 
     private int NORMAL_TEXT_COLOR;
     private int NORMAL_BG_COLOR;
@@ -137,4 +139,85 @@ public class MentionSpan extends ClickableSpan {
     public void setSelectedBackgroundColor(int color) {
         SELECTED_BG_COLOR = color;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(NORMAL_TEXT_COLOR);
+        dest.writeInt(NORMAL_BG_COLOR);
+        dest.writeInt(SELECTED_TEXT_COLOR);
+        dest.writeInt(SELECTED_BG_COLOR);
+
+        dest.writeInt(getMention().getDeleteStyle().ordinal());
+        dest.writeInt(getDisplayMode().ordinal());
+        dest.writeString(getMention().getTextForDisplayMode(MentionDisplayMode.FULL));
+        dest.writeString(getMention().getTextForDisplayMode(MentionDisplayMode.PARTIAL));
+        dest.writeInt(isSelected() ? 1 : 0);
+        dest.writeInt(getMention().getId());
+        dest.writeString(getMention().getPrimaryText());
+    }
+
+    public MentionSpan(Parcel in) {
+        NORMAL_TEXT_COLOR = in.readInt();
+        NORMAL_BG_COLOR = in.readInt();
+        SELECTED_TEXT_COLOR = in.readInt();
+        SELECTED_BG_COLOR = in.readInt();
+
+        final Mentionable.MentionDeleteStyle deleteStyle = Mentionable.MentionDeleteStyle.values()[in.readInt()];
+        mDisplayMode = MentionDisplayMode.values()[in.readInt()];
+        final String fullDisplayModeText = in.readString();
+        final String partialDisplayModeText = in.readString();
+        setSelected((in.readInt() == 1));
+        final int id = in.readInt();
+        final String primaryText = in.readString();
+
+        mMention = new Mentionable() {
+            @Override
+            public String getTextForDisplayMode(MentionDisplayMode mentionDisplayMode) {
+                String text = "";
+                switch (mentionDisplayMode) {
+                    case FULL:
+                        text = fullDisplayModeText;
+                        break;
+                    case PARTIAL:
+                        text = partialDisplayModeText;
+                        break;
+                    default:
+                        break;
+                }
+
+                return text;
+            }
+
+            @Override
+            public MentionDeleteStyle getDeleteStyle() {
+                return deleteStyle;
+            }
+
+            @Override
+            public int getId() {
+                return id;
+            }
+
+            @Override
+            public String getPrimaryText() {
+                return primaryText;
+            }
+        };
+    }
+
+    public static final Parcelable.Creator<MentionSpan> CREATOR
+            = new Parcelable.Creator<MentionSpan>() {
+        public MentionSpan createFromParcel(Parcel in) {
+            return new MentionSpan(in);
+        }
+
+        public MentionSpan[] newArray(int size) {
+            return new MentionSpan[size];
+        }
+    };
 }

@@ -15,6 +15,8 @@
 package com.linkedin.android.spyglass.ui;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -849,4 +851,55 @@ public class MentionsEditText extends EditText implements TokenSource {
         mAvoidPrefixOnTap = avoidPrefixOnTap;
     }
 
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable parcelable = super.onSaveInstanceState();
+        return new SavedState(parcelable, getMentionsText());
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+        setText(savedState.mentionsEditable);
+    }
+
+    /**
+     * Convenience class to save/restore the MentionsEditable state.
+     */
+    protected static class SavedState extends BaseSavedState {
+        public MentionsEditable mentionsEditable;
+
+        private SavedState(Parcelable superState, MentionsEditable mentionsEditable) {
+            super(superState);
+            this.mentionsEditable = mentionsEditable;
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            mentionsEditable = in.readParcelable(MentionsEditable.class.getClassLoader());
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeParcelable(mentionsEditable, flags);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Creator<SavedState>() {
+
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+    }
 }
