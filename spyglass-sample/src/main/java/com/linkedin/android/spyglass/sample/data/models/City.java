@@ -15,6 +15,8 @@
 package com.linkedin.android.spyglass.sample.data.models;
 
 import android.content.res.Resources;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -72,6 +74,31 @@ public class City implements Mentionable {
     public String getPrimaryText() {
         return mName;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mName);
+    }
+
+    public City(Parcel in) {
+        mName = in.readString();
+    }
+
+    public static final Parcelable.Creator<City> CREATOR
+            = new Parcelable.Creator<City>() {
+        public City createFromParcel(Parcel in) {
+            return new City(in);
+        }
+
+        public City[] newArray(int size) {
+            return new City[size];
+        }
+    };
 
     // --------------------------------------------------
     // CityLoader Class (loads cities from JSON file)

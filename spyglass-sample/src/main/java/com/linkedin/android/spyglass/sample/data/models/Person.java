@@ -15,6 +15,8 @@
 package com.linkedin.android.spyglass.sample.data.models;
 
 import android.content.res.Resources;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -96,6 +98,34 @@ public class Person implements Mentionable {
         return getFullName();
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mFirstName);
+        dest.writeString(mLastName);
+        dest.writeString(mPictureURL);
+    }
+
+    public Person(Parcel in) {
+        mFirstName = in.readString();
+        mLastName = in.readString();
+        mPictureURL = in.readString();
+    }
+
+    public static final Parcelable.Creator<Person> CREATOR
+            = new Parcelable.Creator<Person>() {
+        public Person createFromParcel(Parcel in) {
+            return new Person(in);
+        }
+
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
+    };
 
     // --------------------------------------------------
     // PersonLoader Class (loads people from JSON file)

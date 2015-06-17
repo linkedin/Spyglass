@@ -14,10 +14,13 @@
 
 package com.linkedin.android.spyglass.mentions;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.Selection;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.CharacterStyle;
@@ -32,7 +35,7 @@ import java.util.List;
  * Custom {@link Editable} containing methods specifically regarding mentions in a {@link Spanned} string object. Used
  * specifically within the {@link MentionsEditText}.
  */
-public class MentionsEditable extends SpannableStringBuilder {
+public class MentionsEditable extends SpannableStringBuilder implements Parcelable {
 
     public MentionsEditable(CharSequence text) {
         super(text);
@@ -156,4 +159,47 @@ public class MentionsEditable extends SpannableStringBuilder {
         return null;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(toString());
+        int length = getMentionSpans().size();
+        dest.writeInt(length);
+        if (length > 0) {
+            for (int index = 0; index < length; index++) {
+                MentionSpan span = getMentionSpans().get(index);
+                dest.writeInt(getSpanStart(span));
+                dest.writeInt(getSpanEnd(span));
+                span.writeToParcel(dest, flags);
+            }
+        }
+    }
+
+    public MentionsEditable(Parcel in) {
+        super(in.readString());
+        int length = in.readInt();
+        if (length > 0) {
+            for (int index = 0; index < length; index++) {
+                int start = in.readInt();
+                int end = in.readInt();
+                MentionSpan span = new MentionSpan(in);
+                setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+    }
+
+    public static final Parcelable.Creator<MentionsEditable> CREATOR
+            = new Parcelable.Creator<MentionsEditable>() {
+        public MentionsEditable createFromParcel(Parcel in) {
+            return new MentionsEditable(in);
+        }
+
+        public MentionsEditable[] newArray(int size) {
+            return new MentionsEditable[size];
+        }
+    };
 }
