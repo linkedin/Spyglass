@@ -152,13 +152,9 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
         dest.writeInt(SELECTED_TEXT_COLOR);
         dest.writeInt(SELECTED_BG_COLOR);
 
-        dest.writeInt(getMention().getDeleteStyle().ordinal());
         dest.writeInt(getDisplayMode().ordinal());
-        dest.writeString(getMention().getTextForDisplayMode(MentionDisplayMode.FULL));
-        dest.writeString(getMention().getTextForDisplayMode(MentionDisplayMode.PARTIAL));
         dest.writeInt(isSelected() ? 1 : 0);
-        dest.writeInt(getMention().getId());
-        dest.writeString(getMention().getPrimaryText());
+        dest.writeParcelable(getMention(), flags);
     }
 
     public MentionSpan(Parcel in) {
@@ -167,47 +163,9 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
         SELECTED_TEXT_COLOR = in.readInt();
         SELECTED_BG_COLOR = in.readInt();
 
-        final Mentionable.MentionDeleteStyle deleteStyle = Mentionable.MentionDeleteStyle.values()[in.readInt()];
         mDisplayMode = MentionDisplayMode.values()[in.readInt()];
-        final String fullDisplayModeText = in.readString();
-        final String partialDisplayModeText = in.readString();
         setSelected((in.readInt() == 1));
-        final int id = in.readInt();
-        final String primaryText = in.readString();
-
-        mMention = new Mentionable() {
-            @Override
-            public String getTextForDisplayMode(MentionDisplayMode mentionDisplayMode) {
-                String text = "";
-                switch (mentionDisplayMode) {
-                    case FULL:
-                        text = fullDisplayModeText;
-                        break;
-                    case PARTIAL:
-                        text = partialDisplayModeText;
-                        break;
-                    default:
-                        break;
-                }
-
-                return text;
-            }
-
-            @Override
-            public MentionDeleteStyle getDeleteStyle() {
-                return deleteStyle;
-            }
-
-            @Override
-            public int getId() {
-                return id;
-            }
-
-            @Override
-            public String getPrimaryText() {
-                return primaryText;
-            }
-        };
+        mMention = in.readParcelable(Mentionable.class.getClassLoader());
     }
 
     public static final Parcelable.Creator<MentionSpan> CREATOR
