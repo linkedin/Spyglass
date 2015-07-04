@@ -17,7 +17,7 @@ package com.linkedin.android.spyglass.ui;
 import android.text.Editable;
 import android.view.MotionEvent;
 
-import com.linkedin.android.unittest.SpyglassRobolectricRunner;
+import com.linkedin.android.utils.SpyglassRobolectricRunner;
 
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.TestMention;

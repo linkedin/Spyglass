@@ -17,9 +17,7 @@ package com.linkedin.android.spyglass.mentions;
 import android.annotation.TargetApi;
 import android.text.Spanned;
 import android.text.style.SuggestionSpan;
-
-import com.linkedin.android.unittest.SpyglassRobolectricRunner;
-
+import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

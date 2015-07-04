@@ -35,7 +35,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.MentionsEditable;
@@ -47,6 +46,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Class that overrides {@link EditText} in order to have more control over touch events and selection ranges for use in
@@ -637,12 +637,13 @@ public class MentionsEditText extends EditText implements TokenSource {
 
         if (!isCurrentlyExplicit()) {
             int initialStart = start;
-            String tokenString = getCurrentTokenString().toLowerCase();
+            Locale locale = getContext().getApplicationContext().getResources().getConfiguration().locale;
+            String tokenString = getCurrentTokenString().toLowerCase(locale);
             String[] tsNames = tokenString.split(" ");
             String[] mentionNames = mention.getPrimaryText().split(" ");
             for (String tsName : tsNames) {
                 for (String mentionName : mentionNames) {
-                    mentionName = mentionName.toLowerCase();
+                    mentionName = mentionName.toLowerCase(locale);
                     if (mentionName.startsWith(tsName)) {
                         start = initialStart + tokenString.indexOf(tsName);
                         break;

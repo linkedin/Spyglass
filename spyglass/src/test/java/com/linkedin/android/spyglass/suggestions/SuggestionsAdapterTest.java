@@ -20,7 +20,7 @@ import com.linkedin.android.spyglass.tokenization.QueryToken;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 import com.linkedin.android.spyglass.ui.RichEditorView;
 import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
-import com.linkedin.android.unittest.SpyglassRobolectricRunner;
+import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import com.linkedin.android.utils.TestUtils;
 
 import org.junit.Before;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.linkedin.android.unittest.SpyglassRobolectricRunner.startFragment;
+import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 
 @Config(emulateSdk = 18)

@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+1.1.1 *(2015-07-04)*
+--------------------------
+ * updated dependencies and minor bugs fixes
+
 1.1.0 *(2015-06-17)*
 --------------------------
  * support saving/restoring mentions in onSaveInstanceState/onRestoreInstanceState
