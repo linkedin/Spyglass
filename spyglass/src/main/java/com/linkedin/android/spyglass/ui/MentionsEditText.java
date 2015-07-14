@@ -744,8 +744,10 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         @Override
-        public Editable newEditable(CharSequence source) {
-            return new MentionsEditable(source);
+        public Editable newEditable(@NonNull CharSequence source) {
+            MentionsEditable text = new MentionsEditable(source);
+            Selection.setSelection(text, 0);
+            return text;
         }
     }
 

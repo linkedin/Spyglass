@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -74,6 +75,13 @@ public class MentionsEditTextTest {
         doReturn("a").when(mEditText).getCurrentKeywordsString();
         mEditText.onTouchEvent(event);
         verify(mEditText).setAvoidedPrefix("a");
+    }
+
+    @Test
+    public void testSelectionAtIndexZeroOnInit() {
+        MentionsEditText editText = new MentionsEditText(Robolectric.application);
+        assertEquals(0, editText.getSelectionStart());
+        assertEquals(0, editText.getSelectionEnd());
     }
 
     @Test
