@@ -60,7 +60,7 @@ public class MentionsEditText extends EditText implements TokenSource {
 
     private List<TextWatcher> mExternalTextWatchers;
     private final MyWatcher mInternalTextWatcher = new MyWatcher();
-    private final Object mTextWatcherLock = new Object();
+    private boolean mBlockCompletion = false;
     private boolean mIsWatchingText = false;
     private boolean mAvoidPrefixOnTap = false;
     private String mAvoidedPrefix;
@@ -124,7 +124,6 @@ public class MentionsEditText extends EditText implements TokenSource {
     @Override
     @Nullable
     public QueryToken getQueryTokenIfValid() {
-
         if (mTokenizer == null) {
             return null;
         }
@@ -138,6 +137,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         if (!mTokenizer.isValidMention(text, start, end)) {
             return null;
         }
+
         String tokenString = text.subSequence(start, end).toString();
         char firstChar = tokenString.charAt(0);
         boolean isExplicit = mTokenizer.isExplicitChar(tokenString.charAt(0));
@@ -259,7 +259,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     @Override
     protected void onSelectionChanged(final int selStart, final int selEnd) {
-
         // Handle case where there is only one cursor (i.e. not selecting a range, just moving cursor)
         if (selStart == selEnd) {
             if (!onCursorChanged(selStart)) {
@@ -267,7 +266,6 @@ public class MentionsEditText extends EditText implements TokenSource {
             }
             return;
         }
-
         super.onSelectionChanged(selStart, selEnd);
     }
 
@@ -321,6 +319,9 @@ public class MentionsEditText extends EditText implements TokenSource {
          */
         @Override
         public void beforeTextChanged(CharSequence text, int start, int before, int after) {
+            if (mBlockCompletion) {
+                return;
+            }
 
             // Mark a span for deletion later if necessary
             markSpans(start, before, after);
@@ -334,6 +335,10 @@ public class MentionsEditText extends EditText implements TokenSource {
          */
         @Override
         public void onTextChanged(CharSequence text, int start, int before, int after) {
+            if (mBlockCompletion) {
+                return;
+            }
+
             // Call any watchers for text changes
             sendOnTextChanged(text, start, before, after);
         }
@@ -343,25 +348,22 @@ public class MentionsEditText extends EditText implements TokenSource {
          */
         @Override
         public void afterTextChanged(Editable text) {
-            if (text == null) {
+            if (mBlockCompletion || text == null) {
                 return;
             }
 
-            synchronized (mTextWatcherLock) {
-                // Detach the TextWatcher to prevent infinite loops
-                // (i.e. changing text here would call afterTextChanged again)
-                detachTextWatcher();
-                // Handle the change in text
-                // We can freely modify the text here
-                handleTextChanged(text);
-                // Allow class to listen for changes to the text again
-                attachTextWatcher();
-            }
+            // Block text change handling while we're changing the text (otherwise, may cause infinite loop)
+            mBlockCompletion = true;
+
+            // Handle the change in text (can modify it freely here)
+            handleTextChanged(text);
+
+            // Allow class to listen for changes to the text again
+            mBlockCompletion = false;
 
             // Call any watchers for text changes after we have handled it
             sendAfterTextChanged(text);
         }
-
     }
 
     /**
@@ -425,7 +427,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param after length of affected text after change
      */
     private void markSpans(int start, int count, int after) {
-
         int cursor = getSelectionStart();
         MentionsEditable text = getMentionsText();
         MentionSpan prevSpan = text.getMentionSpanEndingAt(cursor);
@@ -459,7 +460,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param text the {@link Editable} that has changed
      */
     private void handleTextChanged(Editable text) {
-
         // Ensure that the text in all the MentionSpans remains unchanged
         ensureMentionSpanIntegrity(text);
 
@@ -540,24 +540,9 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         // Reset input method if spans have been changed (updates suggestions)
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null && spanAltered) {
-            imm.restartInput(this);
+        if (spanAltered) {
+            restartInput();
         }
-    }
-
-    /**
-     * Attaches internal text watcher to intercept changes.
-     */
-    private void attachTextWatcher() {
-        addTextChangedListener(mInternalTextWatcher);
-    }
-
-    /**
-     * Removes internal text watcher.
-     */
-    private void detachTextWatcher() {
-        removeTextChangedListener(mInternalTextWatcher);
     }
 
     // --------------------------------------------------
@@ -585,7 +570,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param span the {@link MentionSpan} to update
      */
     public void updateSpan(MentionSpan span) {
-        detachTextWatcher();
+        mBlockCompletion = true;
         Editable text = getText();
         int start = text.getSpanStart(span);
         int end = text.getSpanEnd(span);
@@ -593,14 +578,14 @@ public class MentionsEditText extends EditText implements TokenSource {
             text.removeSpan(span);
             text.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        attachTextWatcher();
+        mBlockCompletion = false;
     }
 
     /**
      * Deselects any spans in the editor that are currently selected.
      */
     public void deselectAllSpans() {
-        detachTextWatcher();
+        mBlockCompletion = true;
         Editable text = getText();
         MentionSpan[] spans = text.getSpans(0, text.length(), MentionSpan.class);
         for (MentionSpan span : spans) {
@@ -609,7 +594,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                 updateSpan(span);
             }
         }
-        attachTextWatcher();
+        mBlockCompletion = false;
     }
 
     /**
@@ -618,7 +603,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param mention {@link Mentionable} to insert a span for
      */
     public void insertMention(Mentionable mention) {
-
         if (mTokenizer == null) {
             return;
         }
@@ -634,7 +618,6 @@ public class MentionsEditText extends EditText implements TokenSource {
 
         // Must ensure that the starting index to insert the span matches the name of the mention if implicit
         // Note: If explicit, then do not change the start index (must replace the explicit character)
-
         if (!isCurrentlyExplicit()) {
             int initialStart = start;
             Locale locale = getContext().getApplicationContext().getResources().getConfiguration().locale;
@@ -656,12 +639,12 @@ public class MentionsEditText extends EditText implements TokenSource {
         MentionSpan mentionSpan = new MentionSpan(getContext(), mention);
         String name = mention.getPrimaryText();
 
-        detachTextWatcher();
+        mBlockCompletion = true;
         text.replace(start, end, name);
         text.setSpan(mentionSpan, start, start + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         Selection.setSelection(text, start + name.length());
         ensureMentionSpanIntegrity(text);
-        attachTextWatcher();
+        mBlockCompletion = false;
 
         // Hide the suggestions and clear adapter
         if (mSuggestionsVisibilityManager != null) {
@@ -669,10 +652,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         // Reset input method since text has been changed (updates mention draw states)
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.restartInput(this);
-        }
+        restartInput();
     }
 
     /**
@@ -730,6 +710,20 @@ public class MentionsEditText extends EditText implements TokenSource {
             }
         }
 
+    }
+
+    // --------------------------------------------------
+    // Private Helper Methods
+    // --------------------------------------------------
+
+    /**
+     * Simple helper function to restart input on the {@link InputMethodManager}
+     */
+    private void restartInput() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.restartInput(this);
+        }
     }
 
     // --------------------------------------------------
@@ -851,6 +845,10 @@ public class MentionsEditText extends EditText implements TokenSource {
     public void setAvoidPrefixOnTap(boolean avoidPrefixOnTap) {
         mAvoidPrefixOnTap = avoidPrefixOnTap;
     }
+
+    // --------------------------------------------------
+    // Save & Restore State
+    // --------------------------------------------------
 
     @Override
     public Parcelable onSaveInstanceState() {

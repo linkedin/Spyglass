@@ -37,12 +37,25 @@ import java.util.List;
  */
 public class MentionsEditable extends SpannableStringBuilder implements Parcelable {
 
-    public MentionsEditable(CharSequence text) {
+    public MentionsEditable(@NonNull CharSequence text) {
         super(text);
     }
 
-    public MentionsEditable(CharSequence text, int start, int end) {
+    public MentionsEditable(@NonNull CharSequence text, int start, int end) {
         super(text, start, end);
+    }
+
+    public MentionsEditable(@NonNull Parcel in) {
+        super(in.readString());
+        int length = in.readInt();
+        if (length > 0) {
+            for (int index = 0; index < length; index++) {
+                int start = in.readInt();
+                int end = in.readInt();
+                MentionSpan span = new MentionSpan(in);
+                setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
     }
 
     // --------------------------------------------------
@@ -175,19 +188,6 @@ public class MentionsEditable extends SpannableStringBuilder implements Parcelab
                 dest.writeInt(getSpanStart(span));
                 dest.writeInt(getSpanEnd(span));
                 span.writeToParcel(dest, flags);
-            }
-        }
-    }
-
-    public MentionsEditable(Parcel in) {
-        super(in.readString());
-        int length = in.readInt();
-        if (length > 0) {
-            for (int index = 0; index < length; index++) {
-                int start = in.readInt();
-                int end = in.readInt();
-                MentionSpan span = new MentionSpan(in);
-                setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
     }
