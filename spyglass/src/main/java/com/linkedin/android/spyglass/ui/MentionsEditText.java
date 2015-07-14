@@ -58,9 +58,10 @@ public class MentionsEditText extends EditText implements TokenSource {
     private QueryTokenReceiver mQueryTokenReceiver;
     private SuggestionsVisibilityManager mSuggestionsVisibilityManager;
 
+    private List<MentionWatcher> mMentionWatchers;
     private List<TextWatcher> mExternalTextWatchers;
     private final MyWatcher mInternalTextWatcher = new MyWatcher();
-    private final Object mTextWatcherLock = new Object();
+    private boolean mBlockCompletion = false;
     private boolean mIsWatchingText = false;
     private boolean mAvoidPrefixOnTap = false;
     private String mAvoidedPrefix;
@@ -124,7 +125,6 @@ public class MentionsEditText extends EditText implements TokenSource {
     @Override
     @Nullable
     public QueryToken getQueryTokenIfValid() {
-
         if (mTokenizer == null) {
             return null;
         }
@@ -138,6 +138,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         if (!mTokenizer.isValidMention(text, start, end)) {
             return null;
         }
+
         String tokenString = text.subSequence(start, end).toString();
         char firstChar = tokenString.charAt(0);
         boolean isExplicit = mTokenizer.isExplicitChar(tokenString.charAt(0));
@@ -259,7 +260,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     @Override
     protected void onSelectionChanged(final int selStart, final int selEnd) {
-
         // Handle case where there is only one cursor (i.e. not selecting a range, just moving cursor)
         if (selStart == selEnd) {
             if (!onCursorChanged(selStart)) {
@@ -267,7 +267,6 @@ public class MentionsEditText extends EditText implements TokenSource {
             }
             return;
         }
-
         super.onSelectionChanged(selStart, selEnd);
     }
 
@@ -321,6 +320,9 @@ public class MentionsEditText extends EditText implements TokenSource {
          */
         @Override
         public void beforeTextChanged(CharSequence text, int start, int before, int after) {
+            if (mBlockCompletion) {
+                return;
+            }
 
             // Mark a span for deletion later if necessary
             markSpans(start, before, after);
@@ -334,6 +336,10 @@ public class MentionsEditText extends EditText implements TokenSource {
          */
         @Override
         public void onTextChanged(CharSequence text, int start, int before, int after) {
+            if (mBlockCompletion) {
+                return;
+            }
+
             // Call any watchers for text changes
             sendOnTextChanged(text, start, before, after);
         }
@@ -343,75 +349,21 @@ public class MentionsEditText extends EditText implements TokenSource {
          */
         @Override
         public void afterTextChanged(Editable text) {
-            if (text == null) {
+            if (mBlockCompletion || text == null) {
                 return;
             }
 
-            synchronized (mTextWatcherLock) {
-                // Detach the TextWatcher to prevent infinite loops
-                // (i.e. changing text here would call afterTextChanged again)
-                detachTextWatcher();
-                // Handle the change in text
-                // We can freely modify the text here
-                handleTextChanged(text);
-                // Allow class to listen for changes to the text again
-                attachTextWatcher();
-            }
+            // Block text change handling while we're changing the text (otherwise, may cause infinite loop)
+            mBlockCompletion = true;
+
+            // Handle the change in text (can modify it freely here)
+            handleTextChanged(text);
+
+            // Allow class to listen for changes to the text again
+            mBlockCompletion = false;
 
             // Call any watchers for text changes after we have handled it
             sendAfterTextChanged(text);
-        }
-
-    }
-
-    /**
-     * Notify external text watchers that the text is about to change.
-     * See {@link TextWatcher#beforeTextChanged(CharSequence, int, int, int)}.
-     */
-    private void sendBeforeTextChanged(CharSequence text, int start, int before, int after) {
-        if (mExternalTextWatchers != null) {
-            final List<TextWatcher> list = mExternalTextWatchers;
-            final int count = list.size();
-            for (int i = 0; i < count; i++) {
-                TextWatcher watcher = list.get(i);
-                if (watcher != this) {
-                    watcher.beforeTextChanged(text, start, before, after);
-                }
-            }
-        }
-    }
-
-    /**
-     * Notify external text watchers that the text is changing.
-     * See {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}.
-     */
-    private void sendOnTextChanged(CharSequence text, int start, int before, int after) {
-        if (mExternalTextWatchers != null) {
-            final List<TextWatcher> list = mExternalTextWatchers;
-            final int count = list.size();
-            for (int i = 0; i < count; i++) {
-                TextWatcher watcher = list.get(i);
-                if (watcher != this) {
-                    watcher.onTextChanged(text, start, before, after);
-                }
-            }
-        }
-    }
-
-    /**
-     * Notify external text watchers that the text has changed.
-     * See {@link TextWatcher#afterTextChanged(Editable)}.
-     */
-    private void sendAfterTextChanged(Editable text) {
-        if (mExternalTextWatchers != null) {
-            final List<TextWatcher> list = mExternalTextWatchers;
-            final int count = list.size();
-            for (int i = 0; i < count; i++) {
-                TextWatcher watcher = list.get(i);
-                if (watcher != this) {
-                    watcher.afterTextChanged(text);
-                }
-            }
         }
     }
 
@@ -425,7 +377,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param after length of affected text after change
      */
     private void markSpans(int start, int count, int after) {
-
         int cursor = getSelectionStart();
         MentionsEditable text = getMentionsText();
         MentionSpan prevSpan = text.getMentionSpanEndingAt(cursor);
@@ -459,7 +410,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param text the {@link Editable} that has changed
      */
     private void handleTextChanged(Editable text) {
-
         // Ensure that the text in all the MentionSpans remains unchanged
         ensureMentionSpanIntegrity(text);
 
@@ -531,8 +481,13 @@ public class MentionsEditText extends EditText implements TokenSource {
                 case NONE:
                 default:
                     // Mention with DisplayMode == NONE should be deleted from the text
+                    boolean hasListeners = mMentionWatchers.size() > 0;
+                    final String textBeforeDelete = hasListeners ? text.toString() : null;
                     text.delete(start, end);
                     setSelection(start);
+                    if (hasListeners) {
+                        notifyMentionDeletedWatchers(span.getMention(), textBeforeDelete, start, end);
+                    }
                     spanAltered = true;
                     break;
 
@@ -540,24 +495,9 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         // Reset input method if spans have been changed (updates suggestions)
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null && spanAltered) {
-            imm.restartInput(this);
+        if (spanAltered) {
+            restartInput();
         }
-    }
-
-    /**
-     * Attaches internal text watcher to intercept changes.
-     */
-    private void attachTextWatcher() {
-        addTextChangedListener(mInternalTextWatcher);
-    }
-
-    /**
-     * Removes internal text watcher.
-     */
-    private void detachTextWatcher() {
-        removeTextChangedListener(mInternalTextWatcher);
     }
 
     // --------------------------------------------------
@@ -585,7 +525,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param span the {@link MentionSpan} to update
      */
     public void updateSpan(MentionSpan span) {
-        detachTextWatcher();
+        mBlockCompletion = true;
         Editable text = getText();
         int start = text.getSpanStart(span);
         int end = text.getSpanEnd(span);
@@ -593,14 +533,14 @@ public class MentionsEditText extends EditText implements TokenSource {
             text.removeSpan(span);
             text.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        attachTextWatcher();
+        mBlockCompletion = false;
     }
 
     /**
      * Deselects any spans in the editor that are currently selected.
      */
     public void deselectAllSpans() {
-        detachTextWatcher();
+        mBlockCompletion = true;
         Editable text = getText();
         MentionSpan[] spans = text.getSpans(0, text.length(), MentionSpan.class);
         for (MentionSpan span : spans) {
@@ -609,7 +549,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                 updateSpan(span);
             }
         }
-        attachTextWatcher();
+        mBlockCompletion = false;
     }
 
     /**
@@ -618,7 +558,6 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param mention {@link Mentionable} to insert a span for
      */
     public void insertMention(Mentionable mention) {
-
         if (mTokenizer == null) {
             return;
         }
@@ -634,7 +573,6 @@ public class MentionsEditText extends EditText implements TokenSource {
 
         // Must ensure that the starting index to insert the span matches the name of the mention if implicit
         // Note: If explicit, then do not change the start index (must replace the explicit character)
-
         if (!isCurrentlyExplicit()) {
             int initialStart = start;
             Locale locale = getContext().getApplicationContext().getResources().getConfiguration().locale;
@@ -656,12 +594,18 @@ public class MentionsEditText extends EditText implements TokenSource {
         MentionSpan mentionSpan = new MentionSpan(getContext(), mention);
         String name = mention.getPrimaryText();
 
-        detachTextWatcher();
+        mBlockCompletion = true;
         text.replace(start, end, name);
-        text.setSpan(mentionSpan, start, start + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        Selection.setSelection(text, start + name.length());
+        int endOfMention = start + name.length();
+        text.setSpan(mentionSpan, start, endOfMention, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        Selection.setSelection(text, endOfMention);
         ensureMentionSpanIntegrity(text);
-        attachTextWatcher();
+        mBlockCompletion = false;
+
+        // Notify listeners of added mention
+        if (mMentionWatchers.size() > 0) {
+            notifyMentionAddedWatchers(mention, text.toString(), start, endOfMention);
+        }
 
         // Hide the suggestions and clear adapter
         if (mSuggestionsVisibilityManager != null) {
@@ -669,10 +613,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         // Reset input method since text has been changed (updates mention draw states)
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.restartInput(this);
-        }
+        restartInput();
     }
 
     /**
@@ -732,6 +673,102 @@ public class MentionsEditText extends EditText implements TokenSource {
 
     }
 
+    /**
+     * Register a {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} in order to receive callbacks
+     * when mentions are changed.
+     *
+     * @param watcher the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} to add
+     */
+    public void addMentionWatcher(@NonNull MentionWatcher watcher) {
+        if (!mMentionWatchers.contains(watcher)) {
+            mMentionWatchers.add(watcher);
+        }
+    }
+
+    /**
+     * Remove a {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} from receiving anymore callbacks
+     * when mentions are changed.
+     *
+     * @param watcher the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} to remove
+     */
+    public void removeMentionWatcher(@NonNull MentionWatcher watcher) {
+        mMentionWatchers.remove(watcher);
+    }
+
+    // --------------------------------------------------
+    // Private Helper Methods
+    // --------------------------------------------------
+
+    private void restartInput() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.restartInput(this);
+        }
+    }
+
+    /**
+     * Notify external text watchers that the text is about to change.
+     * See {@link TextWatcher#beforeTextChanged(CharSequence, int, int, int)}.
+     */
+    private void sendBeforeTextChanged(CharSequence text, int start, int before, int after) {
+        if (mExternalTextWatchers != null) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                if (watcher != this) {
+                    watcher.beforeTextChanged(text, start, before, after);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notify external text watchers that the text is changing.
+     * See {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}.
+     */
+    private void sendOnTextChanged(CharSequence text, int start, int before, int after) {
+        if (mExternalTextWatchers != null) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                if (watcher != this) {
+                    watcher.onTextChanged(text, start, before, after);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notify external text watchers that the text has changed.
+     * See {@link TextWatcher#afterTextChanged(Editable)}.
+     */
+    private void sendAfterTextChanged(Editable text) {
+        if (mExternalTextWatchers != null) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                if (watcher != this) {
+                    watcher.afterTextChanged(text);
+                }
+            }
+        }
+    }
+
+    private void notifyMentionAddedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
+        for (MentionWatcher watcher : mMentionWatchers) {
+            watcher.onMentionAdded(mention, text, start, end);
+        }
+    }
+
+    private void notifyMentionDeletedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
+        for (MentionWatcher watcher : mMentionWatchers) {
+            watcher.onMentionDeleted(mention, text, start, end);
+        }
+    }
+
     // --------------------------------------------------
     // MentionsEditable Factory
     // --------------------------------------------------
@@ -750,8 +787,10 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         @Override
-        public Editable newEditable(CharSequence source) {
-            return new MentionsEditable(source);
+        public Editable newEditable(@NonNull CharSequence source) {
+            MentionsEditable text = new MentionsEditable(source);
+            Selection.setSelection(text, 0);
+            return text;
         }
     }
 
@@ -852,6 +891,10 @@ public class MentionsEditText extends EditText implements TokenSource {
         mAvoidPrefixOnTap = avoidPrefixOnTap;
     }
 
+    // --------------------------------------------------
+    // Save & Restore State
+    // --------------------------------------------------
+
     @Override
     public Parcelable onSaveInstanceState() {
         Parcelable parcelable = super.onSaveInstanceState();
@@ -887,7 +930,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         @Override
-        public void writeToParcel(Parcel dest, int flags) {
+        public void writeToParcel(@NonNull Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
             dest.writeParcelable(mentionsEditable, flags);
         }
@@ -902,5 +945,46 @@ public class MentionsEditText extends EditText implements TokenSource {
                 return new SavedState[size];
             }
         };
+    }
+
+    // --------------------------------------------------
+    // MentionWatcher Interface & Simple Implementation
+    // --------------------------------------------------
+
+    /**
+     * Interface to receive a callback for mention events.
+     */
+    public interface MentionWatcher {
+        /**
+         * Callback for when a mention is added.
+         *
+         * @param mention   the {@link Mentionable} that was added
+         * @param text      the text after the mention was added
+         * @param start     the starting index of where the mention was added
+         * @param end       the ending index of where the mention was added
+         */
+        void onMentionAdded(@NonNull Mentionable mention, @NonNull String text, int start, int end);
+
+        /**
+         * Callback for when a mention is deleted.
+         *
+         * @param mention   the {@link Mentionable} that was deleted
+         * @param text      the text before the mention was deleted
+         * @param start     the starting index of where the mention was deleted
+         * @param end       the ending index of where the mention was deleted
+         */
+        void onMentionDeleted(@NonNull Mentionable mention, @NonNull String text, int start, int end);
+    }
+
+    /**
+     * Simple implementation of the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} interface
+     * if you do not want to implement all methods.
+     */
+    public class SimpleMentionWatcher implements MentionWatcher {
+        @Override
+        public void onMentionAdded(@NonNull Mentionable mention, @NonNull String text, int start, int end) {}
+
+        @Override
+        public void onMentionDeleted(@NonNull Mentionable mention, @NonNull String text, int start, int end) {}
     }
 }
