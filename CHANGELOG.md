@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+1.1.2 *(2015-07-14)*
+--------------------------
+ * major bug fix for cursor not appearing initially
+ * added MentionWatcher interface
+
 1.1.1 *(2015-07-04)*
 --------------------------
  * updated dependencies and minor bugs fixes
