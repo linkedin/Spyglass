@@ -58,8 +58,8 @@ public class MentionsEditText extends EditText implements TokenSource {
     private QueryTokenReceiver mQueryTokenReceiver;
     private SuggestionsVisibilityManager mSuggestionsVisibilityManager;
 
-    private List<MentionWatcher> mMentionWatchers;
-    private List<TextWatcher> mExternalTextWatchers;
+    private List<MentionWatcher> mMentionWatchers = new ArrayList<>();
+    private List<TextWatcher> mExternalTextWatchers = new ArrayList<>();
     private final MyWatcher mInternalTextWatcher = new MyWatcher();
     private boolean mBlockCompletion = false;
     private boolean mIsWatchingText = false;
@@ -641,9 +641,6 @@ public class MentionsEditText extends EditText implements TokenSource {
                 mIsWatchingText = true;
             }
         } else {
-            if (mExternalTextWatchers == null) {
-                mExternalTextWatchers = new ArrayList<>();
-            }
             mExternalTextWatchers.add(watcher);
         }
     }
@@ -663,14 +660,8 @@ public class MentionsEditText extends EditText implements TokenSource {
             }
         } else {
             // Other watchers are added
-            if (mExternalTextWatchers != null) {
-                int i = mExternalTextWatchers.indexOf(watcher);
-                if (i >= 0) {
-                    mExternalTextWatchers.remove(i);
-                }
-            }
+            mExternalTextWatchers.remove(watcher);
         }
-
     }
 
     /**
@@ -711,14 +702,12 @@ public class MentionsEditText extends EditText implements TokenSource {
      * See {@link TextWatcher#beforeTextChanged(CharSequence, int, int, int)}.
      */
     private void sendBeforeTextChanged(CharSequence text, int start, int before, int after) {
-        if (mExternalTextWatchers != null) {
-            final List<TextWatcher> list = mExternalTextWatchers;
-            final int count = list.size();
-            for (int i = 0; i < count; i++) {
-                TextWatcher watcher = list.get(i);
-                if (watcher != this) {
-                    watcher.beforeTextChanged(text, start, before, after);
-                }
+        final List<TextWatcher> list = mExternalTextWatchers;
+        final int count = list.size();
+        for (int i = 0; i < count; i++) {
+            TextWatcher watcher = list.get(i);
+            if (watcher != this) {
+                watcher.beforeTextChanged(text, start, before, after);
             }
         }
     }
@@ -728,14 +717,12 @@ public class MentionsEditText extends EditText implements TokenSource {
      * See {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}.
      */
     private void sendOnTextChanged(CharSequence text, int start, int before, int after) {
-        if (mExternalTextWatchers != null) {
-            final List<TextWatcher> list = mExternalTextWatchers;
-            final int count = list.size();
-            for (int i = 0; i < count; i++) {
-                TextWatcher watcher = list.get(i);
-                if (watcher != this) {
-                    watcher.onTextChanged(text, start, before, after);
-                }
+        final List<TextWatcher> list = mExternalTextWatchers;
+        final int count = list.size();
+        for (int i = 0; i < count; i++) {
+            TextWatcher watcher = list.get(i);
+            if (watcher != this) {
+                watcher.onTextChanged(text, start, before, after);
             }
         }
     }
@@ -745,14 +732,12 @@ public class MentionsEditText extends EditText implements TokenSource {
      * See {@link TextWatcher#afterTextChanged(Editable)}.
      */
     private void sendAfterTextChanged(Editable text) {
-        if (mExternalTextWatchers != null) {
-            final List<TextWatcher> list = mExternalTextWatchers;
-            final int count = list.size();
-            for (int i = 0; i < count; i++) {
-                TextWatcher watcher = list.get(i);
-                if (watcher != this) {
-                    watcher.afterTextChanged(text);
-                }
+        final List<TextWatcher> list = mExternalTextWatchers;
+        final int count = list.size();
+        for (int i = 0; i < count; i++) {
+            TextWatcher watcher = list.get(i);
+            if (watcher != this) {
+                watcher.afterTextChanged(text);
             }
         }
     }
