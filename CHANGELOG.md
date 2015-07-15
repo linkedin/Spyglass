@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+1.1.3 *(2015-07-14)*
+--------------------------
+ * fix NPE when inserting mention with MentionWatchers interface
+
 1.1.2 *(2015-07-14)*
 --------------------------
  * major bug fix for cursor not appearing initially
