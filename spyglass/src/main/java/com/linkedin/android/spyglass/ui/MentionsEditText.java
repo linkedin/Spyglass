@@ -29,6 +29,7 @@ import android.text.TextWatcher;
 import android.text.method.ArrowKeyMovementMethod;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
+import android.text.style.SuggestionSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -325,7 +326,12 @@ public class MentionsEditText extends EditText implements TokenSource {
             }
 
             // Mark a span for deletion later if necessary
-            markSpans(start, before, after);
+            boolean changed = markSpans(before, after);
+
+            // If necessary, temporarily remove any MentionSpans that could potentially interfere with composing text
+            if (!changed) {
+                replaceMentionSpansWithPlaceholdersAsNecessary(text);
+            }
 
             // Call any watchers for text changes
             sendBeforeTextChanged(text, start, before, after);
@@ -356,8 +362,13 @@ public class MentionsEditText extends EditText implements TokenSource {
             // Block text change handling while we're changing the text (otherwise, may cause infinite loop)
             mBlockCompletion = true;
 
+            replacePlaceholdersWithCorrespondingMentionSpans(text);
+
+            // Ensure that the text in all the MentionSpans remains unchanged
+            ensureMentionSpanIntegrity(text);
+
             // Handle the change in text (can modify it freely here)
-            handleTextChanged(text);
+            handleTextChanged();
 
             // Allow class to listen for changes to the text again
             mBlockCompletion = false;
@@ -370,13 +381,14 @@ public class MentionsEditText extends EditText implements TokenSource {
     /**
      * Marks a span for deletion later if necessary by checking if the last character in a MentionSpan
      * is deleted by this change. If so, mark the span to be deleted later when
-     * {@link #ensureMentionSpanIntegrity(Editable)} is called in {@link #handleTextChanged(Editable)}.
+     * {@link #ensureMentionSpanIntegrity(Editable)} is called in {@link #handleTextChanged()}.
      *
-     * @param start int index in text where change begins
      * @param count length of affected text before change starting at start in text
      * @param after length of affected text after change
+     *
+     * @return  true if there is a span before the cursor that is going to change state
      */
-    private void markSpans(int start, int count, int after) {
+    private boolean markSpans(int count, int after) {
         int cursor = getSelectionStart();
         MentionsEditable text = getMentionsText();
         MentionSpan prevSpan = text.getMentionSpanEndingAt(cursor);
@@ -400,44 +412,59 @@ public class MentionsEditText extends EditText implements TokenSource {
                 // Span was not selected, so select it
                 prevSpan.setSelected(true);
             }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Temporarily remove MentionSpans that may interfere with composing text. Note that software keyboards are allowed
+     * to place arbitrary spans over the text. This was resulting in several bugs in edge cases while handling the
+     * MentionSpans while composing text (with different issues for different keyboards). The easiest solution for this
+     * is to remove any MentionSpans that could cause issues while the user is changing text.
+     *
+     * Note: The MentionSpans are added again in {@link #replacePlaceholdersWithCorrespondingMentionSpans(Editable)}
+     *
+     * @param text the current text before it changes
+     */
+    private void replaceMentionSpansWithPlaceholdersAsNecessary(@NonNull CharSequence text) {
+        int index = getSelectionStart();
+        int wordStart = index;
+        while (wordStart > 0 && mTokenizer != null && !mTokenizer.isWordBreakingChar(text.charAt(wordStart - 1))) {
+            wordStart--;
+        }
+        Editable editable = getText();
+        MentionSpan[] mentionSpansInCurrentWord = editable.getSpans(wordStart, index, MentionSpan.class);
+        for (MentionSpan span : mentionSpansInCurrentWord) {
+            if (span.getDisplayMode() != Mentionable.MentionDisplayMode.NONE) {
+                int spanStart = editable.getSpanStart(span);
+                int spanEnd = editable.getSpanEnd(span);
+                editable.setSpan(new PlaceholderSpan(span),
+                                 spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+                editable.removeSpan(span);
+            }
         }
     }
 
     /**
-     * Called after the {@link Editable} text within the {@link EditText} has been changed. Note that
-     * editing text in this function is guaranteed to be safe and not cause an infinite loop.
+     * Replaces any {@link com.linkedin.android.spyglass.ui.MentionsEditText.PlaceholderSpan} within the given text with
+     * the {@link MentionSpan} it contains.
      *
-     * @param text the {@link Editable} that has changed
+     * Note: These PlaceholderSpans are added in {@link #replaceMentionSpansWithPlaceholdersAsNecessary(CharSequence)}
+     *
+     * @param text the final version of the text after it was changed
      */
-    private void handleTextChanged(Editable text) {
-        // Ensure that the text in all the MentionSpans remains unchanged
-        ensureMentionSpanIntegrity(text);
-
-        // Ignore requests if the last word in keywords is prefixed by the currently avoided prefix
-        if (mAvoidedPrefix != null) {
-            String[] keywords = getCurrentKeywordsString().split(" ");
-            // Add null and length check to avoid the ArrayIndexOutOfBoundsException
-            if (keywords.length == 0) {
-                return;
-            }
-            String lastKeyword = keywords[keywords.length - 1];
-            if (lastKeyword.startsWith(mAvoidedPrefix)) {
-                return;
-            } else {
-                setAvoidedPrefix(null);
-            }
-        }
-
-        // Request suggestions from the QueryClient
-        QueryToken queryToken = getQueryTokenIfValid();
-        if (queryToken != null && mQueryTokenReceiver != null) {
-            // Valid token, so send query to the app for processing
-            mQueryTokenReceiver.onQueryReceived(queryToken);
-        } else {
-            // Ensure that the suggestions are hidden
-            if (mSuggestionsVisibilityManager != null) {
-                mSuggestionsVisibilityManager.displaySuggestions(false);
-            }
+    private void replacePlaceholdersWithCorrespondingMentionSpans(@NonNull Editable text) {
+        PlaceholderSpan[] tempSpans = text.getSpans(0, text.length(), PlaceholderSpan.class);
+        for (PlaceholderSpan span : tempSpans) {
+            int spanStart = text.getSpanStart(span);
+            String mentionDisplayString = span.holder.getDisplayString();
+            int end = Math.min(spanStart + mentionDisplayString.length(), text.length());
+            text.replace(spanStart, end, mentionDisplayString);
+            text.setSpan(span.holder, spanStart, spanStart + mentionDisplayString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.removeSpan(span);
         }
     }
 
@@ -468,8 +495,13 @@ public class MentionsEditText extends EditText implements TokenSource {
                     if (!name.equals(spanText) && start >= 0 && start < end && end <= text.length()) {
                         // Mention display name does not match what is being shown,
                         // replace text in span with proper display name
+                        int cursor = getSelectionStart();
+                        int diff = cursor - end;
                         text.removeSpan(span);
                         text.replace(start, end, name);
+                        if (diff > 0) {
+                            text.replace(start + end, start + end + diff, "");
+                        }
                         if (name.length() > 0) {
                             text.setSpan(span, start, start + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
@@ -497,6 +529,39 @@ public class MentionsEditText extends EditText implements TokenSource {
         // Reset input method if spans have been changed (updates suggestions)
         if (spanAltered) {
             restartInput();
+        }
+    }
+
+    /**
+     * Called after the {@link Editable} text within the {@link EditText} has been changed. Note that
+     * editing text in this function is guaranteed to be safe and not cause an infinite loop.
+     */
+    private void handleTextChanged() {
+        // Ignore requests if the last word in keywords is prefixed by the currently avoided prefix
+        if (mAvoidedPrefix != null) {
+            String[] keywords = getCurrentKeywordsString().split(" ");
+            // Add null and length check to avoid the ArrayIndexOutOfBoundsException
+            if (keywords.length == 0) {
+                return;
+            }
+            String lastKeyword = keywords[keywords.length - 1];
+            if (lastKeyword.startsWith(mAvoidedPrefix)) {
+                return;
+            } else {
+                setAvoidedPrefix(null);
+            }
+        }
+
+        // Request suggestions from the QueryClient
+        QueryToken queryToken = getQueryTokenIfValid();
+        if (queryToken != null && mQueryTokenReceiver != null) {
+            // Valid token, so send query to the app for processing
+            mQueryTokenReceiver.onQueryReceived(queryToken);
+        } else {
+            // Ensure that the suggestions are hidden
+            if (mSuggestionsVisibilityManager != null) {
+                mSuggestionsVisibilityManager.displaySuggestions(false);
+            }
         }
     }
 
@@ -600,6 +665,8 @@ public class MentionsEditText extends EditText implements TokenSource {
         text.setSpan(mentionSpan, start, endOfMention, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         Selection.setSelection(text, endOfMention);
         ensureMentionSpanIntegrity(text);
+        clearComposingText();
+        removeSuggestionSpans();
         mBlockCompletion = false;
 
         // Notify listeners of added mention
@@ -742,6 +809,21 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
     }
 
+    /**
+     * Helper function to remove all SuggestionSpans from the current text. Modified from {@link TextView} source code.
+     */
+    private void removeSuggestionSpans() {
+        Editable text = getText();
+        if (text == null) {
+            return;
+        }
+
+        SuggestionSpan[] spans = text.getSpans(0, text.length(), SuggestionSpan.class);
+        for (SuggestionSpan span : spans) {
+            text.removeSpan(span);
+        }
+    }
+
     private void notifyMentionAddedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
         for (MentionWatcher watcher : mMentionWatchers) {
             watcher.onMentionAdded(mention, text, start, end);
@@ -751,6 +833,22 @@ public class MentionsEditText extends EditText implements TokenSource {
     private void notifyMentionDeletedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
         for (MentionWatcher watcher : mMentionWatchers) {
             watcher.onMentionDeleted(mention, text, start, end);
+        }
+    }
+
+    // --------------------------------------------------
+    // Private Classes
+    // --------------------------------------------------
+
+    /**
+     * Simple class to hold onto a {@link MentionSpan} temporarily while the text is changing.
+     */
+    private static class PlaceholderSpan {
+
+        public final MentionSpan holder;
+
+        public PlaceholderSpan(MentionSpan holder) {
+            this.holder = holder;
         }
     }
 

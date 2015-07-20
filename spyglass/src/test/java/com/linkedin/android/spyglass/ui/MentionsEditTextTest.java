@@ -17,6 +17,7 @@ package com.linkedin.android.spyglass.ui;
 import android.text.Editable;
 import android.view.MotionEvent;
 
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
 import com.linkedin.android.utils.SpyglassRobolectricRunner;
 
 import com.linkedin.android.spyglass.mentions.Mentionable;
@@ -56,6 +57,7 @@ public class MentionsEditTextTest {
         mEditText.setAvoidPrefixOnTap(true);
         mRichEditor = mock(RichEditorView.class);
         mEditText.setSuggestionsVisibilityManager(mRichEditor);
+        mEditText.setTokenizer(new WordTokenizer());
     }
 
     @Test
