@@ -213,6 +213,20 @@ public class WordTokenizer implements Tokenizer {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isWordBreakingChar(final char c) {
+        final String wordBreakChars = mConfig.WORD_BREAK_CHARS;
+        for (int i = 0; i < wordBreakChars.length(); i++) {
+            char wordBreakChar = wordBreakChars.charAt(i);
+            if (c == wordBreakChar) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // --------------------------------------------------
     // Public Methods
     // --------------------------------------------------
@@ -285,25 +299,6 @@ public class WordTokenizer implements Tokenizer {
                 if (isExplicitChar(c)) {
                     return true;
                 }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Determines if given character is a word-breaking character according to the current settings
-     * within the {@link Configuration}.
-     *
-     * @param c character to test
-     *
-     * @return true if c is an word-breaking character
-     */
-    public boolean isWordBreakingChar(final char c) {
-        final String wordBreakChars = mConfig.WORD_BREAK_CHARS;
-        for (int i = 0; i < wordBreakChars.length(); i++) {
-            char wordBreakChar = wordBreakChars.charAt(i);
-            if (c == wordBreakChar) {
-                return true;
             }
         }
         return false;

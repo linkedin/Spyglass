@@ -31,7 +31,7 @@ public interface Tokenizer {
      *
      * @return index of the first character in the token
      */
-    public int findTokenStart(final @NonNull Spanned text, final int cursor);
+    int findTokenStart(final @NonNull Spanned text, final int cursor);
 
     /**
      * Returns the end of the token that begins at offset cursor within text.
@@ -41,7 +41,7 @@ public interface Tokenizer {
      *
      * @return index after the last character in the token
      */
-    public int findTokenEnd(final @NonNull Spanned text, final int cursor);
+    int findTokenEnd(final @NonNull Spanned text, final int cursor);
 
     /**
      * Return true if the given text is a valid token (either explicit or implicit).
@@ -52,7 +52,7 @@ public interface Tokenizer {
      *
      * @return true if input is a valid mention
      */
-    public boolean isValidMention(final @NonNull Spanned text, final int start, final int end);
+    boolean isValidMention(final @NonNull Spanned text, final int start, final int end);
 
     /**
      * Returns text, modified, to ensure that it ends with a token terminator if necessary.
@@ -62,7 +62,7 @@ public interface Tokenizer {
      * @return the modified version of the text
      */
     @NonNull
-    public Spanned terminateToken(final @NonNull Spanned text);
+    Spanned terminateToken(final @NonNull Spanned text);
 
     /**
      * Determines if given character is an explicit character according to the current settings of the tokenizer.
@@ -71,6 +71,14 @@ public interface Tokenizer {
      *
      * @return true if c is an explicit character
      */
-    public boolean isExplicitChar(final char c);
+    boolean isExplicitChar(final char c);
 
+    /**
+     * Determines if given character is an word-breaking character according to the current settings of the tokenizer.
+     *
+     * @param c character to test
+     *
+     * @return true if c is an word-breaking character
+     */
+    boolean isWordBreakingChar(final char c);
 }
