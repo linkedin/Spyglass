@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+1.2.0 *(2015-07-21)*
+--------------------------
+ * Better handling of multi-word mentions
+ 
 1.2.0 *(2015-07-20)*
 --------------------------
  * Added isWordBreakingChar method to Tokenizer interface
