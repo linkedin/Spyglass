@@ -83,4 +83,10 @@ public class MentionsEditableTest {
         assertEquals(mEditable.length(), mEditable.getSpanEnd(mMentionSpan));
     }
 
+    @Test
+    public void testMapToDeleteCharacterInsteadOfAppend() {
+        mEditable = new MentionsEditable("Hello World");
+        mEditable.replace(11, 11, "Worl");
+        assertEquals("Hello Worl", mEditable.toString());
+    }
 }
