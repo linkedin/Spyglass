@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+1.2.0 *(2015-07-20)*
+--------------------------
+ * Added isWordBreakingChar method to Tokenizer interface
+ * Better handling of edge cases when typing around a mention
+
 1.1.3 *(2015-07-14)*
 --------------------------
  * fix NPE when inserting mention with MentionWatchers interface
