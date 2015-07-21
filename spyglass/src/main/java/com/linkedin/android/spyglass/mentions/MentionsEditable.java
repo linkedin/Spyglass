@@ -87,6 +87,24 @@ public class MentionsEditable extends SpannableStringBuilder implements Parcelab
         super.setSpan(what, start, end, flags);
     }
 
+    @NonNull
+    @Override
+    public SpannableStringBuilder replace(int start, int end, CharSequence tb, int tbstart, int tbend) {
+        // On certain software keyboards, the editor appears to append a word minus the last character when it is really
+        // trying to just delete the last character. Until we can figure out the root cause of this issue, the following
+        // code remaps this situation to do a proper delete.
+        if (start == end && start - tbend - 1 >= 0 && tb.length() > 1) {
+            String insertString = tb.subSequence(tbstart, tbend).toString();
+            String previousString = subSequence(start - tbend - 1, start - 1).toString();
+            if (insertString.equals(previousString)) {
+                // Delete a character
+                return super.replace(start - 1, start, "", 0, 0);
+            }
+        }
+
+        return super.replace(start, end, tb, tbstart, tbend);
+    }
+
     // --------------------------------------------------
     // Custom Public Methods
     // --------------------------------------------------

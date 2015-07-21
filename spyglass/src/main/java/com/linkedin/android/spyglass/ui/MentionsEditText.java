@@ -341,13 +341,21 @@ public class MentionsEditText extends EditText implements TokenSource {
          * {@inheritDoc}
          */
         @Override
-        public void onTextChanged(CharSequence text, int start, int before, int after) {
-            if (mBlockCompletion) {
+        public void onTextChanged(CharSequence text, int start, int before, int count) {
+            if (mBlockCompletion || !(text instanceof Editable) || getTokenizer() == null) {
                 return;
             }
 
+            // If the editor tries to insert duplicated text, mark the duplicated text for deletion later
+            Editable editable = (Editable) text;
+            int index = Selection.getSelectionStart(editable);
+            Tokenizer tokenizer = getTokenizer();
+            if (tokenizer != null) {
+                markDuplicatedTextForDeletionLater((Editable) text, index, tokenizer);
+            }
+
             // Call any watchers for text changes
-            sendOnTextChanged(text, start, before, after);
+            sendOnTextChanged(text, start, before, count);
         }
 
         /**
@@ -362,9 +370,14 @@ public class MentionsEditText extends EditText implements TokenSource {
             // Block text change handling while we're changing the text (otherwise, may cause infinite loop)
             mBlockCompletion = true;
 
+            // Text may have been marked to be removed in (before/on)TextChanged, remove that text now
+            removeTextWithinDeleteSpans(text);
+
+            // Some mentions may have been replaced by placeholders temporarily when altering the text, reinsert the
+            // mention spans now
             replacePlaceholdersWithCorrespondingMentionSpans(text);
 
-            // Ensure that the text in all the MentionSpans remains unchanged
+            // Ensure that the text in all the MentionSpans remains unchanged and valid
             ensureMentionSpanIntegrity(text);
 
             // Handle the change in text (can modify it freely here)
@@ -431,20 +444,78 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     private void replaceMentionSpansWithPlaceholdersAsNecessary(@NonNull CharSequence text) {
         int index = getSelectionStart();
-        int wordStart = index;
-        while (wordStart > 0 && mTokenizer != null && !mTokenizer.isWordBreakingChar(text.charAt(wordStart - 1))) {
-            wordStart--;
-        }
+        int wordStart = findStartOfWord(text, index);
         Editable editable = getText();
         MentionSpan[] mentionSpansInCurrentWord = editable.getSpans(wordStart, index, MentionSpan.class);
         for (MentionSpan span : mentionSpansInCurrentWord) {
             if (span.getDisplayMode() != Mentionable.MentionDisplayMode.NONE) {
                 int spanStart = editable.getSpanStart(span);
                 int spanEnd = editable.getSpanEnd(span);
-                editable.setSpan(new PlaceholderSpan(span),
+                editable.setSpan(new PlaceholderSpan(span, spanStart, spanEnd),
                                  spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
                 editable.removeSpan(span);
             }
+        }
+    }
+
+    /**
+     * Helper utility to determine the beginning of a word using the current tokenizer.
+     *
+     * @param text  the text to examine
+     * @param index index of the cursor in the text
+     * @return  index of the beginning of the word in text (will be less than or equal to index)
+     */
+    private int findStartOfWord(@NonNull CharSequence text, int index) {
+        int wordStart = index;
+        while (wordStart > 0 && mTokenizer != null && !mTokenizer.isWordBreakingChar(text.charAt(wordStart - 1))) {
+            wordStart--;
+        }
+        return wordStart;
+    }
+
+    /**
+     * Mark text that was duplicated during text composition to delete it later.
+     *
+     * @param text          the given text
+     * @param cursor        the index of the cursor in text
+     * @param tokenizer     the {@link Tokenizer} to use
+     */
+    private void markDuplicatedTextForDeletionLater(@NonNull Editable text, int cursor, @NonNull Tokenizer tokenizer) {
+        while (cursor > 0 && tokenizer.isWordBreakingChar(text.charAt(cursor - 1))) {
+            cursor--;
+        }
+        int wordStart = findStartOfWord(text, cursor);
+        PlaceholderSpan[] placeholderSpans = text.getSpans(wordStart, wordStart + 1, PlaceholderSpan.class);
+        for (PlaceholderSpan span : placeholderSpans) {
+            int spanEnd = span.originalEnd;
+            int copyEnd = spanEnd + (spanEnd - wordStart);
+            if (copyEnd <= text.length()) {
+                CharSequence endOfMention = text.subSequence(wordStart, spanEnd);
+                CharSequence copyOfEndOfMentionText = text.subSequence(spanEnd, copyEnd);
+                // Note: Comparing strings since we do not want to compare any other aspects of spanned strings
+                if (endOfMention.toString().equals(copyOfEndOfMentionText.toString())) {
+                    text.setSpan(new DeleteSpan(),
+                                     spanEnd,
+                                     copyEnd,
+                                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes any {@link com.linkedin.android.spyglass.ui.MentionsEditText.DeleteSpan}s and the text within them from
+     * the given text.
+     *
+     * @param text the editable containing DeleteSpans to remove
+     */
+    private void removeTextWithinDeleteSpans(@NonNull Editable text) {
+        DeleteSpan[] deleteSpans = text.getSpans(0, text.length(), DeleteSpan.class);
+        for (DeleteSpan span : deleteSpans) {
+            int spanStart = text.getSpanStart(span);
+            int spanEnd = text.getSpanEnd(span);
+            text.replace(spanStart, spanEnd, "");
+            text.removeSpan(span);
         }
     }
 
@@ -665,8 +736,6 @@ public class MentionsEditText extends EditText implements TokenSource {
         text.setSpan(mentionSpan, start, endOfMention, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         Selection.setSelection(text, endOfMention);
         ensureMentionSpanIntegrity(text);
-        clearComposingText();
-        removeSuggestionSpans();
         mBlockCompletion = false;
 
         // Notify listeners of added mention
@@ -809,21 +878,6 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
     }
 
-    /**
-     * Helper function to remove all SuggestionSpans from the current text. Modified from {@link TextView} source code.
-     */
-    private void removeSuggestionSpans() {
-        Editable text = getText();
-        if (text == null) {
-            return;
-        }
-
-        SuggestionSpan[] spans = text.getSpans(0, text.length(), SuggestionSpan.class);
-        for (SuggestionSpan span : spans) {
-            text.removeSpan(span);
-        }
-    }
-
     private void notifyMentionAddedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
         for (MentionWatcher watcher : mMentionWatchers) {
             watcher.onMentionAdded(mention, text, start, end);
@@ -843,14 +897,23 @@ public class MentionsEditText extends EditText implements TokenSource {
     /**
      * Simple class to hold onto a {@link MentionSpan} temporarily while the text is changing.
      */
-    private static class PlaceholderSpan {
+    private class PlaceholderSpan {
 
         public final MentionSpan holder;
+        public final int originalStart;
+        public final int originalEnd;
 
-        public PlaceholderSpan(MentionSpan holder) {
+        public PlaceholderSpan(MentionSpan holder, int originalStart, int originalEnd) {
             this.holder = holder;
+            this.originalStart = originalStart;
+            this.originalEnd = originalEnd;
         }
     }
+
+    /**
+     * Simple class to mark a span of text to delete later.
+     */
+    private class DeleteSpan {}
 
     // --------------------------------------------------
     // MentionsEditable Factory

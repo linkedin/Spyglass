@@ -365,7 +365,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
             // store the previous input type
             mOriginalInputType = mMentionsEditText.getInputType();
         }
-        mMentionsEditText.setInputType(disable ? InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS : mOriginalInputType);
+        mMentionsEditText.setRawInputType(disable ? InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS : mOriginalInputType);
         mMentionsEditText.setSelection(start, end);
     }
 
