@@ -489,7 +489,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         for (PlaceholderSpan span : placeholderSpans) {
             int spanEnd = span.originalEnd;
             int copyEnd = spanEnd + (spanEnd - wordStart);
-            if (copyEnd <= text.length()) {
+            if (copyEnd > spanEnd && copyEnd <= text.length()) {
                 CharSequence endOfMention = text.subSequence(wordStart, spanEnd);
                 CharSequence copyOfEndOfMentionText = text.subSequence(spanEnd, copyEnd);
                 // Note: Comparing strings since we do not want to compare any other aspects of spanned strings
