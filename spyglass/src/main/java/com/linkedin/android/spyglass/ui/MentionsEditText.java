@@ -29,7 +29,6 @@ import android.text.TextWatcher;
 import android.text.method.ArrowKeyMovementMethod;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
-import android.text.style.SuggestionSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -570,13 +569,12 @@ public class MentionsEditText extends EditText implements TokenSource {
                         int diff = cursor - end;
                         text.removeSpan(span);
                         text.replace(start, end, name);
-                        if (diff > 0) {
+                        if (diff > 0 && start + end + diff < text.length()) {
                             text.replace(start + end, start + end + diff, "");
                         }
                         if (name.length() > 0) {
                             text.setSpan(span, start, start + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
-                        setSelection(start + name.length());
                         spanAltered = true;
                     }
                     break;
@@ -593,7 +591,6 @@ public class MentionsEditText extends EditText implements TokenSource {
                     }
                     spanAltered = true;
                     break;
-
             }
         }
 
