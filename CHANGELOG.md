@@ -1,14 +1,19 @@
 Change Log
 ==========
 
-1.2.0 *(2015-07-21)*
+1.2.2 *(2015-08-10)*
 --------------------------
- * Better handling of multi-word mentions
+ * prevent IndexOutOfBoundsException when copying/pasting part of a mention
+ * fix crash when accessibility is enabled
+
+1.2.1 *(2015-07-21)*
+--------------------------
+ * better handling of multi-word mentions
  
 1.2.0 *(2015-07-20)*
 --------------------------
- * Added isWordBreakingChar method to Tokenizer interface
- * Better handling of edge cases when typing around a mention
+ * added isWordBreakingChar method to Tokenizer interface
+ * better handling of edge cases when typing around a mention
 
 1.1.3 *(2015-07-14)*
 --------------------------
@@ -38,9 +43,9 @@ Change Log
 
 1.0.1 *(2015-02-21)*
 --------------------------
- *  disable spelling suggestions during mention suggestions
- *  change target SDK to latest version (21) for spyglass.
+ * disable spelling suggestions during mention suggestions
+ * change target SDK to latest version (21) for spyglass.
 
 1.0.0 *(2015-02-11)*
 --------------------------
- *  first public release
+ * first public release
