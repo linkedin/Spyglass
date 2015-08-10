@@ -23,6 +23,7 @@ import android.text.Editable;
 import android.text.Layout;
 import android.text.Selection;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -32,6 +33,7 @@ import android.text.method.MovementMethod;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -760,6 +762,27 @@ public class MentionsEditText extends EditText implements TokenSource {
     }
 
     /**
+     * Populate an {@link AccessibilityEvent} with information about this text view. Note that this implementation uses
+     * a copy of the text that is explicitly not an instance of {@link MentionsEditable}. This is due to the fact that
+     * AccessibilityEvent will use the default system classloader when unparcelling the data within the event. This
+     * results in a ClassNotFoundException. For more details, see: https://github.com/linkedin/Spyglass/issues/10
+     *
+     * @param event the populated AccessibilityEvent
+     */
+    @Override
+    public void onPopulateAccessibilityEvent(@NonNull AccessibilityEvent event) {
+        super.onPopulateAccessibilityEvent(event);
+        List<CharSequence> textList = event.getText();
+        CharSequence mentionLessText = getTextWithoutMentions();
+        for (int i = 0; i < textList.size(); i++) {
+            CharSequence text = textList.get(i);
+            if (text instanceof MentionsEditable) {
+                textList.set(i, mentionLessText);
+            }
+        }
+    }
+
+    /**
      * Allows a class to watch for text changes. Note that adding this class to itself will add it
      * to the super class. Other instances of {@link TextWatcher} will be notified by this class
      * as appropriate (helps prevent infinite loops when text keeps changing).
@@ -803,6 +826,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param watcher the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} to add
      */
+    @SuppressWarnings("unused")
     public void addMentionWatcher(@NonNull MentionWatcher watcher) {
         if (!mMentionWatchers.contains(watcher)) {
             mMentionWatchers.add(watcher);
@@ -815,6 +839,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param watcher the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} to remove
      */
+    @SuppressWarnings("unused")
     public void removeMentionWatcher(@NonNull MentionWatcher watcher) {
         mMentionWatchers.remove(watcher);
     }
@@ -823,11 +848,25 @@ public class MentionsEditText extends EditText implements TokenSource {
     // Private Helper Methods
     // --------------------------------------------------
 
+
     private void restartInput() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.restartInput(this);
         }
+    }
+
+    /**
+     * @return the text as an {@link Editable} (note: not a {@link MentionsEditable} and does not contain mentions)
+     */
+    private Editable getTextWithoutMentions() {
+        Editable text = getText();
+        SpannableStringBuilder sb = new SpannableStringBuilder(text);
+        MentionSpan[] spans = sb.getSpans(0, sb.length(), MentionSpan.class);
+        for (MentionSpan span: spans) {
+            sb.removeSpan(span);
+        }
+        return sb;
     }
 
     /**
@@ -1123,6 +1162,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      * Simple implementation of the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} interface
      * if you do not want to implement all methods.
      */
+    @SuppressWarnings("unused")
     public class SimpleMentionWatcher implements MentionWatcher {
         @Override
         public void onMentionAdded(@NonNull Mentionable mention, @NonNull String text, int start, int end) {}
