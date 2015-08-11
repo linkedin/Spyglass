@@ -692,7 +692,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param mention {@link Mentionable} to insert a span for
      */
-    public void insertMention(Mentionable mention) {
+    public void insertMention(@NonNull Mentionable mention) {
         if (mTokenizer == null) {
             return;
         }
@@ -734,7 +734,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param mention {@link Mentionable} to insert a span for
      */
-    public void insertMentionWithoutToken(Mentionable mention) {
+    public void insertMentionWithoutToken(@NonNull Mentionable mention) {
         // Setup variables and ensure they are valid
         Editable text = getEditableText();
         int index = getSelectionStart();
@@ -743,7 +743,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         insertMentionInternal(mention, text, index, index);
     }
 
-    private void insertMentionInternal(Mentionable mention, Editable text, int start, int end) {
+    private void insertMentionInternal(@NonNull Mentionable mention, @NonNull Editable text, int start, int end) {
         // Insert the span into the editor
         MentionSpan mentionSpan = new MentionSpan(getContext(), mention);
         String name = mention.getPrimaryText();
