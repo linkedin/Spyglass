@@ -114,7 +114,7 @@ public class MentionsEditTextTest {
         mEditText.insertMentionWithoutToken(mention);
 
         // ensure mention adds correctly
-        assertTrue(mEditText.getText().toString().startsWith("FirstName MiddleName LastName"));
+        assertTrue(mEditText.getText().toString().equals("FirstName MiddleName LastName"));
 
         Editable editable = mEditText.getEditableText();
         editable.append(" hello ");
