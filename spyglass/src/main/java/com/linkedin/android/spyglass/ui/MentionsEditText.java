@@ -453,7 +453,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                 int spanStart = editable.getSpanStart(span);
                 int spanEnd = editable.getSpanEnd(span);
                 editable.setSpan(new PlaceholderSpan(span, spanStart, spanEnd),
-                                 spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+                        spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
                 editable.removeSpan(span);
             }
         }
@@ -496,9 +496,9 @@ public class MentionsEditText extends EditText implements TokenSource {
                 // Note: Comparing strings since we do not want to compare any other aspects of spanned strings
                 if (endOfMention.toString().equals(copyOfEndOfMentionText.toString())) {
                     text.setSpan(new DeleteSpan(),
-                                     spanEnd,
-                                     copyEnd,
-                                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            spanEnd,
+                            copyEnd,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
             }
         }
@@ -692,7 +692,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param mention {@link Mentionable} to insert a span for
      */
-    public void insertMention(Mentionable mention) {
+    public void insertMention(@NonNull Mentionable mention) {
         if (mTokenizer == null) {
             return;
         }
@@ -725,6 +725,25 @@ public class MentionsEditText extends EditText implements TokenSource {
             }
         }
 
+        insertMentionInternal(mention, text, start, end);
+    }
+
+    /**
+     * Inserts a mention. This will not take any token into consideration. This method is useful
+     * when you want to insert a mention which doesn't have a token.
+     *
+     * @param mention {@link Mentionable} to insert a span for
+     */
+    public void insertMentionWithoutToken(@NonNull Mentionable mention) {
+        // Setup variables and ensure they are valid
+        Editable text = getEditableText();
+        int index = getSelectionStart();
+        index = index > 0 ? index : 0;
+
+        insertMentionInternal(mention, text, index, index);
+    }
+
+    private void insertMentionInternal(@NonNull Mentionable mention, @NonNull Editable text, int start, int end) {
         // Insert the span into the editor
         MentionSpan mentionSpan = new MentionSpan(getContext(), mention);
         String name = mention.getPrimaryText();
