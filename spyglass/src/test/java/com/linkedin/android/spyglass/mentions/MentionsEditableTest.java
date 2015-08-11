@@ -17,9 +17,7 @@ package com.linkedin.android.spyglass.mentions;
 import android.annotation.TargetApi;
 import android.text.Spanned;
 import android.text.style.SuggestionSpan;
-
-import com.linkedin.android.unittest.SpyglassRobolectricRunner;
-
+import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,4 +83,10 @@ public class MentionsEditableTest {
         assertEquals(mEditable.length(), mEditable.getSpanEnd(mMentionSpan));
     }
 
+    @Test
+    public void testMapToDeleteCharacterInsteadOfAppend() {
+        mEditable = new MentionsEditable("Hello World");
+        mEditable.replace(11, 11, "Worl");
+        assertEquals("Hello Worl", mEditable.toString());
+    }
 }

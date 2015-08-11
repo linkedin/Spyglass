@@ -36,8 +36,8 @@ public class RichEditorFragment extends Fragment {
     private RichEditorView mRichEditor;
     private OnCreateViewListener mOnCreateViewListener;
 
-    public static interface OnCreateViewListener {
-        public void onFragmentCreateView(RichEditorFragment fragment);
+    public interface OnCreateViewListener {
+        void onFragmentCreateView(RichEditorFragment fragment);
     }
 
     public RichEditorFragment() {

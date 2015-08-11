@@ -26,6 +26,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.ui.RichEditorView;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,7 +50,7 @@ public class SimpleMentions extends ActionBarActivity implements QueryTokenRecei
 
     @Override
     public List<String> onQueryReceived(final @NonNull QueryToken queryToken) {
-        List<String> buckets = Arrays.asList(BUCKET);
+        List<String> buckets = Collections.singletonList(BUCKET);
         List<City> suggestions = cities.getSuggestions(queryToken);
         SuggestionsResult result = new SuggestionsResult(queryToken, suggestions);
         editor.onReceiveSuggestionsResult(result, BUCKET);

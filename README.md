@@ -22,12 +22,12 @@ Grab via Maven:
 <dependency>
   <groupId>com.linkedin.android.spyglass</groupId>
   <artifactId>spyglass</artifactId>
-  <version>1.0.2</version>
+  <version>1.2.2</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-compile 'com.linkedin.android.spyglass:spyglass:1.0.2'
+compile 'com.linkedin.android.spyglass:spyglass:1.2.2'
 ```
 
 Overview
