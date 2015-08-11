@@ -1,15 +1,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'idea'
-apply plugin: 'robolectric'
+apply plugin: 'org.robolectric'
 apply plugin: 'maven'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -24,46 +24,47 @@ android {
     lintOptions {
         abortOnError false
     }
-}
 
-robolectric {
-    // configure the set of classes for JUnit tests
-    include '**/*Test.class'
-    exclude '**/espresso/**/*.class'
+    testOptions.unitTests.all {
+        // configure the set of classes for JUnit tests
+        include '**/*Test.class'
+        exclude '**/espresso/**/*.class'
 
-    // configure max heap size of the test JVM
-    maxHeapSize = '2048m'
+        // configure max heap size of the test JVM
+        maxHeapSize = '2048m'
 
-    // configure the test JVM arguments
-    jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
+        // configure the test JVM arguments
+        jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
 
-    // Specify max number of processes (default is 1)
-    maxParallelForks = 4
+        // Specify max number of processes (default is 1)
+        maxParallelForks = 4
 
-    // Specify max number of test classes to execute in a test process
-    // before restarting the process (default is unlimited)
-    forkEvery = 150
+        // Specify max number of test classes to execute in a test process
+        // before restarting the process (default is unlimited)
+        forkEvery = 150
 
-    // configure whether failing tests should fail the build
-    ignoreFailures false
+        // configure whether failing tests should fail the build
+        ignoreFailures false
 
-    // use afterTest to listen to the test execution results
-    afterTest { descriptor, result ->
-        println "Executing test for ${descriptor.name} with result: ${result.resultType}"
+        // use afterTest to listen to the test execution results
+        afterTest { descriptor, result ->
+            println "Executing test for ${descriptor.name} with result: ${result.resultType}"
+        }
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:21.0.3'
-    compile 'com.android.support:support-annotations:21.0.3'
-    androidTestCompile 'junit:junit:4.11'
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
-    androidTestCompile 'org.robolectric:robolectric:2.4'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:support-annotations:22.2.0'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'org.robolectric:robolectric:2.4'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.2'
+    gradleVersion = '2.4'
 }
 
 apply from: 'gradle-mvn-push.gradle'

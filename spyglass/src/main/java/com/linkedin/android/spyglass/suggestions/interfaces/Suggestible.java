@@ -14,6 +14,8 @@
 
 package com.linkedin.android.spyglass.suggestions.interfaces;
 
+import android.os.Parcelable;
+
 import com.linkedin.android.spyglass.suggestions.SuggestionsAdapter;
 
 /**
@@ -22,7 +24,7 @@ import com.linkedin.android.spyglass.suggestions.SuggestionsAdapter;
  * Note that the information gathered from the below methods are used in the default layout for the
  * {@link SuggestionsAdapter}.
  */
-public interface Suggestible {
+public interface Suggestible extends Parcelable {
 
     // Must be unique (useful for eliminating duplicate suggestions)
     public abstract int getId();

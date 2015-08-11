@@ -17,7 +17,8 @@ package com.linkedin.android.spyglass.ui;
 import android.text.Editable;
 import android.view.MotionEvent;
 
-import com.linkedin.android.unittest.SpyglassRobolectricRunner;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
+import com.linkedin.android.utils.SpyglassRobolectricRunner;
 
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.TestMention;
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -55,6 +57,7 @@ public class MentionsEditTextTest {
         mEditText.setAvoidPrefixOnTap(true);
         mRichEditor = mock(RichEditorView.class);
         mEditText.setSuggestionsVisibilityManager(mRichEditor);
+        mEditText.setTokenizer(new WordTokenizer());
     }
 
     @Test
@@ -74,6 +77,13 @@ public class MentionsEditTextTest {
         doReturn("a").when(mEditText).getCurrentKeywordsString();
         mEditText.onTouchEvent(event);
         verify(mEditText).setAvoidedPrefix("a");
+    }
+
+    @Test
+    public void testSelectionAtIndexZeroOnInit() {
+        MentionsEditText editText = new MentionsEditText(Robolectric.application);
+        assertEquals(0, editText.getSelectionStart());
+        assertEquals(0, editText.getSelectionEnd());
     }
 
     @Test

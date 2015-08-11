@@ -17,6 +17,8 @@ package com.linkedin.android.spyglass.mentions;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
@@ -26,13 +28,12 @@ import android.widget.EditText;
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.Mentionable.MentionDisplayMode;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
-import com.linkedin.android.spyglass.ui.RichEditorView;
 
 /**
  * Class representing a spannable {@link Mentionable} in an {@link EditText}. This class is
  * specifically used by the {@link MentionsEditText}.
  */
-public class MentionSpan extends ClickableSpan {
+public class MentionSpan extends ClickableSpan implements Parcelable {
 
     private int NORMAL_TEXT_COLOR;
     private int NORMAL_BG_COLOR;
@@ -58,11 +59,15 @@ public class MentionSpan extends ClickableSpan {
     @Override
     public void onClick(View widget) {
 
-        // Get reference to the RichEditor
-        EditText editText = (EditText) widget;
+        if (!(widget instanceof MentionsEditText)) {
+            return;
+        }
+
+        // Get reference to the MentionsEditText
+        MentionsEditText editText = (MentionsEditText) widget;
         Editable text = editText.getText();
-        RichEditorView richEditor = (RichEditorView) widget.getParent();
-        if (richEditor == null || text == null) {
+
+        if (text == null) {
             return;
         }
 
@@ -73,14 +78,14 @@ public class MentionSpan extends ClickableSpan {
         // If we are going to select this span, deselect all others
         boolean isSelected = isSelected();
         if (!isSelected) {
-            richEditor.deselectAllSpans();
+            editText.deselectAllSpans();
         }
 
         // Toggle whether the view is selected
         setSelected(!isSelected());
 
         // Update the span (forces it to redraw)
-        richEditor.updateSpan(this);
+        editText.updateSpan(this);
     }
 
     @Override
@@ -134,4 +139,43 @@ public class MentionSpan extends ClickableSpan {
     public void setSelectedBackgroundColor(int color) {
         SELECTED_BG_COLOR = color;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(NORMAL_TEXT_COLOR);
+        dest.writeInt(NORMAL_BG_COLOR);
+        dest.writeInt(SELECTED_TEXT_COLOR);
+        dest.writeInt(SELECTED_BG_COLOR);
+
+        dest.writeInt(getDisplayMode().ordinal());
+        dest.writeInt(isSelected() ? 1 : 0);
+        dest.writeParcelable(getMention(), flags);
+    }
+
+    public MentionSpan(Parcel in) {
+        NORMAL_TEXT_COLOR = in.readInt();
+        NORMAL_BG_COLOR = in.readInt();
+        SELECTED_TEXT_COLOR = in.readInt();
+        SELECTED_BG_COLOR = in.readInt();
+
+        mDisplayMode = MentionDisplayMode.values()[in.readInt()];
+        setSelected((in.readInt() == 1));
+        mMention = in.readParcelable(Mentionable.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<MentionSpan> CREATOR
+            = new Parcelable.Creator<MentionSpan>() {
+        public MentionSpan createFromParcel(Parcel in) {
+            return new MentionSpan(in);
+        }
+
+        public MentionSpan[] newArray(int size) {
+            return new MentionSpan[size];
+        }
+    };
 }

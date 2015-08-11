@@ -1,0 +1,7 @@
+subprojects {
+  repositories {
+    jcenter()
+  }
+
+  project.buildDir = new File(project.rootProject.buildDir, project.name)
+}

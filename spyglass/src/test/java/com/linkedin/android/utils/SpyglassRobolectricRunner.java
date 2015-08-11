@@ -12,7 +12,7 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
 
-package com.linkedin.android.unittest;
+package com.linkedin.android.utils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

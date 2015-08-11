@@ -19,14 +19,14 @@ import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.TestMention;
 import com.linkedin.android.spyglass.ui.RichEditorView;
 import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
-import com.linkedin.android.unittest.SpyglassRobolectricRunner;
+import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
-import static com.linkedin.android.unittest.SpyglassRobolectricRunner.startFragment;
+import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;

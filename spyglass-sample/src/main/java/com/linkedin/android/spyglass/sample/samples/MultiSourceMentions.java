@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-
 import com.linkedin.android.spyglass.sample.R;
 import com.linkedin.android.spyglass.sample.data.models.City;
 import com.linkedin.android.spyglass.sample.data.models.Person;
@@ -41,7 +40,6 @@ import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.ui.RichEditorView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -97,6 +95,7 @@ public class MultiSourceMentions extends ActionBarActivity implements QueryToken
     private void updateSuggestions() {
         final boolean hasPeople = peopleCheckBox.isChecked();
         final boolean hasCities = citiesCheckBox.isChecked();
+
         // Handle person mentions
         if (hasPeople && lastPersonSuggestions != null) {
             editor.onReceiveSuggestionsResult(lastPersonSuggestions, PERSON_BUCKET);
@@ -104,6 +103,7 @@ public class MultiSourceMentions extends ActionBarActivity implements QueryToken
             SuggestionsResult emptySuggestions = new SuggestionsResult(lastPersonSuggestions.getQueryToken(), new ArrayList<Person>());
             editor.onReceiveSuggestionsResult(emptySuggestions, PERSON_BUCKET);
         }
+
         // Handle city mentions
         if (hasCities && lastCitySuggestions != null) {
             editor.onReceiveSuggestionsResult(lastCitySuggestions, CITY_BUCKET);
@@ -111,6 +111,7 @@ public class MultiSourceMentions extends ActionBarActivity implements QueryToken
             SuggestionsResult emptySuggestions = new SuggestionsResult(lastCitySuggestions.getQueryToken(), new ArrayList<City>());
             editor.onReceiveSuggestionsResult(emptySuggestions, CITY_BUCKET);
         }
+        
         // Update the hint
         if (hasPeople && hasCities) {
             editor.setHint(getResources().getString(R.string.type_both));
@@ -129,30 +130,38 @@ public class MultiSourceMentions extends ActionBarActivity implements QueryToken
 
     @Override
     public List<String> onQueryReceived(final @NonNull QueryToken queryToken) {
-        List<String> buckets = Arrays.asList(PERSON_BUCKET, CITY_BUCKET);
+        final boolean hasPeople = peopleCheckBox.isChecked();
+        final boolean hasCities = citiesCheckBox.isChecked();
 
+        final List<String> buckets = new ArrayList<>();
         final SuggestionsResultListener listener = editor;
         final Handler handler = new Handler(Looper.getMainLooper());
 
-        // Fetch people
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<Person> suggestions = people.getSuggestions(queryToken);
-                lastPersonSuggestions = new SuggestionsResult(queryToken, suggestions);
-                listener.onReceiveSuggestionsResult(lastPersonSuggestions, PERSON_BUCKET);
-            }
-        }, PERSON_DELAY);
+        // Fetch people if necessary
+        if (hasPeople) {
+            buckets.add(PERSON_BUCKET);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    List<Person> suggestions = people.getSuggestions(queryToken);
+                    lastPersonSuggestions = new SuggestionsResult(queryToken, suggestions);
+                    listener.onReceiveSuggestionsResult(lastPersonSuggestions, PERSON_BUCKET);
+                }
+            }, PERSON_DELAY);
+        }
 
-        // Fetch cities
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<City> suggestions = cities.getSuggestions(queryToken);
-                lastCitySuggestions = new SuggestionsResult(queryToken, suggestions);
-                listener.onReceiveSuggestionsResult(lastCitySuggestions, CITY_BUCKET);
-            }
-        }, CITY_DELAY);
+        // Fetch cities if necessary
+        if (hasCities) {
+            buckets.add(CITY_BUCKET);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    List<City> suggestions = cities.getSuggestions(queryToken);
+                    lastCitySuggestions = new SuggestionsResult(queryToken, suggestions);
+                    listener.onReceiveSuggestionsResult(lastCitySuggestions, CITY_BUCKET);
+                }
+            }, CITY_DELAY);
+        }
 
         // Return buckets, one for each source (serves as promise to editor that we will call
         // onReceiveSuggestionsResult at a later time)
