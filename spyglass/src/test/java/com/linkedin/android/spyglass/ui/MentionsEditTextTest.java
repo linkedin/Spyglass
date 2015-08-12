@@ -107,4 +107,21 @@ public class MentionsEditTextTest {
         // ensure mention does not clobber existing text
         assertTrue(mEditText.getText().toString().startsWith("Hello "));
     }
+
+    @Test
+    public void testInsertMentionWithoutToken() throws Exception {
+        Mentionable mention = new TestMention("FirstName MiddleName LastName");
+        mEditText.insertMentionWithoutToken(mention);
+
+        // ensure mention adds correctly
+        assertTrue(mEditText.getText().toString().equals("FirstName MiddleName LastName"));
+
+        Editable editable = mEditText.getEditableText();
+        editable.append(" hello ");
+        mention = new TestMention("New Mention");
+        mEditText.insertMentionWithoutToken(mention);
+
+        // ensure mention does not clobber existing text
+        assertTrue(mEditText.getText().toString().equals("FirstName MiddleName LastName hello New Mention"));
+    }
 }
