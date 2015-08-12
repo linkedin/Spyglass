@@ -14,7 +14,6 @@
 
 package com.linkedin.android.spyglass.tokenization.impl;
 
-import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -29,6 +28,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 public class WordTokenizer implements Tokenizer {
 
     private final WordTokenizerConfig mConfig;
+    private boolean isImplicitToken;
 
     public WordTokenizer() {
         this(new WordTokenizerConfig.Builder().build());
@@ -134,6 +134,7 @@ public class WordTokenizer implements Tokenizer {
 
         // Null or empty string is not a valid mention
         if (TextUtils.isEmpty(token)) {
+            isImplicitToken = false;
             return false;
         }
 
@@ -143,7 +144,7 @@ public class WordTokenizer implements Tokenizer {
         boolean containsExplicitChar = containsExplicitChar(token);
 
         if (!multipleWords && containsExplicitChar) {
-
+            isImplicitToken = false;
             // If it is one word and has an explicit char, the explicit char must be the first char
             if (!isExplicitChar(token.charAt(0))) {
                 return false;
@@ -164,14 +165,17 @@ public class WordTokenizer implements Tokenizer {
             // Return true if and only if second character is a letter or digit, i.e. "@d"
             return Character.isLetterOrDigit(token.charAt(1));
 
-        } else if (token.length() >= threshold) {
+        } else if (isImplicitToken || token.length() >= threshold) {
 
+            boolean isValidImplicitToken;
+            int numCharsToCheck = (token.length() >= threshold) ? threshold : token.length();
             // Change behavior depending on if keywords is one or more words
             if (!multipleWords) {
                 // One word, no explicit characters
                 // input is only one word, i.e. "u41"
-                return onlyLettersOrDigits(token, threshold, 0);
+                isValidImplicitToken = onlyLettersOrDigits(token, numCharsToCheck, 0);
             } else if (containsExplicitChar) {
+                isImplicitToken = false;
                 // Multiple words, has explicit character
                 // Must have a space, the explicit character, then a letter or digit
                 return hasWordBreakingCharBeforeExplicitChar(text, end)
@@ -180,10 +184,12 @@ public class WordTokenizer implements Tokenizer {
             } else {
                 // Multiple words, no explicit character
                 // Either the first or last couple of characters must be letters/digits
-                boolean firstCharactersValid = onlyLettersOrDigits(token, threshold, 0);
-                boolean lastCharactersValid = onlyLettersOrDigits(token, threshold, token.length() - threshold);
-                return firstCharactersValid || lastCharactersValid;
+                boolean firstCharactersValid = onlyLettersOrDigits(token, numCharsToCheck, 0);
+                boolean lastCharactersValid = onlyLettersOrDigits(token, numCharsToCheck, token.length() - numCharsToCheck);
+                isValidImplicitToken = firstCharactersValid || lastCharactersValid;
             }
+            isImplicitToken = isValidImplicitToken;
+            return isValidImplicitToken;
         }
 
         return false;
