@@ -28,7 +28,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 public class WordTokenizer implements Tokenizer {
 
     private final WordTokenizerConfig mConfig;
-    private boolean isImplicitToken;
+    private boolean mIgnoreThresholdDuringBack;
 
     public WordTokenizer() {
         this(new WordTokenizerConfig.Builder().build());
@@ -134,17 +134,16 @@ public class WordTokenizer implements Tokenizer {
 
         // Null or empty string is not a valid mention
         if (TextUtils.isEmpty(token)) {
-            isImplicitToken = false;
             return false;
         }
 
         // Handle explicit mentions first, then implicit mentions
-        final int threshold = mConfig.THRESHOLD;
+        final int threshold = getThreshold();
         boolean multipleWords = containsWordBreakingChar(token);
         boolean containsExplicitChar = containsExplicitChar(token);
 
         if (!multipleWords && containsExplicitChar) {
-            isImplicitToken = false;
+
             // If it is one word and has an explicit char, the explicit char must be the first char
             if (!isExplicitChar(token.charAt(0))) {
                 return false;
@@ -165,17 +164,14 @@ public class WordTokenizer implements Tokenizer {
             // Return true if and only if second character is a letter or digit, i.e. "@d"
             return Character.isLetterOrDigit(token.charAt(1));
 
-        } else if (isImplicitToken || token.length() >= threshold) {
+        } else if (token.length() >= threshold) {
 
-            boolean isValidImplicitToken;
-            int numCharsToCheck = (token.length() >= threshold) ? threshold : token.length();
             // Change behavior depending on if keywords is one or more words
             if (!multipleWords) {
                 // One word, no explicit characters
                 // input is only one word, i.e. "u41"
-                isValidImplicitToken = onlyLettersOrDigits(token, numCharsToCheck, 0);
+                return onlyLettersOrDigits(token, threshold, 0);
             } else if (containsExplicitChar) {
-                isImplicitToken = false;
                 // Multiple words, has explicit character
                 // Must have a space, the explicit character, then a letter or digit
                 return hasWordBreakingCharBeforeExplicitChar(text, end)
@@ -184,12 +180,10 @@ public class WordTokenizer implements Tokenizer {
             } else {
                 // Multiple words, no explicit character
                 // Either the first or last couple of characters must be letters/digits
-                boolean firstCharactersValid = onlyLettersOrDigits(token, numCharsToCheck, 0);
-                boolean lastCharactersValid = onlyLettersOrDigits(token, numCharsToCheck, token.length() - numCharsToCheck);
-                isValidImplicitToken = firstCharactersValid || lastCharactersValid;
+                boolean firstCharactersValid = onlyLettersOrDigits(token, threshold, 0);
+                boolean lastCharactersValid = onlyLettersOrDigits(token, threshold, token.length() - threshold);
+                return firstCharactersValid || lastCharactersValid;
             }
-            isImplicitToken = isValidImplicitToken;
-            return isValidImplicitToken;
         }
 
         return false;
@@ -364,6 +358,15 @@ public class WordTokenizer implements Tokenizer {
         return true;
     }
 
+    /**
+     * Set if we need to ignore the threshold during the back press
+     *
+     * @param ignoreThresholdDuringBack
+     */
+    public void setIgnoreThresholdDuringBack(boolean ignoreThresholdDuringBack) {
+        mIgnoreThresholdDuringBack = ignoreThresholdDuringBack;
+    }
+
     // --------------------------------------------------
     // Protected Helper Methods
     // --------------------------------------------------
@@ -466,4 +469,12 @@ public class WordTokenizer implements Tokenizer {
         return false;
     }
 
+    // --------------------------------------------------
+    // Private Helper Methods
+    // --------------------------------------------------
+
+    private int getThreshold() {
+        // When we want to ignore the threshold during back, we will return the threshold as 1
+        return mIgnoreThresholdDuringBack ? 1 : mConfig.THRESHOLD;
+    }
 }

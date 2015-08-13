@@ -42,6 +42,7 @@ import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.MentionsEditable;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
 import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.tokenization.interfaces.TokenSource;
 import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
@@ -67,6 +68,7 @@ public class MentionsEditText extends EditText implements TokenSource {
     private boolean mIsWatchingText = false;
     private boolean mAvoidPrefixOnTap = false;
     private String mAvoidedPrefix;
+    private boolean mIgnoreThresholdDuringBack;
 
     public MentionsEditText(Context context) {
         super(context);
@@ -138,13 +140,20 @@ public class MentionsEditText extends EditText implements TokenSource {
         int end = mTokenizer.findTokenEnd(text, cursor);
 
         if (!mTokenizer.isValidMention(text, start, end)) {
+            resetIgnoreThresholdDuringBack();
             return null;
         }
 
         String tokenString = text.subSequence(start, end).toString();
         char firstChar = tokenString.charAt(0);
         boolean isExplicit = mTokenizer.isExplicitChar(tokenString.charAt(0));
-        return (isExplicit ? new QueryToken(tokenString, firstChar) : new QueryToken(tokenString));
+        if (isExplicit) {
+            resetIgnoreThresholdDuringBack();
+            return new QueryToken(tokenString, firstChar);
+        } else {
+            setIgnoreThresholdDuringBack();
+            return new QueryToken(tokenString);
+        }
     }
 
     // --------------------------------------------------
@@ -945,6 +954,18 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
     }
 
+    private void setIgnoreThresholdDuringBack() {
+        if (mTokenizer != null && mTokenizer instanceof WordTokenizer) {
+            ((WordTokenizer) mTokenizer).setIgnoreThresholdDuringBack(mIgnoreThresholdDuringBack);
+        }
+    }
+
+    private void resetIgnoreThresholdDuringBack() {
+        if (mTokenizer != null && mTokenizer instanceof WordTokenizer) {
+            ((WordTokenizer) mTokenizer).setIgnoreThresholdDuringBack(false);
+        }
+    }
+
     // --------------------------------------------------
     // Private Classes
     // --------------------------------------------------
@@ -1052,6 +1073,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     public void setTokenizer(final @Nullable Tokenizer tokenizer) {
         mTokenizer = tokenizer;
+        setIgnoreThresholdDuringBack(true);
     }
 
     /**
@@ -1090,6 +1112,15 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     public void setAvoidPrefixOnTap(boolean avoidPrefixOnTap) {
         mAvoidPrefixOnTap = avoidPrefixOnTap;
+    }
+
+    /**
+     * Sets if the character threshold should be ignored during the back press for implicit mentions
+     *
+     * @param ignoreThresholdDuringBack
+     */
+    public void setIgnoreThresholdDuringBack(boolean ignoreThresholdDuringBack) {
+        mIgnoreThresholdDuringBack = ignoreThresholdDuringBack;
     }
 
     // --------------------------------------------------
