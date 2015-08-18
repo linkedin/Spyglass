@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Layout;
 import android.text.TextWatcher;
@@ -144,6 +145,18 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     // --------------------------------------------------
     // Public Span & UI Methods
     // --------------------------------------------------
+
+	/**
+	 * Allows filters in the input element.
+	 *
+	 * Example: obj.setInputFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
+	 *
+	 * @param filters
+	 */
+    public void setInputFilters(InputFilter... filters) {
+		mMentionsEditText.setFilters(filters);
+
+    }
 
     /**
      * @return a list of {@link MentionSpan} objects currently in the editor
