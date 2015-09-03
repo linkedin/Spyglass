@@ -713,7 +713,7 @@ public class MentionsEditText extends EditText implements TokenSource {
             Locale locale = getContext().getApplicationContext().getResources().getConfiguration().locale;
             String tokenString = getCurrentTokenString().toLowerCase(locale);
             String[] tsNames = tokenString.split(" ");
-            String[] mentionNames = mention.getPrimaryText().split(" ");
+            String[] mentionNames = mention.getSuggestiblePrimaryText().split(" ");
             for (String tsName : tsNames) {
                 for (String mentionName : mentionNames) {
                     mentionName = mentionName.toLowerCase(locale);
@@ -746,7 +746,7 @@ public class MentionsEditText extends EditText implements TokenSource {
     private void insertMentionInternal(@NonNull Mentionable mention, @NonNull Editable text, int start, int end) {
         // Insert the span into the editor
         MentionSpan mentionSpan = new MentionSpan(getContext(), mention);
-        String name = mention.getPrimaryText();
+        String name = mention.getSuggestiblePrimaryText();
 
         mBlockCompletion = true;
         text.replace(start, end, name);

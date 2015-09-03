@@ -89,12 +89,12 @@ public class Person implements Mentionable {
     }
 
     @Override
-    public int getId() {
+    public int getSuggestibleId() {
         return getFullName().hashCode();
     }
 
     @Override
-    public String getPrimaryText() {
+    public String getSuggestiblePrimaryText() {
         return getFullName();
     }
 
