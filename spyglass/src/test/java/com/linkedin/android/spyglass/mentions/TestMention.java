@@ -22,65 +22,65 @@ import android.os.Parcelable;
  */
 public class TestMention implements Mentionable {
 
-    private final String mText;
+	private final String mText;
 
-    public TestMention(String text) {
-        mText = text;
-    }
+	public TestMention(String text) {
+		mText = text;
+	}
 
-    @Override
-    public int getSuggestibleId() {
-        return mText.hashCode();
-    }
+	@Override
+	public int getSuggestibleId() {
+		return mText.hashCode();
+	}
 
-    @Override
-    public String getSuggestiblePrimaryText() {
-        return mText;
-    }
+	@Override
+	public String getSuggestiblePrimaryText() {
+		return mText;
+	}
 
-    @Override
-    public String getTextForDisplayMode(MentionDisplayMode mode) {
-        switch (mode) {
-            case FULL:
-                return mText;
-            case PARTIAL:
-                // Return the first word
-                return mText.split(" ")[0];
-            case NONE:
-            default:
-                return "";
-        }
-    }
+	@Override
+	public String getTextForDisplayMode(MentionDisplayMode mode) {
+		switch (mode) {
+			case FULL:
+				return mText;
+			case PARTIAL:
+				// Return the first word
+				return mText.split(" ")[0];
+			case NONE:
+			default:
+				return "";
+		}
+	}
 
-    @Override
-    public MentionDeleteStyle getDeleteStyle() {
-        return MentionDeleteStyle.PARTIAL_NAME_DELETE;
-    }
+	@Override
+	public MentionDeleteStyle getDeleteStyle() {
+		return MentionDeleteStyle.PARTIAL_NAME_DELETE;
+	}
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+	@Override
+	public int describeContents() {
+		return 0;
+	}
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mText);
-    }
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mText);
+	}
 
-    public TestMention(Parcel in) {
-        mText = in.readString();
-    }
+	public TestMention(Parcel in) {
+		mText = in.readString();
+	}
 
-    public static final Parcelable.Creator<TestMention> CREATOR
-            = new Parcelable.Creator<TestMention>() {
-        public TestMention createFromParcel(Parcel in) {
-            return new TestMention(in);
-        }
+	public static final Parcelable.Creator<TestMention> CREATOR
+			= new Parcelable.Creator<TestMention>() {
+		public TestMention createFromParcel(Parcel in) {
+			return new TestMention(in);
+		}
 
-        public TestMention[] newArray(int size) {
-            return new TestMention[size];
-        }
-    };
+		public TestMention[] newArray(int size) {
+			return new TestMention[size];
+		}
+	};
 
 
 }
