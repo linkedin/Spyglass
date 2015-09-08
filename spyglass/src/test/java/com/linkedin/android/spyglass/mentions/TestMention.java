@@ -29,12 +29,12 @@ public class TestMention implements Mentionable {
     }
 
     @Override
-    public int getId() {
+    public int getSuggestibleId() {
         return mText.hashCode();
     }
 
     @Override
-    public String getPrimaryText() {
+    public String getSuggestiblePrimaryText() {
         return mText;
     }
 
@@ -81,4 +81,6 @@ public class TestMention implements Mentionable {
             return new TestMention[size];
         }
     };
+
+
 }
