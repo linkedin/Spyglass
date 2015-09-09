@@ -87,18 +87,18 @@ public class RichEditorViewTest {
         Mentionable mention2 = new TestMention("Deepank Gupta");
         MentionSpan span2 = new MentionSpan(Robolectric.application, mention2);
 
-        mRichEditor.getText().setSpan(span1, 14, 14 + mention1.getPrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mRichEditor.getText().setSpan(span2, 30, 30 + mention2.getPrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mRichEditor.getText().setSpan(span1, 14, 14 + mention1.getSuggestiblePrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mRichEditor.getText().setSpan(span2, 30, 30 + mention2.getSuggestiblePrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         List<MentionSpan> spans = mRichEditor.getMentionSpans();
 
         assertEquals(2, spans.size());
         Mentionable result1 = spans.get(0).getMention();
         Mentionable result2 = spans.get(1).getMention();
 
-        assertEquals(mention1.getPrimaryText(), result1.getPrimaryText());
-        assertEquals(mention1.getPrimaryText(), "Shoulong Li");
-        assertEquals(mention2.getPrimaryText(), result2.getPrimaryText());
-        assertEquals(mention2.getPrimaryText(), "Deepank Gupta");
+        assertEquals(mention1.getSuggestiblePrimaryText(), result1.getSuggestiblePrimaryText());
+        assertEquals(mention1.getSuggestiblePrimaryText(), "Shoulong Li");
+        assertEquals(mention2.getSuggestiblePrimaryText(), result2.getSuggestiblePrimaryText());
+        assertEquals(mention2.getSuggestiblePrimaryText(), "Deepank Gupta");
     }
 
     @Test

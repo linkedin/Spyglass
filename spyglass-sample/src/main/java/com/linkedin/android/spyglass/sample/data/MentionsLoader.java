@@ -53,7 +53,7 @@ public  abstract class MentionsLoader<T extends Mentionable> {
         List<T> suggestions = new ArrayList<>();
         if (mData != null) {
             for (T suggestion : mData) {
-                String name = suggestion.getPrimaryText().toLowerCase();
+                String name = suggestion.getSuggestiblePrimaryText().toLowerCase();
                 if (name.startsWith(prefix)) {
                     suggestions.add(suggestion);
                 }
