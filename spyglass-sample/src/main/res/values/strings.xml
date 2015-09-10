@@ -11,6 +11,9 @@
     <string name="simple_mentions_sample">Basic Demo</string>
     <string name="simple_mentions_description">A basic mentions widget with as little code as possible.</string>
 
+    <string name="colorful_mentions_sample">Colorful Mentions Demo</string>
+    <string name="colorful_mentions_description">Demonstrates how to set custom colors for your mentions.</string>
+
     <string name="networked_mentions_sample">Network Demo</string>
     <string name="networked_mentions_description">Shows the effect of a simulated network latency.</string>
 

@@ -15,7 +15,9 @@
 package com.linkedin.android.spyglass.ui;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -34,6 +36,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
+import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.MentionsEditable;
 import com.linkedin.android.spyglass.suggestions.SuggestionsAdapter;
@@ -54,10 +57,19 @@ import java.util.List;
 
 /**
  * Custom view for the RichEditor. Manages three subviews:
- * <p>
- * 1. EditText - contains text typed by user
- * 2. TextView - displays count of the number of characters in the EditText
+ * <p/>
+ * 1. EditText - contains text typed by user <br/>
+ * 2. TextView - displays count of the number of characters in the EditText <br/>
  * 3. ListView - displays mention suggestions when relevant
+ * <p/>
+ * <b>XML attributes</b>
+ * <p/>
+ * See {@link R.styleable#RichEditorView Attributes}
+ *
+ * @attr ref R.styleable#RichEditorView_mentionTextColor
+ * @attr ref R.styleable#RichEditorView_mentionTextBackgroundColor
+ * @attr ref R.styleable#RichEditorView_selectedMentionTextColor
+ * @attr ref R.styleable#RichEditorView_selectedMentionTextBackgroundColor
  */
 public class RichEditorView extends RelativeLayout implements TextWatcher, QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
 
@@ -84,31 +96,39 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     // Constructors & Initialization
     // --------------------------------------------------
 
-    public RichEditorView(Context context) {
+    public RichEditorView(@NonNull Context context) {
         super(context);
-        init(context, null);
+        init(context, null, 0);
     }
 
-    public RichEditorView(Context context, AttributeSet attrs) {
+    public RichEditorView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(context, attrs, 0);
     }
 
-    public void init(Context context, AttributeSet attrs) {
+    public RichEditorView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context, attrs, defStyleAttr);
+    }
 
+    public void init(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         // Inflate view from XML layout file
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.editor_view, this, true);
 
-        // Get the views for the fragment
+        // Get the inner views
         mMentionsEditText = (MentionsEditText) findViewById(R.id.text_editor);
         mTextCounterView = (TextView) findViewById(R.id.text_counter);
         mSuggestionsList = (ListView) findViewById(R.id.suggestions_list);
 
+        // Get the MentionSpanConfig from custom XML attributes and set it
+        MentionSpanConfig mentionSpanConfig = parseMentionSpanConfigFromAttributes(attrs, defStyleAttr);
+        mMentionsEditText.setMentionSpanConfig(mentionSpanConfig);
+
         // Create the tokenizer to use for the editor
         // TODO: Allow customization of configuration via XML attributes
-        WordTokenizerConfig config = new WordTokenizerConfig.Builder().build();
-        WordTokenizer tokenizer = new WordTokenizer(config);
+        WordTokenizerConfig tokenizerConfig = new WordTokenizerConfig.Builder().build();
+        WordTokenizer tokenizer = new WordTokenizer(tokenizerConfig);
         mMentionsEditText.setTokenizer(tokenizer);
 
         // Set various delegates on the MentionEditText to the RichEditorView
@@ -140,6 +160,31 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
         // Wrap the EditText content height if necessary (ideally, allow this to be controlled via custom XML attribute)
         setEditTextShouldWrapContent(mEditTextShouldWrapContent);
         mPrevEditTextBottomPadding = mMentionsEditText.getPaddingBottom();
+    }
+
+    private MentionSpanConfig parseMentionSpanConfigFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
+        final Context context = getContext();
+        MentionSpanConfig.Builder builder = new MentionSpanConfig.Builder();
+        if (attrs == null) {
+            return builder.build();
+        }
+
+        TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
+                                                                          R.styleable.RichEditorView,
+                                                                          defStyleAttr,
+                                                                          0);
+        @ColorInt int normalTextColor = attributes.getColor(R.styleable.RichEditorView_mentionTextColor, -1);
+        builder.setMentionTextColor(normalTextColor);
+        @ColorInt int normalBgColor = attributes.getColor(R.styleable.RichEditorView_mentionTextBackgroundColor, -1);
+        builder.setMentionTextBackgroundColor(normalBgColor);
+        @ColorInt int selectedTextColor = attributes.getColor(R.styleable.RichEditorView_selectedMentionTextColor, -1);
+        builder.setSelectedMentionTextColor(selectedTextColor);
+        @ColorInt int selectedBgColor = attributes.getColor(R.styleable.RichEditorView_selectedMentionTextBackgroundColor, -1);
+        builder.setSelectedMentionTextBackgroundColor(selectedBgColor);
+
+        attributes.recycle();
+
+        return builder.build();
     }
 
     // --------------------------------------------------
@@ -534,6 +579,17 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     public void setTokenizer(final @NonNull Tokenizer tokenizer) {
         if (mMentionsEditText != null) {
             mMentionsEditText.setTokenizer(tokenizer);
+        }
+    }
+
+    /**
+     * Sets the factory used to create MentionSpans within this class.
+     *
+     * @param factory the {@link MentionsEditText.MentionSpanFactory} to use
+     */
+    public void setMentionSpanFactory(@NonNull final MentionsEditText.MentionSpanFactory factory) {
+        if (mMentionsEditText != null) {
+            mMentionsEditText.setMentionSpanFactory(factory);
         }
     }
 

@@ -83,9 +83,9 @@ public class RichEditorViewTest {
         assertEquals(0, mRichEditor.getMentionSpans().size());
 
         Mentionable mention1 = new TestMention("Shoulong Li");
-        MentionSpan span1 = new MentionSpan(Robolectric.application, mention1);
+        MentionSpan span1 = new MentionSpan(mention1);
         Mentionable mention2 = new TestMention("Deepank Gupta");
-        MentionSpan span2 = new MentionSpan(Robolectric.application, mention2);
+        MentionSpan span2 = new MentionSpan(mention2);
 
         mRichEditor.getText().setSpan(span1, 14, 14 + mention1.getSuggestiblePrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mRichEditor.getText().setSpan(span2, 30, 30 + mention2.getSuggestiblePrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
