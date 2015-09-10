@@ -20,6 +20,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.linkedin.android.spyglass.sample.samples.ColorfulMentions;
 import com.linkedin.android.spyglass.sample.samples.GridMentions;
 import com.linkedin.android.spyglass.sample.samples.MultiSourceMentions;
 import com.linkedin.android.spyglass.sample.samples.NetworkedMentions;
@@ -40,6 +41,14 @@ public class SamplesActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SamplesActivity.this, SimpleMentions.class));
+            }
+        });
+
+        Button colorfulSample = (Button) findViewById(R.id.colorful_sample);
+        colorfulSample.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SamplesActivity.this, ColorfulMentions.class));
             }
         });
 

@@ -39,7 +39,7 @@ public class MentionsEditableTest {
     public void setUp() {
         mEditable = new MentionsEditable("Hi @" + NAME + " bye");
         TestMention tm = new TestMention(NAME);
-        mMentionSpan = new MentionSpan(Robolectric.application, tm);
+        mMentionSpan = new MentionSpan(tm);
     }
 
     @Test

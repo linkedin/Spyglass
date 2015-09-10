@@ -3,4 +3,9 @@
     <color name="action_bar">#2e8dd7</color>
     <color name="person_mention_text">#3F51B5</color>
     <color name="city_mention_text">#4CAF50</color>
+
+    <color name="custom_normal_mention_text">#ff8400</color>
+    <color name="custom_normal_mention_text_background">#bffff1</color>
+    <color name="custom_selected_mention_text">#999999</color>
+    <color name="custom_selected_mention_text_background">#ff0000</color>
 </resources>

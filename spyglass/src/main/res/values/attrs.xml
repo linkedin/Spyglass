@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="mentionTextColor" format="color"/>
+    <attr name="mentionTextBackgroundColor" format="color"/>
+    <attr name="selectedMentionTextColor" format="color"/>
+    <attr name="selectedMentionTextBackgroundColor" format="color"/>
+
+    <declare-styleable name="MentionsEditText">
+        <attr name="mentionTextColor"/>
+        <attr name="mentionTextBackgroundColor"/>
+        <attr name="selectedMentionTextColor"/>
+        <attr name="selectedMentionTextBackgroundColor"/>
+    </declare-styleable>
+
+    <declare-styleable name="RichEditorView">
+        <attr name="mentionTextColor"/>
+        <attr name="mentionTextBackgroundColor"/>
+        <attr name="selectedMentionTextColor"/>
+        <attr name="selectedMentionTextBackgroundColor"/>
+    </declare-styleable>
+</resources>
