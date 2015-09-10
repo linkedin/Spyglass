@@ -14,7 +14,6 @@
 
 package com.linkedin.android.spyglass.tokenization.impl;
 
-import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -29,6 +28,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 public class WordTokenizer implements Tokenizer {
 
     private final WordTokenizerConfig mConfig;
+    private boolean mIgnoreThresholdDuringBack;
 
     public WordTokenizer() {
         this(new WordTokenizerConfig.Builder().build());
@@ -138,7 +138,7 @@ public class WordTokenizer implements Tokenizer {
         }
 
         // Handle explicit mentions first, then implicit mentions
-        final int threshold = mConfig.THRESHOLD;
+        final int threshold = getThreshold();
         boolean multipleWords = containsWordBreakingChar(token);
         boolean containsExplicitChar = containsExplicitChar(token);
 
@@ -358,6 +358,15 @@ public class WordTokenizer implements Tokenizer {
         return true;
     }
 
+    /**
+     * Set if we need to ignore the threshold during the back press
+     *
+     * @param ignoreThresholdDuringBack
+     */
+    public void setIgnoreThresholdDuringBack(boolean ignoreThresholdDuringBack) {
+        mIgnoreThresholdDuringBack = ignoreThresholdDuringBack;
+    }
+
     // --------------------------------------------------
     // Protected Helper Methods
     // --------------------------------------------------
@@ -460,4 +469,12 @@ public class WordTokenizer implements Tokenizer {
         return false;
     }
 
+    // --------------------------------------------------
+    // Private Helper Methods
+    // --------------------------------------------------
+
+    private int getThreshold() {
+        // When we want to ignore the threshold during back, we will return the threshold as 1
+        return mIgnoreThresholdDuringBack ? 1 : mConfig.THRESHOLD;
+    }
 }
