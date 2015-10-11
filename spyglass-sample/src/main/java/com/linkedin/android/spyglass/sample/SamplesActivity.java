@@ -16,7 +16,7 @@ package com.linkedin.android.spyglass.sample;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
@@ -29,7 +29,7 @@ import com.linkedin.android.spyglass.sample.samples.SimpleMentions;
 /**
  * Main samples activity containing buttons to launch all the different samples.
  */
-public class SamplesActivity extends ActionBarActivity {
+public class SamplesActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
