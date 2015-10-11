@@ -16,7 +16,7 @@ Here is a list of samples within this app in order of increasing complexity:
 
    Demonstrates how network latency affects how Spyglass performs. Contains a slider allowing you to adjust the mocked network latency.
    
-3. **Multiple Suggestion Source Demo **
+3. **Multiple Suggestion Source Demo**
 
    Shows how to implement suggestions when they are gathered from multiple potential sources.
    
