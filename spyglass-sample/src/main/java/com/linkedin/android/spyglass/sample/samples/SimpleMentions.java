@@ -16,7 +16,7 @@ package com.linkedin.android.spyglass.sample.samples;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.linkedin.android.spyglass.sample.R;
 import com.linkedin.android.spyglass.sample.data.models.City;
@@ -25,14 +25,13 @@ import com.linkedin.android.spyglass.tokenization.QueryToken;
 import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.ui.RichEditorView;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Simple example showing city mentions.
  */
-public class SimpleMentions extends ActionBarActivity implements QueryTokenReceiver {
+public class SimpleMentions extends AppCompatActivity implements QueryTokenReceiver {
 
     private static final String BUCKET = "cities-memory";
 

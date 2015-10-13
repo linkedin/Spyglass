@@ -16,7 +16,7 @@ package com.linkedin.android.spyglass.sample.samples;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * Demonstrates how mentions are handled when there is a delay retrieving the suggestions (i.e. over a network).
  */
-public class GridMentions extends ActionBarActivity implements QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
+public class GridMentions extends AppCompatActivity implements QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
 
     private static final String BUCKET = "people-network";
 

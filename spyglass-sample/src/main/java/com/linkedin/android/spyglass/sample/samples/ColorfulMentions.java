@@ -16,7 +16,8 @@ package com.linkedin.android.spyglass.sample.samples;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+
 import com.linkedin.android.spyglass.sample.R;
 import com.linkedin.android.spyglass.sample.data.models.City;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
@@ -30,7 +31,7 @@ import java.util.List;
 /**
  * Simple example showing customized, colorful mentions.
  */
-public class ColorfulMentions extends ActionBarActivity implements QueryTokenReceiver {
+public class ColorfulMentions extends AppCompatActivity implements QueryTokenReceiver {
 
     private static final String BUCKET = "cities-memory";
 
