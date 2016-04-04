@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -36,7 +37,7 @@ import java.util.List;
 /**
  * Demonstrates how mentions are handled when there is a delay retrieving the suggestions (i.e. over a network).
  */
-public class NetworkedMentions extends ActionBarActivity implements QueryTokenReceiver {
+public class NetworkedMentions extends AppCompatActivity implements QueryTokenReceiver {
 
     private static final String BUCKET = "people-network";
 

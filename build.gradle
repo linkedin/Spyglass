@@ -26,3 +26,12 @@ allprojects {
         jcenter()
     }
 }
+
+// Turn off doclint when using Java 8 (otherwise, you'll see errors when running "gradle androidJavadocs")
+if (JavaVersion.current().isJava8Compatible()) {
+  allprojects {
+    tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+    }
+  }
+}

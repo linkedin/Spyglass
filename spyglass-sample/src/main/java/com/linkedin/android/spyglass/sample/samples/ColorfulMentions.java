@@ -29,9 +29,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Simple example showing city mentions.
+ * Simple example showing customized, colorful mentions.
  */
-public class SimpleMentions extends AppCompatActivity implements QueryTokenReceiver {
+public class ColorfulMentions extends AppCompatActivity implements QueryTokenReceiver {
 
     private static final String BUCKET = "cities-memory";
 
@@ -40,7 +40,7 @@ public class SimpleMentions extends AppCompatActivity implements QueryTokenRecei
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.simple_mentions);
+        setContentView(R.layout.colorful_mentions);
         editor = (RichEditorView) findViewById(R.id.editor);
         editor.setQueryTokenReceiver(this);
         editor.setHint(getResources().getString(R.string.type_city));

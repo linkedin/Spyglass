@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,7 @@ import java.util.List;
 /**
  * Demonstrates how mentions are handled when there is a delay retrieving the suggestions (i.e. over a network).
  */
-public class MultiSourceMentions extends ActionBarActivity implements QueryTokenReceiver {
+public class MultiSourceMentions extends AppCompatActivity implements QueryTokenReceiver {
 
     private static final String PERSON_BUCKET = "people-database";
     private static final String CITY_BUCKET = "city-network";

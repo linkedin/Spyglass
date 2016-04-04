@@ -14,18 +14,14 @@
 
 package com.linkedin.android.spyglass.mentions;
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.EditText;
-
-import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.Mentionable.MentionDisplayMode;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 
@@ -35,30 +31,26 @@ import com.linkedin.android.spyglass.ui.MentionsEditText;
  */
 public class MentionSpan extends ClickableSpan implements Parcelable {
 
-    private int NORMAL_TEXT_COLOR;
-    private int NORMAL_BG_COLOR;
-    private int SELECTED_TEXT_COLOR;
-    private int SELECTED_BG_COLOR;
+    private final Mentionable mention;
+    private MentionSpanConfig config;
 
-    private Mentionable mMention;
-    private boolean mIsSelected = false;
-
+    private boolean isSelected = false;
     private MentionDisplayMode mDisplayMode = MentionDisplayMode.FULL;
 
-    public MentionSpan(Context context, Mentionable mention) {
+    public MentionSpan(@NonNull Mentionable mention) {
         super();
-        mMention = mention;
-        // Setup colors from resources
-        Resources resources = context.getResources();
-        NORMAL_TEXT_COLOR = resources.getColor(R.color.mention_unselected);
-        NORMAL_BG_COLOR = Color.TRANSPARENT;
-        SELECTED_TEXT_COLOR = Color.WHITE;
-        SELECTED_BG_COLOR = resources.getColor(R.color.mention_selected);
+        this.mention = mention;
+        this.config = new MentionSpanConfig.Builder().build();
+    }
+
+    public MentionSpan(@NonNull Mentionable mention, @NonNull MentionSpanConfig config) {
+        super();
+        this.mention = mention;
+        this.config = config;
     }
 
     @Override
-    public void onClick(View widget) {
-
+    public void onClick(@NonNull final View widget) {
         if (!(widget instanceof MentionsEditText)) {
             return;
         }
@@ -89,27 +81,27 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
     }
 
     @Override
-    public void updateDrawState(TextPaint tp) {
+    public void updateDrawState(@NonNull final TextPaint tp) {
         if (isSelected()) {
-            tp.setColor(SELECTED_TEXT_COLOR);
-            tp.bgColor = SELECTED_BG_COLOR;
+            tp.setColor(config.SELECTED_TEXT_COLOR);
+            tp.bgColor = config.SELECTED_TEXT_BACKGROUND_COLOR;
         } else {
-            tp.setColor(NORMAL_TEXT_COLOR);
-            tp.bgColor = NORMAL_BG_COLOR;
+            tp.setColor(config.NORMAL_TEXT_COLOR);
+            tp.bgColor = config.NORMAL_TEXT_BACKGROUND_COLOR;
         }
         tp.setUnderlineText(false);
     }
 
     public Mentionable getMention() {
-        return mMention;
+        return mention;
     }
 
     public boolean isSelected() {
-        return mIsSelected;
+        return isSelected;
     }
 
     public void setSelected(boolean selected) {
-        mIsSelected = selected;
+        isSelected = selected;
     }
 
     public MentionDisplayMode getDisplayMode() {
@@ -121,23 +113,7 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
     }
 
     public String getDisplayString() {
-        return mMention.getTextForDisplayMode(mDisplayMode);
-    }
-
-    public void setNormalTextColor(int color) {
-        NORMAL_TEXT_COLOR = color;
-    }
-
-    public void setNormalBackgroundColor(int color) {
-        NORMAL_BG_COLOR = color;
-    }
-
-    public void setSelectedTextColor(int color) {
-        SELECTED_TEXT_COLOR = color;
-    }
-
-    public void setSelectedBackgroundColor(int color) {
-        SELECTED_BG_COLOR = color;
+        return mention.getTextForDisplayMode(mDisplayMode);
     }
 
     @Override
@@ -146,11 +122,11 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(NORMAL_TEXT_COLOR);
-        dest.writeInt(NORMAL_BG_COLOR);
-        dest.writeInt(SELECTED_TEXT_COLOR);
-        dest.writeInt(SELECTED_BG_COLOR);
+    public void writeToParcel(@NonNull final Parcel dest, int flags) {
+        dest.writeInt(config.NORMAL_TEXT_COLOR);
+        dest.writeInt(config.NORMAL_TEXT_BACKGROUND_COLOR);
+        dest.writeInt(config.SELECTED_TEXT_COLOR);
+        dest.writeInt(config.SELECTED_TEXT_BACKGROUND_COLOR);
 
         dest.writeInt(getDisplayMode().ordinal());
         dest.writeInt(isSelected() ? 1 : 0);
@@ -158,14 +134,16 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
     }
 
     public MentionSpan(Parcel in) {
-        NORMAL_TEXT_COLOR = in.readInt();
-        NORMAL_BG_COLOR = in.readInt();
-        SELECTED_TEXT_COLOR = in.readInt();
-        SELECTED_BG_COLOR = in.readInt();
+        int normalTextColor = in.readInt();
+        int normalTextBackgroundColor = in.readInt();
+        int selectedTextColor = in.readInt();
+        int selectedTextBackgroundColor = in.readInt();
+        config = new MentionSpanConfig(normalTextColor, normalTextBackgroundColor,
+                                       selectedTextColor, selectedTextBackgroundColor);
 
         mDisplayMode = MentionDisplayMode.values()[in.readInt()];
         setSelected((in.readInt() == 1));
-        mMention = in.readParcelable(Mentionable.class.getClassLoader());
+        mention = in.readParcelable(Mentionable.class.getClassLoader());
     }
 
     public static final Parcelable.Creator<MentionSpan> CREATOR

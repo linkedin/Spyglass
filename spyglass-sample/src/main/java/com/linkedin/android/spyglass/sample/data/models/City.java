@@ -66,12 +66,12 @@ public class City implements Mentionable {
     }
 
     @Override
-    public int getId() {
+    public int getSuggestibleId() {
         return mName.hashCode();
     }
 
     @Override
-    public String getPrimaryText() {
+    public String getSuggestiblePrimaryText() {
         return mName;
     }
 

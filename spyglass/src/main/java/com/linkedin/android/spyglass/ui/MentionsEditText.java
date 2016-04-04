@@ -15,8 +15,10 @@
 package com.linkedin.android.spyglass.ui;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -37,7 +39,9 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
+import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.MentionsEditable;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
@@ -53,6 +57,15 @@ import java.util.Locale;
 /**
  * Class that overrides {@link EditText} in order to have more control over touch events and selection ranges for use in
  * the {@link RichEditorView}.
+ * <p/>
+ * <b>XML attributes</b>
+ * <p/>
+ * See {@link R.styleable#MentionsEditText Attributes}
+ *
+ * @attr ref R.styleable#MentionsEditText_mentionTextColor
+ * @attr ref R.styleable#MentionsEditText_mentionTextBackgroundColor
+ * @attr ref R.styleable#MentionsEditText_selectedMentionTextColor
+ * @attr ref R.styleable#MentionsEditText_selectedMentionTextBackgroundColor
  */
 public class MentionsEditText extends EditText implements TokenSource {
 
@@ -68,25 +81,31 @@ public class MentionsEditText extends EditText implements TokenSource {
     private boolean mAvoidPrefixOnTap = false;
     private String mAvoidedPrefix;
 
-    public MentionsEditText(Context context) {
+    private MentionSpanFactory mentionSpanFactory;
+    private MentionSpanConfig mentionSpanConfig;
+
+    public MentionsEditText(@NonNull Context context) {
         super(context);
-        init();
+        init(null, 0);
     }
 
-    public MentionsEditText(Context context, AttributeSet attrs) {
+    public MentionsEditText(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs, 0);
     }
 
-    public MentionsEditText(Context context, AttributeSet attrs, int defStyle) {
+    public MentionsEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
+        init(attrs, defStyle);
     }
 
     /**
      * Initialization method called by all constructors.
      */
-    private void init() {
+    private void init(@Nullable AttributeSet attrs, int defStyleAttr) {
+        // Get the mention span config from custom attributes
+        mentionSpanConfig = parseMentionSpanConfigFromAttributes(attrs, defStyleAttr);
+
         // Must set movement method in order for MentionSpans to be clickable
         setMovementMethod(MentionsMovementMethod.getInstance());
 
@@ -95,6 +114,31 @@ public class MentionsEditText extends EditText implements TokenSource {
 
         // Start watching itself for text changes
         addTextChangedListener(mInternalTextWatcher);
+
+        // Use default MentionSpanFactory initially
+        mentionSpanFactory = new MentionSpanFactory();
+    }
+
+    private MentionSpanConfig parseMentionSpanConfigFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
+        final Context context = getContext();
+        MentionSpanConfig.Builder builder = new MentionSpanConfig.Builder();
+        if (attrs == null) {
+            return builder.build();
+        }
+
+        TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MentionsEditText, defStyleAttr, 0);
+        @ColorInt int normalTextColor = attributes.getColor(R.styleable.MentionsEditText_mentionTextColor, -1);
+        builder.setMentionTextColor(normalTextColor);
+        @ColorInt int normalBgColor = attributes.getColor(R.styleable.MentionsEditText_mentionTextBackgroundColor, -1);
+        builder.setMentionTextBackgroundColor(normalBgColor);
+        @ColorInt int selectedTextColor = attributes.getColor(R.styleable.MentionsEditText_selectedMentionTextColor, -1);
+        builder.setSelectedMentionTextColor(selectedTextColor);
+        @ColorInt int selectedBgColor = attributes.getColor(R.styleable.MentionsEditText_selectedMentionTextBackgroundColor, -1);
+        builder.setSelectedMentionTextBackgroundColor(selectedBgColor);
+
+        attributes.recycle();
+
+        return builder.build();
     }
 
     // --------------------------------------------------
@@ -713,7 +757,7 @@ public class MentionsEditText extends EditText implements TokenSource {
             Locale locale = getContext().getApplicationContext().getResources().getConfiguration().locale;
             String tokenString = getCurrentTokenString().toLowerCase(locale);
             String[] tsNames = tokenString.split(" ");
-            String[] mentionNames = mention.getPrimaryText().split(" ");
+            String[] mentionNames = mention.getSuggestiblePrimaryText().split(" ");
             for (String tsName : tsNames) {
                 for (String mentionName : mentionNames) {
                     mentionName = mentionName.toLowerCase(locale);
@@ -745,8 +789,8 @@ public class MentionsEditText extends EditText implements TokenSource {
 
     private void insertMentionInternal(@NonNull Mentionable mention, @NonNull Editable text, int start, int end) {
         // Insert the span into the editor
-        MentionSpan mentionSpan = new MentionSpan(getContext(), mention);
-        String name = mention.getPrimaryText();
+        MentionSpan mentionSpan = mentionSpanFactory.createMentionSpan(mention, mentionSpanConfig);
+        String name = mention.getSuggestiblePrimaryText();
 
         mBlockCompletion = true;
         text.replace(start, end, name);
@@ -996,6 +1040,22 @@ public class MentionsEditText extends EditText implements TokenSource {
     }
 
     // --------------------------------------------------
+    // MentionSpan Factory
+    // --------------------------------------------------
+
+    /**
+     * Custom factory used when creating a {@link MentionSpan}.
+     */
+    public static class MentionSpanFactory {
+
+        @NonNull
+        public MentionSpan createMentionSpan(@NonNull Mentionable mention,
+                                             @Nullable MentionSpanConfig config) {
+            return (config != null) ? new MentionSpan(mention, config) : new MentionSpan(mention);
+        }
+    }
+
+    // --------------------------------------------------
     // MentionsMovementMethod Class
     // --------------------------------------------------
 
@@ -1050,7 +1110,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param tokenizer the {@link Tokenizer} to use
      */
-    public void setTokenizer(final @Nullable Tokenizer tokenizer) {
+    public void setTokenizer(@Nullable final Tokenizer tokenizer) {
         mTokenizer = tokenizer;
     }
 
@@ -1060,7 +1120,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param queryTokenReceiver the {@link QueryTokenReceiver} to use
      */
-    public void setQueryTokenReceiver(final @Nullable QueryTokenReceiver queryTokenReceiver) {
+    public void setQueryTokenReceiver(@Nullable final QueryTokenReceiver queryTokenReceiver) {
         mQueryTokenReceiver = queryTokenReceiver;
     }
 
@@ -1069,8 +1129,26 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param suggestionsVisibilityManager the {@link SuggestionsVisibilityManager} to use
      */
-    public void setSuggestionsVisibilityManager(final @Nullable SuggestionsVisibilityManager suggestionsVisibilityManager) {
+    public void setSuggestionsVisibilityManager(@Nullable final SuggestionsVisibilityManager suggestionsVisibilityManager) {
         mSuggestionsVisibilityManager = suggestionsVisibilityManager;
+    }
+
+    /**
+     * Sets the factory used to create MentionSpans within this class.
+     *
+     * @param factory the {@link MentionSpanFactory} to use
+     */
+    public void setMentionSpanFactory(@NonNull final MentionSpanFactory factory) {
+        mentionSpanFactory = factory;
+    }
+
+    /**
+     * Sets the configuration options used when creating MentionSpans.
+     *
+     * @param config the {@link MentionSpanConfig} to use
+     */
+    public void setMentionSpanConfig(@NonNull final MentionSpanConfig config) {
+        mentionSpanConfig = config;
     }
 
     /**

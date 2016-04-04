@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+1.3.0 *(2015-09-11)*
+--------------------------
+ * added custom XML attributes to control the color of the mentions
+ * renamed functions within the Suggestible interface
+ * added factory to customize how MentionSpans are generated
+ * other minor improvements
+
 1.2.2 *(2015-08-10)*
 --------------------------
  * prevent IndexOutOfBoundsException when copying/pasting part of a mention
@@ -9,7 +16,7 @@ Change Log
 1.2.1 *(2015-07-21)*
 --------------------------
  * better handling of multi-word mentions
- 
+
 1.2.0 *(2015-07-20)*
 --------------------------
  * added isWordBreakingChar method to Tokenizer interface

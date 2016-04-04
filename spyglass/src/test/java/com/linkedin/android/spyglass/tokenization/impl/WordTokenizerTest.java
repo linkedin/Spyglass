@@ -350,8 +350,8 @@ public class WordTokenizerTest {
     private void setTestSpan(String name, int start) throws Exception {
         // Set a test span in the editor around a person's name
         TestMention mention = new TestMention(name);
-        MentionSpan span = new MentionSpan(Robolectric.application, mention);
-        mRichEditor.getText().setSpan(span, start, start + mention.getPrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        MentionSpan span = new MentionSpan(mention);
+        mRichEditor.getText().setSpan(span, start, start + mention.getSuggestiblePrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     @Test

@@ -12,6 +12,10 @@
             android:label="@string/simple_mentions_sample" />
 
         <activity
+            android:name=".samples.ColorfulMentions"
+            android:label="@string/colorful_mentions_sample" />
+
+        <activity
             android:name=".samples.NetworkedMentions"
             android:label="@string/networked_mentions_sample" />
 
