@@ -621,6 +621,10 @@ public class MentionsEditText extends EditText implements TokenSource {
                         if (name.length() > 0) {
                             text.setSpan(span, start, start + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
+                        // Notify for partially deleted mentions.
+                        if (mMentionWatchers.size() > 0 && displayMode == Mentionable.MentionDisplayMode.PARTIAL) {
+                            notifyMentionPartiallyDeletedWatchers(span.getMention(), name, start, end);
+                        }
                         spanAltered = true;
                     }
                     break;
@@ -989,6 +993,12 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
     }
 
+    private void notifyMentionPartiallyDeletedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
+        for (MentionWatcher watcher : mMentionWatchers) {
+            watcher.onMentionPartiallyDeleted(mention, text, start, end);
+        }
+    }
+
     // --------------------------------------------------
     // Private Classes
     // --------------------------------------------------
@@ -1253,6 +1263,16 @@ public class MentionsEditText extends EditText implements TokenSource {
          * @param end       the ending index of where the mention was deleted
          */
         void onMentionDeleted(@NonNull Mentionable mention, @NonNull String text, int start, int end);
+
+        /**
+         * Callback for when a mention is partially deleted.
+         *
+         * @param mention   the {@link Mentionable} that was deleted
+         * @param text      the text after the mention was partially deleted
+         * @param start     the starting index of where the partial mention starts
+         * @param end       the ending index of where the partial mention ends
+         */
+        void onMentionPartiallyDeleted(@NonNull Mentionable mention, @NonNull String text, int start, int end);
     }
 
     /**
@@ -1266,5 +1286,8 @@ public class MentionsEditText extends EditText implements TokenSource {
 
         @Override
         public void onMentionDeleted(@NonNull Mentionable mention, @NonNull String text, int start, int end) {}
+
+        @Override
+        public void onMentionPartiallyDeleted(@NonNull Mentionable mention, @NonNull String text, int start, int end) {}
     }
 }
