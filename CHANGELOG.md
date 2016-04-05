@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+1.3.1 *(2016-04-05)*
+--------------------------
+ * add support for listening to partial mention deletions
+
 1.3.0 *(2015-09-11)*
 --------------------------
  * added custom XML attributes to control the color of the mentions
