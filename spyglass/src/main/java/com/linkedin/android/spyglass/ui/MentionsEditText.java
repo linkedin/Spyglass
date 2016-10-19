@@ -754,25 +754,6 @@ public class MentionsEditText extends EditText implements TokenSource {
             return;
         }
 
-        // Must ensure that the starting index to insert the span matches the name of the mention if implicit
-        // Note: If explicit, then do not change the start index (must replace the explicit character)
-        if (!isCurrentlyExplicit()) {
-            int initialStart = start;
-            Locale locale = getContext().getApplicationContext().getResources().getConfiguration().locale;
-            String tokenString = getCurrentTokenString().toLowerCase(locale);
-            String[] tsNames = tokenString.split(" ");
-            String[] mentionNames = mention.getSuggestiblePrimaryText().split(" ");
-            for (String tsName : tsNames) {
-                for (String mentionName : mentionNames) {
-                    mentionName = mentionName.toLowerCase(locale);
-                    if (mentionName.startsWith(tsName)) {
-                        start = initialStart + tokenString.indexOf(tsName);
-                        break;
-                    }
-                }
-            }
-        }
-
         insertMentionInternal(mention, text, start, end);
     }
 
