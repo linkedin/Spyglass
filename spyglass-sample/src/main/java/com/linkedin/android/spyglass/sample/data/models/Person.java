@@ -159,14 +159,20 @@ public class Person implements Mentionable {
         // Modified to return suggestions based on both first and last name
         @Override
         public List<Person> getSuggestions(QueryToken queryToken) {
-            String prefix = queryToken.getKeywords().toLowerCase();
+            String[] namePrefixes = queryToken.getKeywords().toLowerCase().split(" ");
             List<Person> suggestions = new ArrayList<>();
             if (mData != null) {
                 for (Person suggestion : mData) {
                     String firstName = suggestion.getFirstName().toLowerCase();
                     String lastName = suggestion.getLastName().toLowerCase();
-                    if (firstName.startsWith(prefix) || lastName.startsWith(prefix)) {
-                        suggestions.add(suggestion);
+                    if (namePrefixes.length == 2) {
+                        if (firstName.startsWith(namePrefixes[0]) && lastName.startsWith(namePrefixes[1])) {
+                            suggestions.add(suggestion);
+                        }
+                    } else {
+                        if (firstName.startsWith(namePrefixes[0]) || lastName.startsWith(namePrefixes[0])) {
+                            suggestions.add(suggestion);
+                        }
                     }
                 }
             }
