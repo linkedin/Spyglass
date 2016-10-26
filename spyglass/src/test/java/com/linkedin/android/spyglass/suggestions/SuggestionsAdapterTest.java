@@ -14,6 +14,7 @@
 
 package com.linkedin.android.spyglass.suggestions;
 
+import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.TestMention;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
@@ -35,7 +36,7 @@ import java.util.List;
 import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 
-@Config(emulateSdk = 18)
+@Config(constants = BuildConfig.class, sdk = 18)
 @RunWith(SpyglassRobolectricRunner.class)
 public class SuggestionsAdapterTest {
 

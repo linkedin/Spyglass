@@ -15,6 +15,7 @@
 package com.linkedin.android.spyglass.tokenization.impl;
 
 import android.text.Spanned;
+import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.TestMention;
 import com.linkedin.android.spyglass.ui.RichEditorView;
@@ -23,7 +24,6 @@ import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
 import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
@@ -31,7 +31,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-@Config(emulateSdk = 18)
+@Config(constants = BuildConfig.class, sdk = 18)
 @RunWith(SpyglassRobolectricRunner.class)
 public class WordTokenizerTest {
 
@@ -356,10 +356,7 @@ public class WordTokenizerTest {
 
     @Test
     public void testIsValidMention() {
-
-        String mention = null;
         isValidMentionHelper(null, false);
-
         isValidMentionHelper("", false);
         isValidMentionHelper("ab ", false);
         isValidMentionHelper("  ", false);
@@ -414,7 +411,6 @@ public class WordTokenizerTest {
     }
 
     private void hasWordBreakingCharBeforeExplicitCharHelper(String text, boolean expected) {
-        final String method = "hasWordBreakingCharBeforeExplicitChar";
         mRichEditor.setText(text);
         mRichEditor.setSelection(text.length());
         boolean result = mTokenizer.hasWordBreakingCharBeforeExplicitChar(mRichEditor.getText(), text.length());
