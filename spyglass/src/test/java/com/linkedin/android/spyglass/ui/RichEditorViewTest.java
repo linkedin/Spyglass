@@ -19,7 +19,7 @@ import android.text.Spanned;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-
+import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.TestMention;
@@ -29,11 +29,9 @@ import com.linkedin.android.spyglass.tokenization.QueryToken;
 import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
 import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import com.linkedin.android.utils.TestUtils;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ import static org.mockito.Mockito.verify;
  * Placing this class in the same package as the class we're testing so we can
  * call protected methods in the test.
  */
-@Config(emulateSdk = 18)
+@Config(constants = BuildConfig.class, sdk = 18)
 @RunWith(SpyglassRobolectricRunner.class)
 public class RichEditorViewTest {
 

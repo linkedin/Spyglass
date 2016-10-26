@@ -21,10 +21,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import org.junit.runners.model.InitializationError;
-import org.robolectric.AndroidManifest;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.res.Fs;
 
 public class SpyglassRobolectricRunner extends RobolectricTestRunner {
@@ -35,14 +35,13 @@ public class SpyglassRobolectricRunner extends RobolectricTestRunner {
 
     @Override
     protected AndroidManifest getAppManifest(Config config) {
-        String manifestProperty = System.getProperty("android.manifest");
-        if (config.manifest().equals(Config.DEFAULT) && manifestProperty != null) {
-            String resProperty = System.getProperty("android.resources");
-            String assetsProperty = System.getProperty("android.assets");
-            return new AndroidManifest(Fs.fileFromPath(manifestProperty), Fs.fileFromPath(resProperty),
-                    Fs.fileFromPath(assetsProperty));
-        }
-        return super.getAppManifest(config);
+        // Need to point Robolectric to the debug Android Manifest and resources to use in tests
+        String basePath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath()
+            + "../../../bundles/debug";
+        String manifestPath = basePath + "/AndroidManifest.xml";
+        String resPath = basePath + "/res";
+        String assetPath = basePath + "/assets";
+        return new AndroidManifest(Fs.fileFromPath(manifestPath), Fs.fileFromPath(resPath), Fs.fileFromPath(assetPath));
     }
 
     public static void startFragment(Fragment fragment) {
