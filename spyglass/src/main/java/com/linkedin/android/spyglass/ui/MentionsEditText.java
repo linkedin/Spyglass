@@ -14,11 +14,20 @@
 
 package com.linkedin.android.spyglass.ui;
 
+import android.annotation.TargetApi;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IntRange;
+import android.support.annotation.MenuRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -35,10 +44,12 @@ import android.text.method.MovementMethod;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
@@ -52,7 +63,6 @@ import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Class that overrides {@link EditText} in order to have more control over touch events and selection ranges for use in
@@ -69,6 +79,9 @@ import java.util.Locale;
  */
 public class MentionsEditText extends EditText implements TokenSource {
 
+    private static final String KEY_MENTION_SPANS = "mention_spans";
+    private static final String KEY_MENTION_SPAN_STARTS = "mention_span_starts";
+
     private Tokenizer mTokenizer;
     private QueryTokenReceiver mQueryTokenReceiver;
     private SuggestionsVisibilityManager mSuggestionsVisibilityManager;
@@ -83,6 +96,8 @@ public class MentionsEditText extends EditText implements TokenSource {
 
     private MentionSpanFactory mentionSpanFactory;
     private MentionSpanConfig mentionSpanConfig;
+    private boolean isLongPressed;
+    private CheckLongClickRunnable longClickRunnable;
 
     public MentionsEditText(@NonNull Context context) {
         super(context);
@@ -206,10 +221,11 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        // If user tapped a span
-        MentionSpan touchedSpan = getTouchedSpan(event);
-        if (touchedSpan != null) {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
+        final MentionSpan touchedSpan = getTouchedSpan(event);
+        boolean superResult = super.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            // Don't call the onclick on mention if MotionEvent.ACTION_UP is for long click action,
+            if (!isLongPressed && touchedSpan != null) {
                 // Manually click span and show soft keyboard
                 touchedSpan.onClick(this);
                 Context context = getContext();
@@ -217,8 +233,20 @@ public class MentionsEditText extends EditText implements TokenSource {
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(this, 0);
                 }
+                return true;
             }
-            return true;
+        } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            isLongPressed = false;
+            if (isLongClickable() && touchedSpan != null) {
+                if (longClickRunnable == null) {
+                    longClickRunnable = new CheckLongClickRunnable();
+                }
+                longClickRunnable.touchedSpan = touchedSpan;
+                removeCallbacks(longClickRunnable);
+                postDelayed(longClickRunnable, ViewConfiguration.getLongPressTimeout());
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+            isLongPressed = false;
         }
 
         // Check if user clicked on the EditText while showing the suggestions list
@@ -239,8 +267,149 @@ public class MentionsEditText extends EditText implements TokenSource {
                 }
             }
         }
+        return superResult;
+    }
 
-        return super.onTouchEvent(event);
+    @Override
+    public boolean onTextContextMenuItem(@MenuRes int id) {
+        MentionsEditable text = getMentionsText();
+        int min = Math.max(0, getSelectionStart());
+        int selectionEnd = getSelectionEnd();
+        int max = selectionEnd >= 0 ? selectionEnd : text.length();
+        // Ensuring that min is always less than or equal to max.
+        min = Math.min(min, max);
+        switch (id) {
+            case android.R.id.cut:
+                // First copy the span and then remove it from the current EditText
+                copy(min, max);
+                MentionSpan[] span = text.getSpans(min, max, MentionSpan.class);
+                for (MentionSpan mentionSpan : span) {
+                    text.removeSpan(mentionSpan);
+                }
+                text.delete(min, max);
+                return true;
+            case android.R.id.copy:
+                copy(min, max);
+                return true;
+            case android.R.id.paste:
+                paste(min, max);
+                return true;
+            default:
+                return super.onTextContextMenuItem(id);
+        }
+    }
+
+    /**
+     * Copy the text between start and end in clipboard.
+     * If no span is present, text is saved as plain text but if span is present
+     * save it in Clipboard using intent.
+     */
+    private void copy(@IntRange(from = 0) int start, @IntRange(from = 0) int end) {
+        MentionsEditable text = getMentionsText();
+        SpannableStringBuilder copiedText = (SpannableStringBuilder) text.subSequence(start, end);
+        MentionSpan[] spans = text.getSpans(start, end, MentionSpan.class);
+        Intent intent = null;
+        if (spans.length > 0) {
+            // Save MentionSpan and it's start offset.
+            intent = new Intent();
+            intent.putExtra(KEY_MENTION_SPANS, spans);
+            int[] spanStart = new int[spans.length];
+            for (int i = 0; i < spans.length; i++) {
+                spanStart[i] = copiedText.getSpanStart(spans[i]);
+            }
+            intent.putExtra(KEY_MENTION_SPAN_STARTS, spanStart);
+        }
+        saveToClipboard(copiedText, intent);
+    }
+
+    /**
+     * Paste clipboard content between min and max positions.
+     */
+    private void paste(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            MentionsEditable text = getMentionsText();
+            text.replace(text.length(), text.length(), clipboard.getText());
+        } else {
+            pasteHoneycombImpl(min, max);
+        }
+    }
+
+    /**
+     * Paste clipboard content between min and max positions. This method is supported for all the api above the 10.
+     * If clipboard content contain the MentionSpan, set the span in copied text.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void pasteHoneycombImpl(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = clipboard.getPrimaryClip();
+        if (clip != null) {
+            for (int i = 0; i < clip.getItemCount(); i++) {
+                ClipData.Item item = clip.getItemAt(i);
+                String selectedText = item.coerceToText(getContext()).toString();
+                MentionsEditable text = getMentionsText();
+                MentionSpan[] spans = text.getSpans(min, max, MentionSpan.class);
+                /*
+                 * We need to remove the span between min and max. This is required because in
+                 * {@link SpannableStringBuilder#replace(int, int, CharSequence)} existing spans within
+                 * the Editable that entirely cover the replaced range are retained, but any that
+                 * were strictly within the range that was replaced are removed. In our case the existing
+                 * spans are retained if the selection entirely covers the span. So, we just remove
+                 * the existing span and replace the new text with that span.
+                 */
+                for (MentionSpan span : spans) {
+                    if (text.getSpanEnd(span) == min) {
+                        // We do not want to remove the span, when we want to paste anything just next
+                        // to the existing span. In this case "text.getSpanEnd(span)" will be equal
+                        // to min.
+                        continue;
+                    }
+                    text.removeSpan(span);
+                }
+
+                Intent intent = item.getIntent();
+                // Just set the plain text if we do not have mentions data in the intent/bundle
+                if (intent == null) {
+                    text.replace(min, max, selectedText);
+                    continue;
+                }
+                Bundle bundle = intent.getExtras();
+                if (bundle == null) {
+                    text.replace(min, max, selectedText);
+                    continue;
+                }
+                bundle.setClassLoader(getContext().getClassLoader());
+                int[] spanStart = bundle.getIntArray(KEY_MENTION_SPAN_STARTS);
+                Parcelable[] parcelables = bundle.getParcelableArray(KEY_MENTION_SPANS);
+                if (parcelables == null || parcelables.length <= 0 || spanStart == null || spanStart.length <= 0) {
+                    text.replace(min, max, selectedText);
+                    continue;
+                }
+
+                // Set the MentionSpan in text.
+                SpannableStringBuilder s = new SpannableStringBuilder(selectedText);
+                for (int j = 0; j < parcelables.length; j++) {
+                    MentionSpan mentionSpan = (MentionSpan) parcelables[j];
+                    s.setSpan(mentionSpan, spanStart[j], spanStart[j] + mentionSpan.getDisplayString().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                text.replace(min, max, s);
+            }
+        }
+    }
+
+    /**
+     * Save the selected text and intent in ClipboardManager
+     */
+    private void saveToClipboard(@NonNull CharSequence selectedText, @Nullable Intent intent) {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setText(selectedText);
+        } else {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData.Item item = new ClipData.Item(selectedText, intent, null);
+            android.content.ClipData clip = new ClipData(null, new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
+            clipboard.setPrimaryClip(clip);
+        }
     }
 
     /**
@@ -281,16 +450,8 @@ public class MentionsEditText extends EditText implements TokenSource {
         // If one exists, call the onClick method manually
         MentionSpan[] spans = getText().getSpans(off, off, MentionSpan.class);
         if (spans.length > 0) {
-            MentionSpan span = spans[0];
-            // Do not return the span if user typed at the end of it
-            // (user may have tapped much further away in the EditText)
-            if (getText().getSpanEnd(span) == off) {
-                return null;
-            } else {
-                return span;
-            }
+            return spans[0];
         }
-
         return null;
     }
 
@@ -312,8 +473,33 @@ public class MentionsEditText extends EditText implements TokenSource {
                 super.onSelectionChanged(selStart, selEnd);
             }
             return;
+        } else {
+            updateSelectionIfRequired(selStart, selEnd);
         }
         super.onSelectionChanged(selStart, selEnd);
+    }
+
+    /**
+     * Don't allow user to set starting position or ending position of selection within the mention.
+     */
+    private void updateSelectionIfRequired(final int selStart, final int selEnd) {
+        MentionsEditable text = getMentionsText();
+        MentionSpan startMentionSpan = text.getMentionSpanAtOffset(selStart);
+        MentionSpan endMentionSpan = text.getMentionSpanAtOffset(selEnd);
+        boolean selChanged = false;
+        int start = selStart;
+        int end = selEnd;
+        if (text.getSpanStart(startMentionSpan) < selStart && selStart < text.getSpanEnd(startMentionSpan)) {
+            start = text.getSpanStart(startMentionSpan);
+            selChanged = true;
+        }
+        if (text.getSpanStart(endMentionSpan) < selEnd && selEnd < text.getSpanEnd(endMentionSpan)) {
+            end = text.getSpanEnd(endMentionSpan);
+            selChanged = true;
+        }
+        if (selChanged) {
+            setSelection(start, end);
+        }
     }
 
     /**
@@ -330,10 +516,10 @@ public class MentionsEditText extends EditText implements TokenSource {
             return false;
         }
 
-        // Deselect any spans if the cursor is not at the end of it
         MentionSpan[] allSpans = text.getSpans(0, text.length(), MentionSpan.class);
         for (MentionSpan span : allSpans) {
-            if (span.isSelected() && text.getSpanEnd(span) != index) {
+            // Deselect span if the cursor is not on the span.
+            if (span.isSelected() && (index < text.getSpanStart(span) || index > text.getSpanEnd(span))) {
                 span.setSelected(false);
                 updateSpan(span);
             }
@@ -1004,6 +1190,27 @@ public class MentionsEditText extends EditText implements TokenSource {
      * Simple class to mark a span of text to delete later.
      */
     private class DeleteSpan {}
+
+    /**
+     * Runnable which detects the long click action.
+     */
+    private class CheckLongClickRunnable implements Runnable {
+        private MentionSpan touchedSpan;
+
+        @Override
+        public void run() {
+            if (isPressed()) {
+                isLongPressed = true;
+                if (touchedSpan == null) {
+                    return;
+                }
+                MentionsEditable text = getMentionsText();
+                // Set the selection anchor to start and end of the long clicked span and deselect all the span.
+                setSelection(text.getSpanStart(touchedSpan), text.getSpanEnd(touchedSpan));
+                deselectAllSpans();
+            }
+        }
+    }
 
     // --------------------------------------------------
     // MentionsEditable Factory
