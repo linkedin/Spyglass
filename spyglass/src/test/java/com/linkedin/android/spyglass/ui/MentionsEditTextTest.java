@@ -16,27 +16,24 @@ package com.linkedin.android.spyglass.ui;
 
 import android.text.Editable;
 import android.view.MotionEvent;
-
-import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
-import com.linkedin.android.utils.SpyglassRobolectricRunner;
-
+import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.TestMention;
-
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
+import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-
-import static junit.framework.Assert.assertTrue;
 
 /**
  * This is a series of tests for the MentionsEditText. It will use hard
@@ -44,7 +41,7 @@ import static junit.framework.Assert.assertTrue;
  * Placing this class in the same package as the class we're testing so we can
  * call protected methods in the test.
  */
-@Config(emulateSdk = 18)
+@Config(constants = BuildConfig.class, sdk = 18)
 @RunWith(SpyglassRobolectricRunner.class)
 public class MentionsEditTextTest {
 
@@ -53,7 +50,7 @@ public class MentionsEditTextTest {
 
     @Before
     public void setUp() throws Exception {
-        mEditText = spy(new MentionsEditText(Robolectric.application));
+        mEditText = spy(new MentionsEditText(RuntimeEnvironment.application));
         mEditText.setAvoidPrefixOnTap(true);
         mRichEditor = mock(RichEditorView.class);
         mEditText.setSuggestionsVisibilityManager(mRichEditor);
@@ -81,7 +78,7 @@ public class MentionsEditTextTest {
 
     @Test
     public void testSelectionAtIndexZeroOnInit() {
-        MentionsEditText editText = new MentionsEditText(Robolectric.application);
+        MentionsEditText editText = new MentionsEditText(RuntimeEnvironment.application);
         assertEquals(0, editText.getSelectionStart());
         assertEquals(0, editText.getSelectionEnd());
     }

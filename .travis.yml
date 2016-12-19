@@ -1,14 +1,20 @@
 language: android
+jdk: oraclejdk8
+
+# See https://github.com/travis-ci/travis-ci/issues/5582
+sudo: required
+
 android:
   components:
-  - android-23
-  - build-tools-23.0.1
-  - extra-android-m2repository
-  - extra-android-support
-  licenses:
-  - 'android-sdk-license.*'
+    # https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943
+    - tools
+    - tools
 
-sudo: false
+    - platform-tools
+    - android-25
+    - build-tools-25.0.0
+    - extra-android-m2repository
+    - extra-android-support
 
-script: 'travis_retry ./gradlew clean build'
+script: './gradlew clean build'
 
