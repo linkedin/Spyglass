@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+1.4.0 *(2017-01-12)*
+--------------------------
+ * add support for cut/copy/paste of text containing mentions
+ * update dependencies
+ * fix edge case when inserting a mention
+
 1.3.1 *(2016-04-05)*
 --------------------------
  * add support for listening to partial mention deletions
