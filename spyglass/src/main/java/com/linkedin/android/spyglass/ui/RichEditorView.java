@@ -34,6 +34,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
@@ -593,6 +594,30 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
         }
     }
 
+    /**
+     * Register a {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} in order to receive callbacks
+     * when mentions are changed.
+     *
+     * @param watcher the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} to add
+     */
+    public void addMentionWatcher(@NonNull MentionsEditText.MentionWatcher watcher) {
+        if (mMentionsEditText != null) {
+            mMentionsEditText.addMentionWatcher(watcher);
+        }
+    }
+
+    /**
+     * Remove a {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} from receiving anymore callbacks
+     * when mentions are changed.
+     *
+     * @param watcher the {@link com.linkedin.android.spyglass.ui.MentionsEditText.MentionWatcher} to remove
+     */
+    public void removeMentionWatcher(@NonNull MentionsEditText.MentionWatcher watcher) {
+        if (mMentionsEditText != null) {
+            mMentionsEditText.removeMentionWatcher(watcher);
+        }
+    }
+
     // --------------------------------------------------
     // RichEditorView-specific Setters
     // --------------------------------------------------
@@ -669,5 +694,4 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
             mSuggestionsAdapter.setSuggestionsListBuilder(suggestionsListBuilder);
         }
     }
-
 }
