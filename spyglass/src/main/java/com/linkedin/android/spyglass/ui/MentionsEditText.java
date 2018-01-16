@@ -636,8 +636,8 @@ public class MentionsEditText extends EditText implements TokenSource {
         int cursor = getSelectionStart();
         MentionsEditable text = getMentionsText();
         MentionSpan prevSpan = text.getMentionSpanEndingAt(cursor);
-
-        if (count == (after + 1) && prevSpan != null) {
+        boolean isNeedToMarkSpan = (count == (after + 1) || after == 0) && prevSpan != null;
+        if (isNeedToMarkSpan) {
 
             // Cursor was directly behind a span and was moved back one, so delete it if selected,
             // or select it if not already selected
