@@ -759,7 +759,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param text the final version of the text after it was changed
      */
     private void replacePlaceholdersWithCorrespondingMentionSpans(@NonNull Editable text) {
-        PlaceholderSpan[] tempSpans = text.getSpans(0, text.length(), PlaceholderSpan.class);
+        PlaceholderSpan[] tempSpans = text.getSpans(0, text.length()-1, PlaceholderSpan.class);
         for (PlaceholderSpan span : tempSpans) {
             int spanStart = text.getSpanStart(span);
             String mentionDisplayString = span.holder.getDisplayString();
