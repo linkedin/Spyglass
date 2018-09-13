@@ -83,7 +83,7 @@ The ''spyglass-sample'' app contains several examples of using the library. For 
 Testing
 -------
 
-We use the Robolectric framework coupled with Mockito for our unit tests. You can run them via the `gradle clean test` command.
+You can run the tests via the `gradle clean test` command.
 
 Contributions
 -------------

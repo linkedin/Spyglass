@@ -1,39 +1,34 @@
 /*
-* Copyright 2015 LinkedIn Corp. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*/
+ * Copyright 2015 LinkedIn Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 
 package com.linkedin.android.spyglass.ui;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.test.InstrumentationRegistry;
 import android.text.Editable;
 import android.view.MotionEvent;
-import com.linkedin.android.spyglass.BuildConfig;
+import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.TestMention;
 import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
-import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 /**
  * This is a series of tests for the MentionsEditText. It will use hard
@@ -41,44 +36,95 @@ import static org.mockito.Mockito.verify;
  * Placing this class in the same package as the class we're testing so we can
  * call protected methods in the test.
  */
-@Config(constants = BuildConfig.class, sdk = 18)
-@RunWith(SpyglassRobolectricRunner.class)
 public class MentionsEditTextTest {
 
-    private MentionsEditText mEditText;
-    private RichEditorView mRichEditor;
+    private static class TestMentionsEditText extends MentionsEditText
+    {
+        public boolean enableNullTouchSpans;
+        public String overriddenCurrentKeyword;
+        public boolean throwExceptionOnSetAvoidPrefix;
+        public String expectedAvoidPrefix;
+
+        public TestMentionsEditText(@NonNull Context context) {
+            super(context);
+        }
+
+        @Nullable
+        @Override
+        protected MentionSpan getTouchedSpan(MotionEvent event) {
+            return enableNullTouchSpans ? null : super.getTouchedSpan(event);
+        }
+
+        @NonNull
+        @Override
+        public String getCurrentKeywordsString() {
+            return overriddenCurrentKeyword != null ? overriddenCurrentKeyword : super.getCurrentKeywordsString();
+        }
+
+        @Override
+        public void setAvoidedPrefix(String prefix) {
+
+            if (throwExceptionOnSetAvoidPrefix) {
+                throw new IllegalStateException();
+            }
+
+            if (expectedAvoidPrefix != null && !expectedAvoidPrefix.equals(prefix)) {
+                throw new IllegalStateException();
+            }
+
+            super.setAvoidedPrefix(prefix);
+        }
+    }
+
+    private static class TestRichEditorView extends RichEditorView
+    {
+        public boolean forceSuggestionDisplay;
+
+        public TestRichEditorView(@NonNull Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean isDisplayingSuggestions() {
+            return forceSuggestionDisplay || super.isDisplayingSuggestions();
+        }
+    }
+
+    private TestMentionsEditText mEditText;
+    private TestRichEditorView mRichEditor;
 
     @Before
     public void setUp() throws Exception {
-        mEditText = spy(new MentionsEditText(RuntimeEnvironment.application));
+        mEditText = new TestMentionsEditText(InstrumentationRegistry.getTargetContext());
         mEditText.setAvoidPrefixOnTap(true);
-        mRichEditor = mock(RichEditorView.class);
+        mRichEditor = new TestRichEditorView(InstrumentationRegistry.getTargetContext());
         mEditText.setSuggestionsVisibilityManager(mRichEditor);
         mEditText.setTokenizer(new WordTokenizer());
     }
 
     @Test
     public void testOnTouchEvent() throws Exception {
-        MotionEvent event = mock(MotionEvent.class);
-        doReturn(null).when(mEditText).getTouchedSpan(event);
-        doReturn(true).when(mRichEditor).isDisplayingSuggestions();
+        MotionEvent event = MotionEvent.obtain(100, 100, MotionEvent.ACTION_DOWN, 0, 0, 0);
+        mEditText.enableNullTouchSpans = true;
+        mRichEditor.forceSuggestionDisplay = true;
 
         // Test that the MentionsEditText does not avoid "" as a prefix
         // Note: After typing "@", the keyword string is "", so avoiding "" would mean avoiding all
         // explicit mentions (keyword string is what the user typed minus explicit characters)
-        doReturn("").when(mEditText).getCurrentKeywordsString();
+        mEditText.overriddenCurrentKeyword = "";
+        mEditText.throwExceptionOnSetAvoidPrefix = true;
         mEditText.onTouchEvent(event);
-        verify(mEditText, never()).setAvoidedPrefix("");
 
         // Test that the MentionsEditText avoids a prefix as long as it has length > 0
-        doReturn("a").when(mEditText).getCurrentKeywordsString();
+        mEditText.overriddenCurrentKeyword = "a";
+        mEditText.throwExceptionOnSetAvoidPrefix = false;
+        mEditText.expectedAvoidPrefix = "a";
         mEditText.onTouchEvent(event);
-        verify(mEditText).setAvoidedPrefix("a");
     }
 
     @Test
     public void testSelectionAtIndexZeroOnInit() {
-        MentionsEditText editText = new MentionsEditText(RuntimeEnvironment.application);
+        MentionsEditText editText = new MentionsEditText(InstrumentationRegistry.getTargetContext());
         assertEquals(0, editText.getSelectionStart());
         assertEquals(0, editText.getSelectionEnd());
     }

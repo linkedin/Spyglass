@@ -1,47 +1,40 @@
 /*
-* Copyright 2015 LinkedIn Corp. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*/
+ * Copyright 2015 LinkedIn Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 
 package com.linkedin.android.spyglass.ui;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.test.InstrumentationRegistry;
 import android.text.InputType;
 import android.text.Spanned;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.TestMention;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
-import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
-import com.linkedin.android.utils.SpyglassRobolectricRunner;
-import com.linkedin.android.utils.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * This is a series of tests for the RichEditorView. It will use hard
@@ -49,18 +42,43 @@ import static org.mockito.Mockito.verify;
  * Placing this class in the same package as the class we're testing so we can
  * call protected methods in the test.
  */
-@Config(constants = BuildConfig.class, sdk = 18)
-@RunWith(SpyglassRobolectricRunner.class)
 public class RichEditorViewTest {
+
+    private static class TestListView extends ListView
+    {
+        int mLastSelectedPosition = -1;
+
+        public TestListView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void setSelection(int position) {
+            mLastSelectedPosition = position;
+            super.setSelection(position);
+        }
+    }
+
+    private static class TestRichEditorView extends RichEditorView
+    {
+
+        public TestRichEditorView(@NonNull Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean post(Runnable action) {
+            // Synchronous run to avoid flakiness in unit tests.
+            action.run();
+            return true;
+        }
+    }
 
     private RichEditorView mRichEditor;
 
     @Before
     public void setUp() throws Exception {
-        RichEditorFragment mRichEditorFragment = new RichEditorFragment();
-        startFragment(mRichEditorFragment);
-        mRichEditor = mRichEditorFragment.getRichEditor();
-        assertNotNull(mRichEditor);
+        mRichEditor = new TestRichEditorView(InstrumentationRegistry.getTargetContext());
         mRichEditor.setSelection(0);
     }
 
@@ -68,9 +86,9 @@ public class RichEditorViewTest {
     public void updateTextCount() throws Exception {
         String hello = "hello";
         mRichEditor.setText(hello);
-        TestUtils.invokePrivateMethod(mRichEditor, "updateEditorTextCount");
+        mRichEditor.updateEditorTextCount();
 
-        TextView textCountView = TestUtils.getPrivateField(mRichEditor, "mTextCounterView");
+        TextView textCountView = mRichEditor.mTextCounterView;
         assertEquals("text count should be set", String.valueOf(hello.length()), textCountView.getText().toString());
     }
 
@@ -101,16 +119,17 @@ public class RichEditorViewTest {
 
     @Test
     public void testSuggestionsListScrollsToTopOnReceivingFirstResults() throws Exception {
-        ListView suggestionsList = mock(ListView.class);
-        TestUtils.setPrivateField(mRichEditor, "mWaitingForFirstResult", true);
-        TestUtils.setPrivateField(mRichEditor, "mSuggestionsList", suggestionsList);
+        TestListView suggestionsList = new TestListView(InstrumentationRegistry.getTargetContext());
+        mRichEditor.mWaitingForFirstResult = true;
+        mRichEditor.mSuggestionsList = suggestionsList;
+        mRichEditor.mWaitingForFirstResult = true;
         mRichEditor.onReceiveSuggestionsResult(new SuggestionsResult(new QueryToken(""), new ArrayList<Suggestible>()), "");
-        verify(suggestionsList).setSelection(0);
+        assertEquals(0, suggestionsList.mLastSelectedPosition);
     }
 
     @Test
     public void testSuggestionsListDisablesSpellingSuggestions() throws Exception {
-        EditText input = TestUtils.getPrivateField(mRichEditor, "mMentionsEditText");
+        EditText input = mRichEditor.mMentionsEditText;
         int originalInputType = input.getInputType();
 
         mRichEditor.displaySuggestions(true);

@@ -1,55 +1,42 @@
 /*
-* Copyright 2015 LinkedIn Corp. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*/
+ * Copyright 2015 LinkedIn Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 
-package com.linkedin.android.spyglass.suggestions;
+package com.linkedin.android.spyglass.ui;
 
-import com.linkedin.android.spyglass.BuildConfig;
+import android.support.test.InstrumentationRegistry;
 import com.linkedin.android.spyglass.mentions.TestMention;
+import com.linkedin.android.spyglass.suggestions.SuggestionsAdapter;
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
-import com.linkedin.android.spyglass.ui.MentionsEditText;
-import com.linkedin.android.spyglass.ui.RichEditorView;
-import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
-import com.linkedin.android.utils.SpyglassRobolectricRunner;
-import com.linkedin.android.utils.TestUtils;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 
-@Config(constants = BuildConfig.class, sdk = 18)
-@RunWith(SpyglassRobolectricRunner.class)
 public class SuggestionsAdapterTest {
-
-    private RichEditorFragment mRichEditorFragment;
     private RichEditorView mRichEditor;
     private SuggestionsAdapter mAdapter;
 
     @Before
     public void setUp() throws Exception {
-        mRichEditorFragment = new RichEditorFragment();
-        startFragment(mRichEditorFragment);
-        mRichEditor = mRichEditorFragment.getRichEditor();
-        mAdapter = TestUtils.getPrivateField(mRichEditor, "mSuggestionsAdapter");
+        mRichEditor = new RichEditorView(InstrumentationRegistry.getTargetContext());
+        mAdapter = mRichEditor.mSuggestionsAdapter;
     }
 
     @Test
@@ -78,8 +65,7 @@ public class SuggestionsAdapterTest {
         ArrayList<Suggestible> mentions = new ArrayList<>();
         mentions.add(mention);
         SuggestionsResult queryResult = new SuggestionsResult(query, mentions);
-        MentionsEditText mentionsEditText = TestUtils.getPrivateField(mRichEditor, "mMentionsEditText");
-        mAdapter.addSuggestions(queryResult, bucket, mentionsEditText);
+        mAdapter.addSuggestions(queryResult, bucket, mRichEditor.mMentionsEditText);
     }
 
 }

@@ -1,16 +1,16 @@
 /*
-* Copyright 2015 LinkedIn Corp. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*/
+ * Copyright 2015 LinkedIn Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 
 package com.linkedin.android.spyglass.ui;
 
@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -73,13 +74,9 @@ import java.util.List;
  */
 public class RichEditorView extends RelativeLayout implements TextWatcher, QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
 
-    private MentionsEditText mMentionsEditText;
     private int mOriginalInputType = InputType.TYPE_CLASS_TEXT; // Default to plain text
-    private TextView mTextCounterView;
-    private ListView mSuggestionsList;
 
     private QueryTokenReceiver mHostQueryTokenReceiver;
-    private SuggestionsAdapter mSuggestionsAdapter;
     private OnSuggestionsVisibilityChangeListener mActionListener;
 
     private ViewGroup.LayoutParams mPrevEditTextParams;
@@ -90,7 +87,20 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     private int mWithinCountLimitTextColor = Color.BLACK;
     private int mBeyondCountLimitTextColor = Color.RED;
 
-    private boolean mWaitingForFirstResult = false;
+    @VisibleForTesting
+    boolean mWaitingForFirstResult = false;
+
+    @VisibleForTesting
+    ListView mSuggestionsList;
+
+    @VisibleForTesting
+    MentionsEditText mMentionsEditText;
+
+    @VisibleForTesting
+    SuggestionsAdapter mSuggestionsAdapter;
+
+    @VisibleForTesting
+    TextView mTextCounterView;
 
     // --------------------------------------------------
     // Constructors & Initialization
@@ -191,15 +201,15 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     // Public Span & UI Methods
     // --------------------------------------------------
 
-	/**
-	 * Allows filters in the input element.
-	 *
-	 * Example: obj.setInputFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
-	 *
-	 * @param filters
-	 */
+    /**
+     * Allows filters in the input element.
+     *
+     * Example: obj.setInputFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
+     *
+     * @param filters
+     */
     public void setInputFilters(InputFilter... filters) {
-		mMentionsEditText.setFilters(filters);
+        mMentionsEditText.setFilters(filters);
 
     }
 
@@ -435,7 +445,8 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
      * Updates the TextView counting the number of characters in the editor. Sets not only the content
      * of the TextView, but also the color of the text depending if the limit has been reached.
      */
-    private void updateEditorTextCount() {
+    @VisibleForTesting
+    void updateEditorTextCount() {
         if (mMentionsEditText != null && mTextCounterView != null) {
             int textCount = mMentionsEditText.getMentionsText().length();
             mTextCounterView.setText(String.valueOf(textCount));

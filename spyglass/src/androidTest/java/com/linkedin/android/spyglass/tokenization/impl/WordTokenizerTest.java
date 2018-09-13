@@ -1,58 +1,47 @@
 /*
-* Copyright 2015 LinkedIn Corp. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*/
+ * Copyright 2015 LinkedIn Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 
 package com.linkedin.android.spyglass.tokenization.impl;
 
+import android.support.test.InstrumentationRegistry;
 import android.text.Spanned;
-import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.TestMention;
 import com.linkedin.android.spyglass.ui.RichEditorView;
-import com.linkedin.android.spyglass.ui.wrappers.RichEditorFragment;
-import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
-import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-@Config(constants = BuildConfig.class, sdk = 18)
-@RunWith(SpyglassRobolectricRunner.class)
 public class WordTokenizerTest {
-
-    private RichEditorFragment mRichEditorFragment;
     private RichEditorView mRichEditor;
     private WordTokenizer mTokenizer;
 
     @Before
     public void setUp() throws Exception {
         // Setup the RichEditorView
-        mRichEditorFragment = new RichEditorFragment();
-        startFragment(mRichEditorFragment);
-        mRichEditor = mRichEditorFragment.getRichEditor();
+        mRichEditor = new RichEditorView(InstrumentationRegistry.getTargetContext());
         mRichEditor.setText("Test mentions Shoulong Li and @Nathan Hi @Mi");
         mRichEditor.setSelection(0);
 
         // Configure the tokenizer with custom settings
         WordTokenizerConfig config = new WordTokenizerConfig.Builder()
-                                                            .setThreshold(3)
-                                                            .setMaxNumKeywords(2)
-                                                            .build();
+            .setThreshold(3)
+            .setMaxNumKeywords(2)
+            .build();
         mTokenizer = new WordTokenizer(config);
         mRichEditor.setTokenizer(mTokenizer);
     }

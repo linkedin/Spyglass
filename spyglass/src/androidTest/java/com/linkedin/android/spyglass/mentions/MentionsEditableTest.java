@@ -1,34 +1,28 @@
 /*
-* Copyright 2015 LinkedIn Corp. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*/
+ * Copyright 2015 LinkedIn Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 
 package com.linkedin.android.spyglass.mentions;
 
 import android.annotation.TargetApi;
+import android.support.test.InstrumentationRegistry;
 import android.text.Spanned;
 import android.text.style.SuggestionSpan;
-import com.linkedin.android.spyglass.BuildConfig;
-import com.linkedin.android.utils.SpyglassRobolectricRunner;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
 
-@Config(constants = BuildConfig.class, sdk = 18)
-@RunWith(SpyglassRobolectricRunner.class)
 public class MentionsEditableTest {
 
     private MentionsEditable mEditable;
@@ -54,7 +48,7 @@ public class MentionsEditableTest {
 
         // Can only add a SuggestionSpan (i.e. a subclass of CharacterStyle) if it does not overlap
         // at all with a MentionSpan (note: SuggestionSpan requires API 14)
-        SuggestionSpan suggestionSpan = new SuggestionSpan(RuntimeEnvironment.application, new String[0], 0);
+        SuggestionSpan suggestionSpan = new SuggestionSpan(InstrumentationRegistry.getTargetContext(), new String[0], 0);
         mEditable.setSpan(suggestionSpan, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         assertEquals(0, mEditable.getSpans(0, mEditable.length(), SuggestionSpan.class).length);
         mEditable.setSpan(suggestionSpan, 0, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
