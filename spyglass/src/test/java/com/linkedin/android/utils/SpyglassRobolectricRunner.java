@@ -33,17 +33,6 @@ public class SpyglassRobolectricRunner extends RobolectricTestRunner {
         super(testClass);
     }
 
-    @Override
-    protected AndroidManifest getAppManifest(Config config) {
-        // Need to point Robolectric to the debug Android Manifest and resources to use in tests
-        String basePath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath()
-            + "../../../bundles/debug";
-        String manifestPath = basePath + "/AndroidManifest.xml";
-        String resPath = basePath + "/res";
-        String assetPath = basePath + "/assets";
-        return new AndroidManifest(Fs.fileFromPath(manifestPath), Fs.fileFromPath(resPath), Fs.fileFromPath(assetPath));
-    }
-
     public static void startFragment(Fragment fragment) {
         FragmentActivity activity = getActivity(FragmentActivity.class);
         startFragment(fragment, activity, null);
