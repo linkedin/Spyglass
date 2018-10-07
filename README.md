@@ -84,13 +84,3 @@ Testing
 -------
 
 We use the Robolectric framework coupled with Mockito for our unit tests. You can run them via the `gradle clean test` command.
-
-Contributions
--------------
-
-Any helpful feedback is more than welcome. This includes feature requests, bug reports, pull requests, constructive feedback, etc.
-
-Copyright & License
--------------------
-
-Spyglass © 2015 LinkedIn Corp. Licensed under the terms of the Apache License, Version 2.0.
