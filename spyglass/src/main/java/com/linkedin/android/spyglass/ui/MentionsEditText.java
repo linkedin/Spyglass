@@ -222,7 +222,24 @@ public class MentionsEditText extends EditText implements TokenSource {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         final MentionSpan touchedSpan = getTouchedSpan(event);
-        boolean superResult = super.onTouchEvent(event);
+
+        // Android 6 occasionally throws a NullPointerException inside Editor.onTouchEvent()
+        // for ACTION_UP when attempting to display (uninitialised) text handles.
+        boolean superResult;
+        if (android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.M &&
+            event.getActionMasked() == MotionEvent.ACTION_UP) {
+            try {
+                superResult = super.onTouchEvent(event);
+            } catch (NullPointerException ignored) {
+                // Ignore this (see above) - since we're now in an unknown state let's clear all
+                // selection (which is still better than an arbitrary crash that we can't control):
+                clearFocus();
+                superResult = true;
+            }
+        } else {
+            superResult = super.onTouchEvent(event);
+        }
+
         if (event.getAction() == MotionEvent.ACTION_UP) {
             // Don't call the onclick on mention if MotionEvent.ACTION_UP is for long click action,
             if (!isLongPressed && touchedSpan != null) {
