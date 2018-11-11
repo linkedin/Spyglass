@@ -1,6 +1,9 @@
-apply plugin: 'com.android.library'
-apply plugin: 'idea'
-apply plugin: 'maven'
+plugins {
+    id 'com.android.library'
+    id 'idea'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.4'
+}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -10,7 +13,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName VERSION_NAME
     }
 
     compileOptions {
@@ -65,8 +68,8 @@ android {
 }
 
 dependencies {
-    api "com.android.support:support-v4:$supportLibrariesVersion"
-    implementation "com.android.support:support-annotations:$supportLibrariesVersion"
+    api "com.android.support:support-v4:${rootProject.ext.supportLibrariesVersion}"
+    implementation "com.android.support:support-annotations:${rootProject.ext.supportLibrariesVersion}"
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.22.0'
@@ -74,8 +77,105 @@ dependencies {
     testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.10.2'
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
 }
 
-apply from: 'gradle-mvn-push.gradle'
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+group = GROUP_ID
+version = VERSION_NAME
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar") {
+                builtBy assemble
+            }
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'Spyglass'
+                    description LIBRARY_DESCRIPTION
+                    url LIBRARY_GIT_URL
+
+                    scm {
+                        url LIBRARY_GIT_URL
+                        connection LIBRARY_GIT_CONNECTION
+                        developerConnection LIBRARY_GIT_CONNECTION
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'com.linkedin'
+                            name 'LinkedIn Corp'
+                            email ''
+                        }
+                    }
+
+                    dependencies {
+                        configurations.implementation.allDependencies.each { ModuleDependency dp ->
+                            dependency {
+                                resolveStrategy = Closure.DELEGATE_ONLY
+                                groupId dp.group
+                                artifactId dp.name
+                                version dp.version
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintray {
+
+    user = System.getenv('BINTRAY_USER') ?: ""
+    key = System.getenv('BINTRAY_KEY') ?: ""
+
+    pkg {
+        userOrg = 'linkedin-spyglass'
+        repo = 'maven'
+        name = 'spyglass'
+        desc = LIBRARY_DESCRIPTION
+        labels = ['android', 'mentions', 'suggestions']
+        licenses = ['Apache-2.0']
+
+        websiteUrl = LIBRARY_GIT_URL
+        vcsUrl = LIBRARY_GIT_URL
+        issueTrackerUrl = 'https://github.com/linkedin/Spyglass/issues'
+        githubRepo = 'linkedin/spyglass'
+
+        version {
+            name = VERSION_NAME
+            released = new Date()
+        }
+
+        publish = true
+    }
+
+    publications = ['aar']
+}
