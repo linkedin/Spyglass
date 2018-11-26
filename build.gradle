@@ -16,7 +16,7 @@ ext {
     buildToolsVersion = '28.0.3'
     minSdkVersion = 14
     targetSdkVersion = 28
-    supportLibrariesVersion = '28.0.0'
+    supportLibrariesVersion = '1.0.0'
     javaVersion = JavaVersion.VERSION_1_7
 }
 

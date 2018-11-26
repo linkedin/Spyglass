@@ -15,7 +15,7 @@
 package com.linkedin.android.spyglass.mentions;
 
 import android.graphics.Color;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 
 /**
  * Class used to configure various options for the {@link MentionSpan}. Instantiate using the

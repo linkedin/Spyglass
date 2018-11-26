@@ -14,7 +14,7 @@
 
 package com.linkedin.android.spyglass.mentions;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.ui.MentionsEditText;

@@ -14,11 +14,11 @@
 
 package com.linkedin.android.spyglass.suggestions.interfaces;
 
-import android.support.annotation.NonNull;
-import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
+import androidx.annotation.NonNull;
 import com.linkedin.android.spyglass.suggestions.SuggestionsAdapter;
-import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
+import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 
 /**
  * Interface used to listen for the results of a mention suggestion query via a {@link QueryTokenReceiver}.
