@@ -1,7 +1,11 @@
 Change Log
 ==========
 
-1.5.0 *(2018-11-11)*
+2.0.0 *(2018-11-27)*
+--------------------------
+ * Migrate from Android support library to AndroidX libraries
+ 
+ 1.5.0 *(2018-11-11)*
 --------------------------
  * Update versions for nearly all dependencies
  * Fix an internal NPE occurring on Android 6
