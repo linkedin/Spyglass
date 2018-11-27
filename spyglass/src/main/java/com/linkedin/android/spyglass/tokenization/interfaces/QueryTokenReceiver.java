@@ -14,7 +14,7 @@
 
 package com.linkedin.android.spyglass.tokenization.interfaces;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;

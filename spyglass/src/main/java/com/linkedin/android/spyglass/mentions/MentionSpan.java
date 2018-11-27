@@ -16,12 +16,12 @@ package com.linkedin.android.spyglass.mentions;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.EditText;
+import androidx.annotation.NonNull;
 import com.linkedin.android.spyglass.mentions.Mentionable.MentionDisplayMode;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 

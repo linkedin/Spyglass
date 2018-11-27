@@ -16,14 +16,14 @@ package com.linkedin.android.spyglass.mentions;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.CharacterStyle;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 

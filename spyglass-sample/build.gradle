@@ -27,7 +27,6 @@ android {
 dependencies {
     implementation project(':spyglass')
     implementation 'com.github.bumptech.glide:glide:3.7.0'
-    implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibrariesVersion}"
-    implementation "com.android.support:support-v4:${rootProject.ext.supportLibrariesVersion}"
-    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibrariesVersion}"
+    implementation "androidx.recyclerview:recyclerview:${rootProject.ext.supportLibrariesVersion}"
+    implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibrariesVersion}"
 }
