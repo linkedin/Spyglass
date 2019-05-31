@@ -36,44 +36,19 @@ public class SamplesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.samples);
 
-        Button simpleSample = (Button) findViewById(R.id.simple_sample);
-        simpleSample.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SamplesActivity.this, SimpleMentions.class));
-            }
-        });
+        findViewById(R.id.simple_sample)
+            .setOnClickListener(v -> startActivity(new Intent(SamplesActivity.this, SimpleMentions.class)));
 
-        Button colorfulSample = (Button) findViewById(R.id.colorful_sample);
-        colorfulSample.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SamplesActivity.this, ColorfulMentions.class));
-            }
-        });
+        findViewById(R.id.colorful_sample)
+            .setOnClickListener(v -> startActivity(new Intent(SamplesActivity.this, ColorfulMentions.class)));
 
-        Button networkedSample = (Button) findViewById(R.id.networked_sample);
-        networkedSample.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SamplesActivity.this, NetworkedMentions.class));
-            }
-        });
+        findViewById(R.id.networked_sample)
+            .setOnClickListener(v -> startActivity(new Intent(SamplesActivity.this, NetworkedMentions.class)));
 
-        Button multiSourceSample = (Button) findViewById(R.id.multi_source_sample);
-        multiSourceSample.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SamplesActivity.this, MultiSourceMentions.class));
-            }
-        });
+        findViewById(R.id.multi_source_sample)
+            .setOnClickListener(v -> startActivity(new Intent(SamplesActivity.this, MultiSourceMentions.class)));
 
-        Button gridSample = (Button) findViewById(R.id.grid_sample);
-        gridSample.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SamplesActivity.this, GridMentions.class));
-            }
-        });
+        findViewById(R.id.grid_sample)
+            .setOnClickListener(v -> startActivity(new Intent(SamplesActivity.this, GridMentions.class)));
     }
 }

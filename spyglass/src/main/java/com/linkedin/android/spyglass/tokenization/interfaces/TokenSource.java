@@ -30,7 +30,7 @@ public interface TokenSource {
      * @return a string representing currently being considered for a possible query, as the user typed it
      */
     @NonNull
-    public String getCurrentTokenString();
+    String getCurrentTokenString();
 
     /**
      * Determine if the token between the given start and end indexes represents a valid token. If it is valid, return
@@ -39,6 +39,6 @@ public interface TokenSource {
      * @return the valid {@link QueryToken} if it is valid, otherwise null
      */
     @Nullable
-    public QueryToken getQueryTokenIfValid();
+    QueryToken getQueryTokenIfValid();
 
 }

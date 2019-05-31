@@ -37,5 +37,5 @@ public interface SuggestionsResultListener {
      * @param result a {@link SuggestionsResult} representing the result of the query
      * @param bucket a string representing the type of mention (used for grouping in the {@link SuggestionsAdapter}
      */
-    public void onReceiveSuggestionsResult(@NonNull final SuggestionsResult result, @NonNull final String bucket);
+    void onReceiveSuggestionsResult(@NonNull final SuggestionsResult result, @NonNull final String bucket);
 }

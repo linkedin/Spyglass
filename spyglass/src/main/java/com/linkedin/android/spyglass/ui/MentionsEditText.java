@@ -341,23 +341,9 @@ public class MentionsEditText extends EditText implements TokenSource {
 
     /**
      * Paste clipboard content between min and max positions.
-     */
-    private void paste(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            MentionsEditable text = getMentionsText();
-            text.replace(text.length(), text.length(), clipboard.getText());
-        } else {
-            pasteHoneycombImpl(min, max);
-        }
-    }
-
-    /**
-     * Paste clipboard content between min and max positions. This method is supported for all the api above the 10.
      * If clipboard content contain the MentionSpan, set the span in copied text.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void pasteHoneycombImpl(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
+    private void paste(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = clipboard.getPrimaryClip();
         if (clip != null) {
@@ -418,15 +404,10 @@ public class MentionsEditText extends EditText implements TokenSource {
      * Save the selected text and intent in ClipboardManager
      */
     private void saveToClipboard(@NonNull CharSequence selectedText, @Nullable Intent intent) {
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setText(selectedText);
-        } else {
-            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData.Item item = new ClipData.Item(selectedText, intent, null);
-            android.content.ClipData clip = new ClipData(null, new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
-            clipboard.setPrimaryClip(clip);
-        }
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData.Item item = new ClipData.Item(selectedText, intent, null);
+        ClipData clip = new ClipData(null, new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
+        clipboard.setPrimaryClip(clip);
     }
 
     /**
@@ -811,7 +792,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                 case PARTIAL:
                 case FULL:
                     String name = span.getDisplayString();
-                    if (!name.equals(spanText) && start >= 0 && start < end && end <= text.length()) {
+                    if (!name.contentEquals(spanText) && start >= 0 && start < end && end <= text.length()) {
                         // Mention display name does not match what is being shown,
                         // replace text in span with proper display name
                         int cursor = getSelectionStart();
@@ -1192,11 +1173,11 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     private class PlaceholderSpan {
 
-        public final MentionSpan holder;
-        public final int originalStart;
-        public final int originalEnd;
+        final MentionSpan holder;
+        final int originalStart;
+        final int originalEnd;
 
-        public PlaceholderSpan(MentionSpan holder, int originalStart, int originalEnd) {
+        PlaceholderSpan(MentionSpan holder, int originalStart, int originalEnd) {
             this.holder = holder;
             this.originalStart = originalStart;
             this.originalEnd = originalEnd;

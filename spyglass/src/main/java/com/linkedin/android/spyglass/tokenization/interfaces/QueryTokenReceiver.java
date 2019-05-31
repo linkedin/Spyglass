@@ -37,5 +37,5 @@ public interface QueryTokenReceiver {
      *
      * @return a List of String representing the buckets that will be used when calling {@link SuggestionsResultListener}
      */
-    public List<String> onQueryReceived(final @NonNull QueryToken queryToken);
+    List<String> onQueryReceived(final @NonNull QueryToken queryToken);
 }

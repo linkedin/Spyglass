@@ -43,7 +43,7 @@ public class BasicSuggestionsListBuilder implements SuggestionsListBuilder {
     @NonNull
     public List<Suggestible> buildSuggestions(final @NonNull Map<String, SuggestionsResult> latestResults,
                                               final @NonNull String currentTokenString) {
-        List<Suggestible> results = new ArrayList<Suggestible>();
+        List<Suggestible> results = new ArrayList<>();
         for (Map.Entry<String, SuggestionsResult> entry : latestResults.entrySet()) {
             SuggestionsResult result = entry.getValue();
             if (currentTokenString.equalsIgnoreCase(result.getQueryToken().getTokenString())) {
@@ -56,6 +56,7 @@ public class BasicSuggestionsListBuilder implements SuggestionsListBuilder {
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
     public View getView(final @NonNull Suggestible suggestion, @Nullable View convertView, ViewGroup parent,
                         final @NonNull Context context, final @NonNull LayoutInflater inflater, final @NonNull Resources resources) {

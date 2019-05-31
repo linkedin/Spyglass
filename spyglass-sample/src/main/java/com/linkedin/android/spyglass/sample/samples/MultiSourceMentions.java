@@ -66,28 +66,18 @@ public class MultiSourceMentions extends AppCompatActivity implements QueryToken
         super.onCreate(savedInstanceState);
         setContentView(R.layout.multi_source_mentions);
 
-        editor = (RichEditorView) findViewById(R.id.editor);
+        editor = findViewById(R.id.editor);
         editor.setQueryTokenReceiver(this);
         editor.setSuggestionsListBuilder(new CustomSuggestionsListBuilder());
 
         people = new Person.PersonLoader(getResources());
         cities = new City.CityLoader(getResources());
 
-        peopleCheckBox = (CheckBox) findViewById(R.id.person_checkbox);
-        peopleCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateSuggestions();
-            }
-        });
+        peopleCheckBox = findViewById(R.id.person_checkbox);
+        peopleCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> updateSuggestions());
 
-        citiesCheckBox = (CheckBox) findViewById(R.id.city_checkbox);
-        citiesCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateSuggestions();
-            }
-        });
+        citiesCheckBox = findViewById(R.id.city_checkbox);
+        citiesCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> updateSuggestions());
 
         updateSuggestions();
     }
@@ -140,26 +130,20 @@ public class MultiSourceMentions extends AppCompatActivity implements QueryToken
         // Fetch people if necessary
         if (hasPeople) {
             buckets.add(PERSON_BUCKET);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    List<Person> suggestions = people.getSuggestions(queryToken);
-                    lastPersonSuggestions = new SuggestionsResult(queryToken, suggestions);
-                    listener.onReceiveSuggestionsResult(lastPersonSuggestions, PERSON_BUCKET);
-                }
+            handler.postDelayed(() -> {
+                List<Person> suggestions = people.getSuggestions(queryToken);
+                lastPersonSuggestions = new SuggestionsResult(queryToken, suggestions);
+                listener.onReceiveSuggestionsResult(lastPersonSuggestions, PERSON_BUCKET);
             }, PERSON_DELAY);
         }
 
         // Fetch cities if necessary
         if (hasCities) {
             buckets.add(CITY_BUCKET);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    List<City> suggestions = cities.getSuggestions(queryToken);
-                    lastCitySuggestions = new SuggestionsResult(queryToken, suggestions);
-                    listener.onReceiveSuggestionsResult(lastCitySuggestions, CITY_BUCKET);
-                }
+            handler.postDelayed(() -> {
+                List<City> suggestions = cities.getSuggestions(queryToken);
+                lastCitySuggestions = new SuggestionsResult(queryToken, suggestions);
+                listener.onReceiveSuggestionsResult(lastCitySuggestions, CITY_BUCKET);
             }, CITY_DELAY);
         }
 
