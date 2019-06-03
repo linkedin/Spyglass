@@ -81,6 +81,7 @@ public class Person implements Mentionable {
         }
     }
 
+    @NonNull
     @Override
     public MentionDeleteStyle getDeleteStyle() {
         // People support partial deletion

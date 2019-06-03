@@ -56,7 +56,7 @@ public class RichEditorViewTest {
     private RichEditorView mRichEditor;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         RichEditorFragment mRichEditorFragment = new RichEditorFragment();
         startFragment(mRichEditorFragment);
         mRichEditor = mRichEditorFragment.getRichEditor();
@@ -75,7 +75,7 @@ public class RichEditorViewTest {
     }
 
     @Test
-    public void testGetMentionSpans() throws Exception {
+    public void testGetMentionSpans() {
         String hello = "Test mentions Shoulong Li and Deepank Gupta end test";
         mRichEditor.setText(hello);
         assertEquals(0, mRichEditor.getMentionSpans().size());
@@ -104,7 +104,7 @@ public class RichEditorViewTest {
         ListView suggestionsList = mock(ListView.class);
         TestUtils.setPrivateField(mRichEditor, "mWaitingForFirstResult", true);
         TestUtils.setPrivateField(mRichEditor, "mSuggestionsList", suggestionsList);
-        mRichEditor.onReceiveSuggestionsResult(new SuggestionsResult(new QueryToken(""), new ArrayList<Suggestible>()), "");
+        mRichEditor.onReceiveSuggestionsResult(new SuggestionsResult(new QueryToken(""), new ArrayList<>()), "");
         verify(suggestionsList).setSelection(0);
     }
 

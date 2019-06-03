@@ -24,11 +24,11 @@ public interface SuggestionsVisibilityManager {
      *
      * @param display whether the mentions suggestions should be displayed
      */
-    public void displaySuggestions(boolean display);
+    void displaySuggestions(boolean display);
 
     /**
      * @return true if the mention suggestions list is currently being displayed
      */
-    public boolean isDisplayingSuggestions();
+    boolean isDisplayingSuggestions();
 
 }

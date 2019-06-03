@@ -31,7 +31,7 @@ public interface Suggestible extends Parcelable {
 	 *
 	 * @return int the suggestible id
 	 */
-	public abstract int getSuggestibleId();
+	int getSuggestibleId();
 
 	/**
 	 * Main text for the given suggestion, as will be shown to the user. Note other data fields can
@@ -40,6 +40,6 @@ public interface Suggestible extends Parcelable {
 	 *
 	 * @return String the user visible suggestion
 	 */
-	public abstract String getSuggestiblePrimaryText();
+	String getSuggestiblePrimaryText();
 
 }

@@ -70,7 +70,7 @@ public class RichEditorFragment extends Fragment {
             return null;
         }
 
-        mRichEditor = (RichEditorView) rootView.findViewById(R.id.rich_editor);
+        mRichEditor = rootView.findViewById(R.id.rich_editor);
         if (mOnCreateViewListener != null) {
             mOnCreateViewListener.onFragmentCreateView(this);
         }

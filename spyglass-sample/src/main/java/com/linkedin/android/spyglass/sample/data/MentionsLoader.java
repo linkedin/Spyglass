@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public  abstract class MentionsLoader<T extends Mentionable> {
             Writer writer = new StringWriter();
             JSONArray arr = null;
             try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(fileReader, "UTF-8"));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(fileReader, StandardCharsets.UTF_8));
                 String line = reader.readLine();
                 while (line != null) {
                     writer.write(line);

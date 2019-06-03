@@ -19,10 +19,10 @@ public interface OnSuggestionsVisibilityChangeListener {
     /**
      * Called when the suggestion list in the {@link com.linkedin.android.spyglass.ui.RichEditorView} is displayed.
      */
-    public void onSuggestionsDisplayed();
+    void onSuggestionsDisplayed();
 
     /**
      * Called when the suggestion list in the {@link com.linkedin.android.spyglass.ui.RichEditorView} is hidden.
      */
-    public void onSuggestionsHidden();
+    void onSuggestionsHidden();
 }

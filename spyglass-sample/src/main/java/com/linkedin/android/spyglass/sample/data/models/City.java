@@ -58,6 +58,7 @@ public class City implements Mentionable {
         }
     }
 
+    @NonNull
     @Override
     public MentionDeleteStyle getDeleteStyle() {
         // Note: Cities do not support partial deletion
