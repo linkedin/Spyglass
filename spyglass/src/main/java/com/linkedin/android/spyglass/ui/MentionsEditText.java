@@ -618,6 +618,54 @@ public class MentionsEditText extends EditText implements TokenSource {
             // Call any watchers for text changes after we have handled it
             sendAfterTextChanged(text);
         }
+
+        /**
+         * Notify external text watchers that the text is about to change.
+         * See {@link TextWatcher#beforeTextChanged(CharSequence, int, int, int)}.
+         */
+        private void sendBeforeTextChanged(CharSequence text, int start, int before, int after) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                // Self check to avoid infinite loop
+                if (watcher != this) {
+                    watcher.beforeTextChanged(text, start, before, after);
+                }
+            }
+        }
+
+        /**
+         * Notify external text watchers that the text is changing.
+         * See {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}.
+         */
+        private void sendOnTextChanged(CharSequence text, int start, int before, int after) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                // Self check to avoid infinite loop
+                if (watcher != this) {
+                    watcher.onTextChanged(text, start, before, after);
+                }
+            }
+        }
+
+        /**
+         * Notify external text watchers that the text has changed.
+         * See {@link TextWatcher#afterTextChanged(Editable)}.
+         */
+        private void sendAfterTextChanged(Editable text) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                // Self check to avoid infinite loop
+                if (watcher != this) {
+                    watcher.afterTextChanged(text);
+                }
+            }
+        }
     }
 
     /**
@@ -1099,51 +1147,6 @@ public class MentionsEditText extends EditText implements TokenSource {
             sb.removeSpan(span);
         }
         return sb;
-    }
-
-    /**
-     * Notify external text watchers that the text is about to change.
-     * See {@link TextWatcher#beforeTextChanged(CharSequence, int, int, int)}.
-     */
-    private void sendBeforeTextChanged(CharSequence text, int start, int before, int after) {
-        final List<TextWatcher> list = mExternalTextWatchers;
-        final int count = list.size();
-        for (int i = 0; i < count; i++) {
-            TextWatcher watcher = list.get(i);
-            if (watcher != this) {
-                watcher.beforeTextChanged(text, start, before, after);
-            }
-        }
-    }
-
-    /**
-     * Notify external text watchers that the text is changing.
-     * See {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}.
-     */
-    private void sendOnTextChanged(CharSequence text, int start, int before, int after) {
-        final List<TextWatcher> list = mExternalTextWatchers;
-        final int count = list.size();
-        for (int i = 0; i < count; i++) {
-            TextWatcher watcher = list.get(i);
-            if (watcher != this) {
-                watcher.onTextChanged(text, start, before, after);
-            }
-        }
-    }
-
-    /**
-     * Notify external text watchers that the text has changed.
-     * See {@link TextWatcher#afterTextChanged(Editable)}.
-     */
-    private void sendAfterTextChanged(Editable text) {
-        final List<TextWatcher> list = mExternalTextWatchers;
-        final int count = list.size();
-        for (int i = 0; i < count; i++) {
-            TextWatcher watcher = list.get(i);
-            if (watcher != this) {
-                watcher.afterTextChanged(text);
-            }
-        }
     }
 
     private void notifyMentionAddedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
