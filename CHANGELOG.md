@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+2.0.1 *(2019-06-07)*
+--------------------------
+ * Fix bug when deleting mentions ending in an emoticon character
+ * Add the ability to add or remove MentionWatchers in the RichEditorView
+ * Fix issue when comparing TextWatchers within the MentionsEditText
+
 2.0.0 *(2018-11-27)*
 --------------------------
  * Migrate from Android support library to AndroidX libraries
