@@ -49,7 +49,7 @@ public class MentionsEditTextTest {
     private RichEditorView mRichEditor;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mEditText = spy(new MentionsEditText(RuntimeEnvironment.application));
         mEditText.setAvoidPrefixOnTap(true);
         mRichEditor = mock(RichEditorView.class);
@@ -58,7 +58,7 @@ public class MentionsEditTextTest {
     }
 
     @Test
-    public void testOnTouchEvent() throws Exception {
+    public void testOnTouchEvent() {
         MotionEvent event = mock(MotionEvent.class);
         doReturn(null).when(mEditText).getTouchedSpan(event);
         doReturn(true).when(mRichEditor).isDisplayingSuggestions();
@@ -95,7 +95,7 @@ public class MentionsEditTextTest {
         testMention("Hello LastName", new TestMention("FirstName MiddleName LastName"));
     }
 
-    private void testMention(String hello, Mentionable mention) throws Exception {
+    private void testMention(String hello, Mentionable mention) {
         Editable editable = mEditText.getEditableText();
         editable.append(hello);
         mEditText.setSelection(hello.length() - 1);
@@ -106,12 +106,12 @@ public class MentionsEditTextTest {
     }
 
     @Test
-    public void testInsertMentionWithoutToken() throws Exception {
+    public void testInsertMentionWithoutToken() {
         Mentionable mention = new TestMention("FirstName MiddleName LastName");
         mEditText.insertMentionWithoutToken(mention);
 
         // ensure mention adds correctly
-        assertTrue(mEditText.getText().toString().equals("FirstName MiddleName LastName"));
+        assertEquals("FirstName MiddleName LastName", mEditText.getText().toString());
 
         Editable editable = mEditText.getEditableText();
         editable.append(" hello ");
@@ -119,6 +119,6 @@ public class MentionsEditTextTest {
         mEditText.insertMentionWithoutToken(mention);
 
         // ensure mention does not clobber existing text
-        assertTrue(mEditText.getText().toString().equals("FirstName MiddleName LastName hello New Mention"));
+        assertEquals("FirstName MiddleName LastName hello New Mention", mEditText.getText().toString());
     }
 }

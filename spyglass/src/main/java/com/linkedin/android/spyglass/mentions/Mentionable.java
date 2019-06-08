@@ -14,7 +14,7 @@
 
 package com.linkedin.android.spyglass.mentions;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
@@ -28,14 +28,14 @@ public interface Mentionable extends Suggestible {
     /**
      * Various display modes that change the text for the mention.
      */
-    public enum MentionDisplayMode {
+    enum MentionDisplayMode {
         FULL, PARTIAL, NONE
     }
 
     /**
      * What action to take when the span is deleted
      */
-    public enum MentionDeleteStyle {
+    enum MentionDeleteStyle {
         // Clear the underlying text (remove the whole span).
         FULL_DELETE,
 
@@ -52,13 +52,14 @@ public interface Mentionable extends Suggestible {
      * @return the current text to display to the user
      */
     @NonNull
-    public abstract String getTextForDisplayMode(MentionDisplayMode mode);
+    String getTextForDisplayMode(MentionDisplayMode mode);
 
     /**
      * Determines how the mention should be handled by a MentionSpan as it is being deleted.
      *
      * @return the proper {@link MentionDeleteStyle}
      */
-    public abstract MentionDeleteStyle getDeleteStyle();
+    @NonNull
+    MentionDeleteStyle getDeleteStyle();
 
 }

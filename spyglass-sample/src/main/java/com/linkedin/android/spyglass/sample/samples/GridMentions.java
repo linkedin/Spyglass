@@ -15,16 +15,15 @@
 package com.linkedin.android.spyglass.sample.samples;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.linkedin.android.spyglass.sample.R;
 import com.linkedin.android.spyglass.sample.data.models.Person;
@@ -39,7 +38,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,12 +64,12 @@ public class GridMentions extends AppCompatActivity implements QueryTokenReceive
         super.onCreate(savedInstanceState);
         setContentView(R.layout.grid_mentions);
 
-        recyclerView = (RecyclerView) findViewById(R.id.mentions_grid);
+        recyclerView = findViewById(R.id.mentions_grid);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         adapter = new PersonMentionAdapter(new ArrayList<Person>());
         recyclerView.setAdapter(adapter);
 
-        editor = (MentionsEditText) findViewById(R.id.editor);
+        editor = findViewById(R.id.editor);
         editor.setTokenizer(new WordTokenizer(tokenizerConfig));
         editor.setQueryTokenReceiver(this);
         editor.setSuggestionsVisibilityManager(this);
@@ -85,7 +84,7 @@ public class GridMentions extends AppCompatActivity implements QueryTokenReceive
 
     @Override
     public List<String> onQueryReceived(final @NonNull QueryToken queryToken) {
-        List<String> buckets = Arrays.asList(BUCKET);
+        List<String> buckets = Collections.singletonList(BUCKET);
         List<Person> suggestions = people.getSuggestions(queryToken);
         SuggestionsResult result = new SuggestionsResult(queryToken, suggestions);
         // Have suggestions, now call the listener (which is this activity)
@@ -134,27 +133,28 @@ public class GridMentions extends AppCompatActivity implements QueryTokenReceive
 
         public ViewHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.person_name);
-            picture = (ImageView) itemView.findViewById(R.id.person_image);
+            name = itemView.findViewById(R.id.person_name);
+            picture = itemView.findViewById(R.id.person_image);
         }
     }
 
     private class PersonMentionAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-        private List<? extends Suggestible> suggestions = new ArrayList<>();
+        private List<? extends Suggestible> suggestions;
 
         public PersonMentionAdapter(List<? extends Suggestible> people) {
             suggestions = people;
         }
 
+        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.grid_mention_item, viewGroup, false);
             return new ViewHolder(v);
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int i) {
+        public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
             Suggestible suggestion = suggestions.get(i);
             if (!(suggestion instanceof Person)) {
                 return;
@@ -167,14 +167,11 @@ public class GridMentions extends AppCompatActivity implements QueryTokenReceive
                     .crossFade()
                     .into(viewHolder.picture);
 
-            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    editor.insertMention(person);
-                    recyclerView.swapAdapter(new PersonMentionAdapter(new ArrayList<Person>()), true);
-                    displaySuggestions(false);
-                    editor.requestFocus();
-                }
+            viewHolder.itemView.setOnClickListener(v -> {
+                editor.insertMention(person);
+                recyclerView.swapAdapter(new PersonMentionAdapter(new ArrayList<Person>()), true);
+                displaySuggestions(false);
+                editor.requestFocus();
             });
         }
 

@@ -22,12 +22,12 @@ Grab via Maven:
 <dependency>
   <groupId>com.linkedin.android.spyglass</groupId>
   <artifactId>spyglass</artifactId>
-  <version>1.4.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-compile 'com.linkedin.android.spyglass:spyglass:1.4.0'
+api 'com.linkedin.android.spyglass:spyglass:2.0.0'
 ```
 
 Overview
@@ -84,13 +84,3 @@ Testing
 -------
 
 We use the Robolectric framework coupled with Mockito for our unit tests. You can run them via the `gradle clean test` command.
-
-Contributions
--------------
-
-Any helpful feedback is more than welcome. This includes feature requests, bug reports, pull requests, constructive feedback, etc.
-
-Copyright & License
--------------------
-
-Spyglass © 2015 LinkedIn Corp. Licensed under the terms of the Apache License, Version 2.0.

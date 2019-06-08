@@ -1,38 +1,29 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
     repositories {
         jcenter()
+        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.2'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.android.tools.build:gradle:3.2.1'
     }
 }
 
-project.ext.isDefaultEnvironment = !project.hasProperty('overrideBuildEnvironment')
-File getEnvironmentScript()
-{
-  final File env = file(isDefaultEnvironment ? 'defaultEnvironment.gradle' : project.overrideBuildEnvironment)
-  assert env.isFile() : "The environment script [$env] does not exists or is not a file."
-  return env
+ext {
+    // Compilation (defined here to ensure consistency between the library and sample app)
+    compileSdkVersion = 28
+    buildToolsVersion = '28.0.3'
+    minSdkVersion = 14
+    targetSdkVersion = 28
+    supportLibrariesVersion = '1.0.0'
+    javaVersion = JavaVersion.VERSION_1_8
 }
-apply from: environmentScript
 
-allprojects {
+subprojects {
     repositories {
         jcenter()
+        google()
     }
-}
-
-// Turn off doclint when using Java 8 (otherwise, you'll see errors when running "gradle androidJavadocs")
-if (JavaVersion.current().isJava8Compatible()) {
-  allprojects {
-    tasks.withType(Javadoc) {
-      options.addStringOption('Xdoclint:none', '-quiet')
-    }
-  }
+    tasks.withType(Javadoc).all { enabled = false }
 }

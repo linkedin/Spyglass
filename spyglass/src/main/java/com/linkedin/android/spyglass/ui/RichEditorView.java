@@ -17,9 +17,6 @@ package com.linkedin.android.spyglass.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -35,6 +32,9 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
@@ -55,6 +55,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Custom view for the RichEditor. Manages three subviews:
@@ -118,9 +119,9 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
         inflater.inflate(R.layout.editor_view, this, true);
 
         // Get the inner views
-        mMentionsEditText = (MentionsEditText) findViewById(R.id.text_editor);
-        mTextCounterView = (TextView) findViewById(R.id.text_counter);
-        mSuggestionsList = (ListView) findViewById(R.id.suggestions_list);
+        mMentionsEditText = findViewById(R.id.text_editor);
+        mTextCounterView = findViewById(R.id.text_counter);
+        mSuggestionsList = findViewById(R.id.suggestions_list);
 
         // Get the MentionSpanConfig from custom XML attributes and set it
         MentionSpanConfig mentionSpanConfig = parseMentionSpanConfigFromAttributes(attrs, defStyleAttr);
@@ -144,14 +145,11 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
         mSuggestionsList.setAdapter(mSuggestionsAdapter);
 
         // Set the item click listener
-        mSuggestionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Mentionable mention = (Mentionable) mSuggestionsAdapter.getItem(position);
-                if (mMentionsEditText != null) {
-                    mMentionsEditText.insertMention(mention);
-                    mSuggestionsAdapter.clear();
-                }
+        mSuggestionsList.setOnItemClickListener((parent, view, position, id) -> {
+            Mentionable mention = (Mentionable) mSuggestionsAdapter.getItem(position);
+            if (mMentionsEditText != null) {
+                mMentionsEditText.insertMention(mention);
+                mSuggestionsAdapter.clear();
             }
         });
 
@@ -197,7 +195,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 	 *
 	 * Example: obj.setInputFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
 	 *
-	 * @param filters
+	 * @param filters   the list of filters to apply
 	 */
     public void setInputFilters(InputFilter... filters) {
 		mMentionsEditText.setFilters(filters);
@@ -209,7 +207,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
      */
     @NonNull
     public List<MentionSpan> getMentionSpans() {
-        return (mMentionsEditText != null) ? mMentionsEditText.getMentionsText().getMentionSpans() : new ArrayList<MentionSpan>();
+        return (mMentionsEditText != null) ? mMentionsEditText.getMentionsText().getMentionSpans() : new ArrayList<>();
     }
 
     /**
@@ -327,17 +325,14 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     @Override
     public void onReceiveSuggestionsResult(final @NonNull SuggestionsResult result, final @NonNull String bucket) {
         // Add the mentions and notify the editor/dropdown of the changes on the UI thread
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (mSuggestionsAdapter != null) {
-                    mSuggestionsAdapter.addSuggestions(result, bucket, mMentionsEditText);
-                }
-                // Make sure the list is scrolled to the top once you receive the first query result
-                if (mWaitingForFirstResult && mSuggestionsList != null) {
-                    mSuggestionsList.setSelection(0);
-                    mWaitingForFirstResult = false;
-                }
+        post(() -> {
+            if (mSuggestionsAdapter != null) {
+                mSuggestionsAdapter.addSuggestions(result, bucket, mMentionsEditText);
+            }
+            // Make sure the list is scrolled to the top once you receive the first query result
+            if (mWaitingForFirstResult && mSuggestionsList != null) {
+                mSuggestionsList.setSelection(0);
+                mWaitingForFirstResult = false;
             }
         });
     }

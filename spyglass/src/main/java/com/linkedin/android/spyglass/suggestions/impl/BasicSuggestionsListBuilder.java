@@ -17,12 +17,12 @@ package com.linkedin.android.spyglass.suggestions.impl;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsListBuilder;
@@ -43,7 +43,7 @@ public class BasicSuggestionsListBuilder implements SuggestionsListBuilder {
     @NonNull
     public List<Suggestible> buildSuggestions(final @NonNull Map<String, SuggestionsResult> latestResults,
                                               final @NonNull String currentTokenString) {
-        List<Suggestible> results = new ArrayList<Suggestible>();
+        List<Suggestible> results = new ArrayList<>();
         for (Map.Entry<String, SuggestionsResult> entry : latestResults.entrySet()) {
             SuggestionsResult result = entry.getValue();
             if (currentTokenString.equalsIgnoreCase(result.getQueryToken().getTokenString())) {
@@ -56,6 +56,7 @@ public class BasicSuggestionsListBuilder implements SuggestionsListBuilder {
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
     public View getView(final @NonNull Suggestible suggestion, @Nullable View convertView, ViewGroup parent,
                         final @NonNull Context context, final @NonNull LayoutInflater inflater, final @NonNull Resources resources) {

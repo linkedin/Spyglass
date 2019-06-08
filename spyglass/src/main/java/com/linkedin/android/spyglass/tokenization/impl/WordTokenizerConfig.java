@@ -14,7 +14,7 @@
 
 package com.linkedin.android.spyglass.tokenization.impl;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Class used to configure various parsing options for the {@link WordTokenizer}. Instantiate using the

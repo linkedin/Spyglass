@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+2.0.0 *(2018-11-27)*
+--------------------------
+ * Migrate from Android support library to AndroidX libraries
+ 
+ 1.5.0 *(2018-11-11)*
+--------------------------
+ * Update versions for nearly all dependencies
+ * Fix an internal NPE occurring on Android 6
+ * Migrate to publishing versions on jCenter. This will be the first release on jCenter.
+
 1.4.0 *(2017-01-12)*
 --------------------------
  * add support for cut/copy/paste of text containing mentions

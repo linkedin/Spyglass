@@ -16,6 +16,7 @@ package com.linkedin.android.spyglass.mentions;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import androidx.annotation.NonNull;
 
 /**
  * Concrete implementation of the {@link Mentionable} interface for testing purposes.
@@ -38,6 +39,7 @@ public class TestMention implements Mentionable {
 		return mText;
 	}
 
+	@NonNull
 	@Override
 	public String getTextForDisplayMode(MentionDisplayMode mode) {
 		switch (mode) {
@@ -52,6 +54,7 @@ public class TestMention implements Mentionable {
 		}
 	}
 
+	@NonNull
 	@Override
 	public MentionDeleteStyle getDeleteStyle() {
 		return MentionDeleteStyle.PARTIAL_NAME_DELETE;

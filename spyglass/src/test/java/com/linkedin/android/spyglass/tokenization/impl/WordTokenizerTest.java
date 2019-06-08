@@ -15,6 +15,8 @@
 package com.linkedin.android.spyglass.tokenization.impl;
 
 import android.text.Spanned;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.TestMention;
@@ -40,7 +42,7 @@ public class WordTokenizerTest {
     private WordTokenizer mTokenizer;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         // Setup the RichEditorView
         mRichEditorFragment = new RichEditorFragment();
         startFragment(mRichEditorFragment);
@@ -58,7 +60,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testFindTokenStart() throws Exception {
+    public void testFindTokenStart() {
 
         // Cursor in first word, "Test"
         findTokenStartChecker(0, 0);
@@ -115,7 +117,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testFindTokenEnd() throws Exception {
+    public void testFindTokenEnd() {
 
         // Cursor in first word, "Test"
         findTokenEndChecker(0, 4);
@@ -177,7 +179,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testIsExplicit() throws Exception {
+    public void testIsExplicit() {
         CharSequence text = mRichEditor.getText();
 
         // Testing before the first '@' character
@@ -243,7 +245,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testGetStartIndex() throws Exception {
+    public void testGetStartIndex() {
         setTestSpan("Shoulong Li", 14);
         Spanned text = mRichEditor.getText();
 
@@ -260,7 +262,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testGetStartIndexWithMultipleLines() throws Exception {
+    public void testGetStartIndexWithMultipleLines() {
         String ls = System.getProperty("line.separator");
         String textString = String.format("Test %smentions Shoulong Li a%snd @Nathan Hi %s@Mi", ls, ls, ls);
         mRichEditor.setText(textString);
@@ -295,7 +297,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testGetEndIndex() throws Exception {
+    public void testGetEndIndex() {
         setTestSpan("Shoulong Li", 14);
         Spanned text = mRichEditor.getText();
 
@@ -313,7 +315,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testGetEndIndexWithMultipleLines() throws Exception {
+    public void testGetEndIndexWithMultipleLines() {
         String ls = System.getProperty("line.separator");
         String textString = String.format("Test %smentions Shoulong Li a%snd @Nathan Hi %s@Mi", ls, ls, ls);
         mRichEditor.setText(textString);
@@ -347,7 +349,7 @@ public class WordTokenizerTest {
         assertEquals(47, mTokenizer.getSearchEndIndex(text, 47));
     }
 
-    private void setTestSpan(String name, int start) throws Exception {
+    private void setTestSpan(String name, int start) {
         // Set a test span in the editor around a person's name
         TestMention mention = new TestMention(name);
         MentionSpan span = new MentionSpan(mention);
@@ -356,7 +358,6 @@ public class WordTokenizerTest {
 
     @Test
     public void testIsValidMention() {
-        isValidMentionHelper(null, false);
         isValidMentionHelper("", false);
         isValidMentionHelper("ab ", false);
         isValidMentionHelper("  ", false);
@@ -374,9 +375,9 @@ public class WordTokenizerTest {
         isValidMentionHelper("Jon@", false);
     }
 
-    private void isValidMentionHelper(String text, boolean expected) {
+    private void isValidMentionHelper(@NonNull String text, boolean expected) {
         mRichEditor.setText(text);
-        int end = (text != null) ? text.length() : 0;
+        int end = text.length();
         mRichEditor.setSelection(end);
         assertEquals(expected, mTokenizer.isValidMention(mRichEditor.getText(), 0, end));
     }
@@ -396,7 +397,7 @@ public class WordTokenizerTest {
     }
 
     @Test
-    public void testHasWordBreakingCharBeforeExplicitChar() throws Exception {
+    public void testHasWordBreakingCharBeforeExplicitChar() {
         // Input has explicit char, editText has space, should return true
         String text = "Hi @John Doe";
         hasWordBreakingCharBeforeExplicitCharHelper(text, true);

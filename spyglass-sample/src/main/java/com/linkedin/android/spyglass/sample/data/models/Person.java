@@ -17,8 +17,8 @@ package com.linkedin.android.spyglass.sample.data.models;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.util.Log;
+import androidx.annotation.NonNull;
 
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.sample.R;
@@ -81,6 +81,7 @@ public class Person implements Mentionable {
         }
     }
 
+    @NonNull
     @Override
     public MentionDeleteStyle getDeleteStyle() {
         // People support partial deletion

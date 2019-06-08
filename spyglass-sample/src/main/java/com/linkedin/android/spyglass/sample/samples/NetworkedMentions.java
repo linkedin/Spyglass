@@ -17,11 +17,10 @@ package com.linkedin.android.spyglass.sample.samples;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.linkedin.android.spyglass.sample.R;
 import com.linkedin.android.spyglass.sample.data.models.City;
@@ -32,6 +31,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.ui.RichEditorView;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,9 +50,9 @@ public class NetworkedMentions extends AppCompatActivity implements QueryTokenRe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.networked_mentions);
-        delayLabel = (TextView) findViewById(R.id.label_network_delay);
-        delaySeek = (SeekBar) findViewById(R.id.seek_network_delay);
-        editor = (RichEditorView) findViewById(R.id.editor);
+        delayLabel = findViewById(R.id.label_network_delay);
+        delaySeek = findViewById(R.id.seek_network_delay);
+        editor = findViewById(R.id.editor);
 
         // Update network delay text
         delayLabel.setText("Mock Network Delay: 2.0 seconds");
@@ -62,7 +62,7 @@ public class NetworkedMentions extends AppCompatActivity implements QueryTokenRe
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressValue = ((float) progress) / 10.0;
-                delayLabel.setText("Mock Network Delay: " + String.valueOf(progressValue) + " seconds");
+                delayLabel.setText("Mock Network Delay: " + progressValue + " seconds");
             }
 
             @Override
@@ -83,17 +83,14 @@ public class NetworkedMentions extends AppCompatActivity implements QueryTokenRe
 
     @Override
     public List<String> onQueryReceived(final @NonNull QueryToken queryToken) {
-        List<String> buckets = Arrays.asList(BUCKET);
+        List<String> buckets = Collections.singletonList(BUCKET);
 
         final SuggestionsResultListener listener = editor;
         final Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<City> suggestions = cities.getSuggestions(queryToken);
-                SuggestionsResult result = new SuggestionsResult(queryToken, suggestions);
-                listener.onReceiveSuggestionsResult(result, BUCKET);
-            }
+        handler.postDelayed(() -> {
+            List<City> suggestions = cities.getSuggestions(queryToken);
+            SuggestionsResult result = new SuggestionsResult(queryToken, suggestions);
+            listener.onReceiveSuggestionsResult(result, BUCKET);
         }, getDelayValue());
 
         return buckets;

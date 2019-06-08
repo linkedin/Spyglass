@@ -15,8 +15,8 @@
 package com.linkedin.android.spyglass.sample.samples;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.linkedin.android.spyglass.sample.R;
 import com.linkedin.android.spyglass.sample.data.models.City;
@@ -41,7 +41,7 @@ public class ColorfulMentions extends AppCompatActivity implements QueryTokenRec
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.colorful_mentions);
-        editor = (RichEditorView) findViewById(R.id.editor);
+        editor = findViewById(R.id.editor);
         editor.setQueryTokenReceiver(this);
         editor.setHint(getResources().getString(R.string.type_city));
         cities = new City.CityLoader(getResources());

@@ -1,21 +1,24 @@
-apply plugin: 'com.android.library'
-apply plugin: 'idea'
-apply plugin: 'maven'
+plugins {
+    id 'com.android.library'
+    id 'idea'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.4'
+}
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName VERSION_NAME
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility rootProject.ext.javaVersion
+        targetCompatibility rootProject.ext.javaVersion
     }
 
     buildTypes {
@@ -33,47 +36,142 @@ android {
         javaMaxHeapSize '2048m'
     }
 
-    testOptions.unitTests.all {
-        // configure the set of classes for JUnit tests
-        include '**/*Test.class'
-        exclude '**/espresso/**/*.class'
+    testOptions.unitTests {
+        all {
+            // configure the set of classes for JUnit tests
+            include '**/*Test.class'
+            exclude '**/espresso/**/*.class'
 
-        // configure max heap size of the test JVM
-        maxHeapSize = '2048m'
+            // configure max heap size of the test JVM
+            maxHeapSize = '2048m'
 
-        // configure the test JVM arguments
-        jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
+            // Specify max number of processes (default is 1)
+            maxParallelForks = 4
 
-        // Specify max number of processes (default is 1)
-        maxParallelForks = 4
+            // Specify max number of test classes to execute in a test process
+            // before restarting the process (default is unlimited)
+            forkEvery = 150
 
-        // Specify max number of test classes to execute in a test process
-        // before restarting the process (default is unlimited)
-        forkEvery = 150
+            // configure whether failing tests should fail the build
+            ignoreFailures false
 
-        // configure whether failing tests should fail the build
-        ignoreFailures false
-
-        // use afterTest to listen to the test execution results
-        afterTest { descriptor, result ->
-            println "Executing test for ${descriptor.name} with result: ${result.resultType}"
+            // use afterTest to listen to the test execution results
+            afterTest { descriptor, result ->
+                println "Executing test for ${descriptor.name} with result: ${result.resultType}"
+            }
         }
+        includeAndroidResources = true
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:25.0.0'
-    compile 'com.android.support:support-annotations:25.0.0'
+    implementation "androidx.fragment:fragment:${rootProject.ext.supportLibrariesVersion}"
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile 'org.robolectric:robolectric:3.1.3'
-    testCompile 'org.robolectric:shadows-support-v4:3.1.3'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.22.0'
+    testImplementation 'org.robolectric:robolectric:3.8'
+    testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.14.1'
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
 }
 
-apply from: 'gradle-mvn-push.gradle'
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+group = GROUP_ID
+version = VERSION_NAME
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar") {
+                builtBy assemble
+            }
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'Spyglass'
+                    description LIBRARY_DESCRIPTION
+                    url LIBRARY_GIT_URL
+
+                    scm {
+                        url LIBRARY_GIT_URL
+                        connection LIBRARY_GIT_CONNECTION
+                        developerConnection LIBRARY_GIT_CONNECTION
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'com.linkedin'
+                            name 'LinkedIn Corp'
+                            email ''
+                        }
+                    }
+
+                    dependencies {
+                        configurations.implementation.allDependencies.each { ModuleDependency dp ->
+                            dependency {
+                                resolveStrategy = Closure.DELEGATE_ONLY
+                                groupId dp.group
+                                artifactId dp.name
+                                version dp.version
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintray {
+
+    user = System.getenv('BINTRAY_USER') ?: ""
+    key = System.getenv('BINTRAY_KEY') ?: ""
+
+    pkg {
+        userOrg = 'linkedin-spyglass'
+        repo = 'maven'
+        name = 'spyglass'
+        desc = LIBRARY_DESCRIPTION
+        labels = ['android', 'mentions', 'suggestions']
+        licenses = ['Apache-2.0']
+
+        websiteUrl = LIBRARY_GIT_URL
+        vcsUrl = LIBRARY_GIT_URL
+        issueTrackerUrl = 'https://github.com/linkedin/Spyglass/issues'
+        githubRepo = 'linkedin/spyglass'
+
+        version {
+            name = VERSION_NAME
+            released = new Date()
+        }
+
+        publish = true
+    }
+
+    publications = ['aar']
+}

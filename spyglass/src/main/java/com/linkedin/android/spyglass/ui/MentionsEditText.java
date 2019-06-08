@@ -25,11 +25,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
-import android.support.annotation.IntRange;
-import android.support.annotation.MenuRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Selection;
@@ -49,6 +44,11 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import androidx.annotation.ColorInt;
+import androidx.annotation.IntRange;
+import androidx.annotation.MenuRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.linkedin.android.spyglass.R;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
@@ -222,7 +222,24 @@ public class MentionsEditText extends EditText implements TokenSource {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         final MentionSpan touchedSpan = getTouchedSpan(event);
-        boolean superResult = super.onTouchEvent(event);
+
+        // Android 6 occasionally throws a NullPointerException inside Editor.onTouchEvent()
+        // for ACTION_UP when attempting to display (uninitialised) text handles.
+        boolean superResult;
+        if (android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.M &&
+            event.getActionMasked() == MotionEvent.ACTION_UP) {
+            try {
+                superResult = super.onTouchEvent(event);
+            } catch (NullPointerException ignored) {
+                // Ignore this (see above) - since we're now in an unknown state let's clear all
+                // selection (which is still better than an arbitrary crash that we can't control):
+                clearFocus();
+                superResult = true;
+            }
+        } else {
+            superResult = super.onTouchEvent(event);
+        }
+
         if (event.getAction() == MotionEvent.ACTION_UP) {
             // Don't call the onclick on mention if MotionEvent.ACTION_UP is for long click action,
             if (!isLongPressed && touchedSpan != null) {
@@ -324,23 +341,9 @@ public class MentionsEditText extends EditText implements TokenSource {
 
     /**
      * Paste clipboard content between min and max positions.
-     */
-    private void paste(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            MentionsEditable text = getMentionsText();
-            text.replace(text.length(), text.length(), clipboard.getText());
-        } else {
-            pasteHoneycombImpl(min, max);
-        }
-    }
-
-    /**
-     * Paste clipboard content between min and max positions. This method is supported for all the api above the 10.
      * If clipboard content contain the MentionSpan, set the span in copied text.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void pasteHoneycombImpl(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
+    private void paste(@IntRange(from = 0) int min, @IntRange(from = 0) int max) {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = clipboard.getPrimaryClip();
         if (clip != null) {
@@ -401,15 +404,10 @@ public class MentionsEditText extends EditText implements TokenSource {
      * Save the selected text and intent in ClipboardManager
      */
     private void saveToClipboard(@NonNull CharSequence selectedText, @Nullable Intent intent) {
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setText(selectedText);
-        } else {
-            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData.Item item = new ClipData.Item(selectedText, intent, null);
-            android.content.ClipData clip = new ClipData(null, new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
-            clipboard.setPrimaryClip(clip);
-        }
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData.Item item = new ClipData.Item(selectedText, intent, null);
+        ClipData clip = new ClipData(null, new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
+        clipboard.setPrimaryClip(clip);
     }
 
     /**
@@ -620,6 +618,54 @@ public class MentionsEditText extends EditText implements TokenSource {
             // Call any watchers for text changes after we have handled it
             sendAfterTextChanged(text);
         }
+
+        /**
+         * Notify external text watchers that the text is about to change.
+         * See {@link TextWatcher#beforeTextChanged(CharSequence, int, int, int)}.
+         */
+        private void sendBeforeTextChanged(CharSequence text, int start, int before, int after) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                // Self check to avoid infinite loop
+                if (watcher != this) {
+                    watcher.beforeTextChanged(text, start, before, after);
+                }
+            }
+        }
+
+        /**
+         * Notify external text watchers that the text is changing.
+         * See {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}.
+         */
+        private void sendOnTextChanged(CharSequence text, int start, int before, int after) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                // Self check to avoid infinite loop
+                if (watcher != this) {
+                    watcher.onTextChanged(text, start, before, after);
+                }
+            }
+        }
+
+        /**
+         * Notify external text watchers that the text has changed.
+         * See {@link TextWatcher#afterTextChanged(Editable)}.
+         */
+        private void sendAfterTextChanged(Editable text) {
+            final List<TextWatcher> list = mExternalTextWatchers;
+            final int count = list.size();
+            for (int i = 0; i < count; i++) {
+                TextWatcher watcher = list.get(i);
+                // Self check to avoid infinite loop
+                if (watcher != this) {
+                    watcher.afterTextChanged(text);
+                }
+            }
+        }
     }
 
     /**
@@ -794,7 +840,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                 case PARTIAL:
                 case FULL:
                     String name = span.getDisplayString();
-                    if (!name.equals(spanText) && start >= 0 && start < end && end <= text.length()) {
+                    if (!name.contentEquals(spanText) && start >= 0 && start < end && end <= text.length()) {
                         // Mention display name does not match what is being shown,
                         // replace text in span with proper display name
                         int cursor = getSelectionStart();
@@ -1103,51 +1149,6 @@ public class MentionsEditText extends EditText implements TokenSource {
         return sb;
     }
 
-    /**
-     * Notify external text watchers that the text is about to change.
-     * See {@link TextWatcher#beforeTextChanged(CharSequence, int, int, int)}.
-     */
-    private void sendBeforeTextChanged(CharSequence text, int start, int before, int after) {
-        final List<TextWatcher> list = mExternalTextWatchers;
-        final int count = list.size();
-        for (int i = 0; i < count; i++) {
-            TextWatcher watcher = list.get(i);
-            if (watcher != this) {
-                watcher.beforeTextChanged(text, start, before, after);
-            }
-        }
-    }
-
-    /**
-     * Notify external text watchers that the text is changing.
-     * See {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}.
-     */
-    private void sendOnTextChanged(CharSequence text, int start, int before, int after) {
-        final List<TextWatcher> list = mExternalTextWatchers;
-        final int count = list.size();
-        for (int i = 0; i < count; i++) {
-            TextWatcher watcher = list.get(i);
-            if (watcher != this) {
-                watcher.onTextChanged(text, start, before, after);
-            }
-        }
-    }
-
-    /**
-     * Notify external text watchers that the text has changed.
-     * See {@link TextWatcher#afterTextChanged(Editable)}.
-     */
-    private void sendAfterTextChanged(Editable text) {
-        final List<TextWatcher> list = mExternalTextWatchers;
-        final int count = list.size();
-        for (int i = 0; i < count; i++) {
-            TextWatcher watcher = list.get(i);
-            if (watcher != this) {
-                watcher.afterTextChanged(text);
-            }
-        }
-    }
-
     private void notifyMentionAddedWatchers(@NonNull Mentionable mention, @NonNull String text, int start, int end) {
         for (MentionWatcher watcher : mMentionWatchers) {
             watcher.onMentionAdded(mention, text, start, end);
@@ -1175,11 +1176,11 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     private class PlaceholderSpan {
 
-        public final MentionSpan holder;
-        public final int originalStart;
-        public final int originalEnd;
+        final MentionSpan holder;
+        final int originalStart;
+        final int originalEnd;
 
-        public PlaceholderSpan(MentionSpan holder, int originalStart, int originalEnd) {
+        PlaceholderSpan(MentionSpan holder, int originalStart, int originalEnd) {
             this.holder = holder;
             this.originalStart = originalStart;
             this.originalEnd = originalEnd;
