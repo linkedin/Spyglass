@@ -93,6 +93,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     private int mBeyondCountLimitTextColor = Color.RED;
 
     private boolean mWaitingForFirstResult = false;
+    private boolean mDisplayTextCount = true;
 
     // --------------------------------------------------
     // Constructors & Initialization
@@ -254,6 +255,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
      * @param display true to display the text counter view
      */
     public void displayTextCounter(boolean display) {
+        mDisplayTextCount = display;
         if (display) {
             mTextCounterView.setVisibility(TextView.VISIBLE);
         } else {
@@ -374,7 +376,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
             }
         } else {
             disableSpellingSuggestions(false);
-            mTextCounterView.setVisibility(View.VISIBLE);
+            mTextCounterView.setVisibility(mDisplayTextCount ? View.VISIBLE : View.GONE);
             mSuggestionsList.setVisibility(View.GONE);
             mMentionsEditText.setPadding(mMentionsEditText.getPaddingLeft(), mMentionsEditText.getPaddingTop(), mMentionsEditText.getPaddingRight(), mPrevEditTextBottomPadding);
             if (mPrevEditTextParams == null) {
