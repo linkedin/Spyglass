@@ -14,7 +14,6 @@
 
 package com.linkedin.android.spyglass.ui;
 
-import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
@@ -44,6 +43,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntRange;
 import androidx.annotation.MenuRes;
@@ -250,7 +250,12 @@ public class MentionsEditText extends EditText implements TokenSource {
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(this, 0);
                 }
+                performClick();
                 return true;
+            }
+
+            if (!isLongPressed) {
+                performClick();
             }
         } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
             isLongPressed = false;
@@ -285,6 +290,11 @@ public class MentionsEditText extends EditText implements TokenSource {
             }
         }
         return superResult;
+    }
+
+    @Override
+    public boolean performClick() {
+        return super.performClick();
     }
 
     @Override
