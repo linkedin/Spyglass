@@ -1128,7 +1128,6 @@ public class MentionsEditText extends EditText implements TokenSource {
     // Private Helper Methods
     // --------------------------------------------------
 
-
     private void restartInput() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
@@ -1292,7 +1291,8 @@ public class MentionsEditText extends EditText implements TokenSource {
      */
     @NonNull
     public MentionsEditable getMentionsText() {
-        return (MentionsEditable) super.getText();
+        CharSequence text = super.getText();
+        return text instanceof MentionsEditable ? (MentionsEditable) text : new MentionsEditable(text);
     }
 
     /**
