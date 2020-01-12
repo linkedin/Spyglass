@@ -67,8 +67,8 @@ android {
 dependencies {
     implementation "androidx.fragment:fragment:${rootProject.ext.supportLibrariesVersion}"
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:2.22.0'
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.mockito:mockito-core:2.27.0'
     testImplementation 'org.robolectric:robolectric:3.8'
     testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
 }
