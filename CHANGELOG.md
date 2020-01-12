@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+2.1.0 *(2020-01-12)*
+--------------------------
+ * Bump min sdk to 21
+ * Avoid ClassCastException when retrieving mentions text
+ * Fix issue with text counter visibility
+
 2.0.1 *(2019-06-07)*
 --------------------------
  * Fix bug when deleting mentions ending in an emoticon character
