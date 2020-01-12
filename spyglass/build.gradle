@@ -40,7 +40,6 @@ android {
         all {
             // configure the set of classes for JUnit tests
             include '**/*Test.class'
-            exclude '**/espresso/**/*.class'
 
             // configure max heap size of the test JVM
             maxHeapSize = '2048m'
@@ -67,10 +66,10 @@ android {
 dependencies {
     implementation "androidx.fragment:fragment:${rootProject.ext.supportLibrariesVersion}"
 
+    testImplementation 'androidx.test:core:1.2.0'
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.mockito:mockito-core:2.27.0'
-    testImplementation 'org.robolectric:robolectric:3.8'
-    testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
+    testImplementation 'org.robolectric:robolectric:4.3.1'
 }
 
 task sourcesJar(type: Jar) {

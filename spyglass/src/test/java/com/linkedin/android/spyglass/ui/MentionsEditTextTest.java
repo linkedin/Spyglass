@@ -16,6 +16,9 @@ package com.linkedin.android.spyglass.ui;
 
 import android.text.Editable;
 import android.view.MotionEvent;
+
+import androidx.test.core.app.ApplicationProvider;
+
 import com.linkedin.android.spyglass.BuildConfig;
 import com.linkedin.android.spyglass.mentions.Mentionable;
 import com.linkedin.android.spyglass.mentions.TestMention;
@@ -41,7 +44,6 @@ import static org.mockito.Mockito.verify;
  * Placing this class in the same package as the class we're testing so we can
  * call protected methods in the test.
  */
-@Config(constants = BuildConfig.class, sdk = 18)
 @RunWith(SpyglassRobolectricRunner.class)
 public class MentionsEditTextTest {
 
@@ -50,7 +52,7 @@ public class MentionsEditTextTest {
 
     @Before
     public void setUp() {
-        mEditText = spy(new MentionsEditText(RuntimeEnvironment.application));
+        mEditText = spy(new MentionsEditText(ApplicationProvider.getApplicationContext()));
         mEditText.setAvoidPrefixOnTap(true);
         mRichEditor = mock(RichEditorView.class);
         mEditText.setSuggestionsVisibilityManager(mRichEditor);
@@ -78,7 +80,7 @@ public class MentionsEditTextTest {
 
     @Test
     public void testSelectionAtIndexZeroOnInit() {
-        MentionsEditText editText = new MentionsEditText(RuntimeEnvironment.application);
+        MentionsEditText editText = new MentionsEditText(ApplicationProvider.getApplicationContext());
         assertEquals(0, editText.getSelectionStart());
         assertEquals(0, editText.getSelectionEnd());
     }

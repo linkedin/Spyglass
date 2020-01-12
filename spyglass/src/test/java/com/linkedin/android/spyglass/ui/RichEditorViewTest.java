@@ -49,7 +49,6 @@ import static org.mockito.Mockito.verify;
  * Placing this class in the same package as the class we're testing so we can
  * call protected methods in the test.
  */
-@Config(constants = BuildConfig.class, sdk = 18)
 @RunWith(SpyglassRobolectricRunner.class)
 public class RichEditorViewTest {
 
