@@ -37,7 +37,6 @@ public class SpyglassRobolectricRunner extends RobolectricTestRunner {
         startFragment(fragment, activity, null);
     }
 
-    @TargetApi(11)
     public static void startFragment(Fragment fragment, FragmentActivity activity, String tag) {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

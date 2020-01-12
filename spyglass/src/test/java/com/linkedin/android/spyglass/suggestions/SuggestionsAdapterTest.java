@@ -36,7 +36,6 @@ import java.util.List;
 import static com.linkedin.android.utils.SpyglassRobolectricRunner.startFragment;
 import static junit.framework.Assert.assertEquals;
 
-@Config(constants = BuildConfig.class, sdk = 18)
 @RunWith(SpyglassRobolectricRunner.class)
 public class SuggestionsAdapterTest {
 
