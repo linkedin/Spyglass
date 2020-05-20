@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
  */
 public class WordTokenizerConfig {
 
-    public final String LINE_SEPARATOR;
+    @NonNull public final String LINE_SEPARATOR;
 
     // Number of characters required in a word before returning a mention suggestion starting with the word
     // Note: These characters are required to be either letters or digits
@@ -32,10 +32,10 @@ public class WordTokenizerConfig {
     public int MAX_NUM_KEYWORDS;
 
     // Characters to use as explicit mention indicators
-    public final String EXPLICIT_CHARS;
+    @NonNull public final String EXPLICIT_CHARS;
 
     // Characters to use to separate words
-    public final String WORD_BREAK_CHARS;
+    @NonNull public final String WORD_BREAK_CHARS;
 
     private WordTokenizerConfig(final @NonNull String lineSeparator,
                                 final int threshold,
@@ -58,31 +58,37 @@ public class WordTokenizerConfig {
         private String explicitChars = "@";
         private String wordBreakChars = " ." + System.getProperty("line.separator");
 
-        public Builder setLineSeparator(String lineSeparator) {
+        @NonNull
+        public Builder setLineSeparator(@NonNull String lineSeparator) {
             this.lineSeparator = lineSeparator;
             return this;
         }
 
+        @NonNull
         public Builder setThreshold(int threshold) {
             this.threshold = threshold;
             return this;
         }
 
+        @NonNull
         public Builder setMaxNumKeywords(int maxNumKeywords) {
             this.maxNumKeywords = maxNumKeywords;
             return this;
         }
 
-        public Builder setExplicitChars(String explicitChars) {
+        @NonNull
+        public Builder setExplicitChars(@NonNull String explicitChars) {
             this.explicitChars = explicitChars;
             return this;
         }
 
-        public Builder setWordBreakChars(String wordBreakChars) {
+        @NonNull
+        public Builder setWordBreakChars(@NonNull String wordBreakChars) {
             this.wordBreakChars = wordBreakChars;
             return this;
         }
 
+        @NonNull
         public WordTokenizerConfig build() {
             return new WordTokenizerConfig(lineSeparator, threshold, maxNumKeywords, explicitChars, wordBreakChars);
         }

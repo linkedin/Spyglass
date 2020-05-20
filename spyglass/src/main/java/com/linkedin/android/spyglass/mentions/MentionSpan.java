@@ -92,6 +92,7 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
         tp.setUnderlineText(false);
     }
 
+    @NonNull
     public Mentionable getMention() {
         return mention;
     }
@@ -104,14 +105,16 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
         isSelected = selected;
     }
 
+    @NonNull
     public MentionDisplayMode getDisplayMode() {
         return mDisplayMode;
     }
 
-    public void setDisplayMode(MentionDisplayMode mode) {
+    public void setDisplayMode(@NonNull MentionDisplayMode mode) {
         mDisplayMode = mode;
     }
 
+    @NonNull
     public String getDisplayString() {
         return mention.getTextForDisplayMode(mDisplayMode);
     }
@@ -133,7 +136,7 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
         dest.writeParcelable(getMention(), flags);
     }
 
-    public MentionSpan(Parcel in) {
+    public MentionSpan(@NonNull Parcel in) {
         int normalTextColor = in.readInt();
         int normalTextBackgroundColor = in.readInt();
         int selectedTextColor = in.readInt();
@@ -148,10 +151,13 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
 
     public static final Parcelable.Creator<MentionSpan> CREATOR
             = new Parcelable.Creator<MentionSpan>() {
-        public MentionSpan createFromParcel(Parcel in) {
+
+        @NonNull
+        public MentionSpan createFromParcel(@NonNull Parcel in) {
             return new MentionSpan(in);
         }
 
+        @NonNull
         public MentionSpan[] newArray(int size) {
             return new MentionSpan[size];
         }

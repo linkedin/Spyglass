@@ -114,6 +114,7 @@ public class MentionsEditable extends SpannableStringBuilder implements Parcelab
      *
      * @return a new {@link MentionsEditable} with whitespace characters removed from the beginning and the end
      */
+    @NonNull
     public MentionsEditable trim() {
         // Delete beginning spaces
         while (length() > 0 && Character.isWhitespace(charAt(0))) {

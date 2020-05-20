@@ -16,6 +16,8 @@ package com.linkedin.android.spyglass.suggestions.interfaces;
 
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import com.linkedin.android.spyglass.suggestions.SuggestionsAdapter;
 
 /**
@@ -40,6 +42,7 @@ public interface Suggestible extends Parcelable {
 	 *
 	 * @return String the user visible suggestion
 	 */
+	@NonNull
 	String getSuggestiblePrimaryText();
 
 }

@@ -37,20 +37,22 @@ public class RichEditorFragment extends Fragment {
     private OnCreateViewListener mOnCreateViewListener;
 
     public interface OnCreateViewListener {
-        void onFragmentCreateView(RichEditorFragment fragment);
+        void onFragmentCreateView(@NonNull RichEditorFragment fragment);
     }
 
     public RichEditorFragment() {
         // Required empty public constructor
     }
 
-    public static RichEditorFragment newInstance(Bundle args) {
+    @NonNull
+    public static RichEditorFragment newInstance(@Nullable Bundle args) {
         RichEditorFragment fragment = new RichEditorFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static RichEditorFragment getInstance(FragmentManager fragmentManager, Bundle args) {
+    @NonNull
+    public static RichEditorFragment getInstance(@NonNull FragmentManager fragmentManager, @Nullable Bundle args) {
         RichEditorFragment instance;
         Fragment fragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
         if (fragment == null) {
@@ -61,8 +63,11 @@ public class RichEditorFragment extends Fragment {
         return instance;
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.editor_fragment, container, false);
@@ -88,7 +93,7 @@ public class RichEditorFragment extends Fragment {
         return FRAGMENT_TAG;
     }
 
-    public void setOnCreateViewListener(OnCreateViewListener listener) {
+    public void setOnCreateViewListener(@Nullable OnCreateViewListener listener) {
         mOnCreateViewListener = listener;
     }
 

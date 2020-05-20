@@ -16,6 +16,7 @@ package com.linkedin.android.spyglass.mentions;
 
 import android.graphics.Color;
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 
 /**
  * Class used to configure various options for the {@link MentionSpan}. Instantiate using the
@@ -46,6 +47,7 @@ public class MentionSpanConfig {
         @ColorInt private int selectedTextColor = Color.WHITE;
         @ColorInt private int selectedTextBackgroundColor = Color.parseColor("#0077b5");
 
+        @NonNull
         public Builder setMentionTextColor(@ColorInt int normalTextColor) {
             if (normalTextColor != -1) {
                 this.normalTextColor = normalTextColor;
@@ -53,6 +55,7 @@ public class MentionSpanConfig {
             return this;
         }
 
+        @NonNull
         public Builder setMentionTextBackgroundColor(@ColorInt int normalTextBackgroundColor) {
             if (normalTextBackgroundColor != -1) {
                 this.normalTextBackgroundColor = normalTextBackgroundColor;
@@ -60,6 +63,7 @@ public class MentionSpanConfig {
             return this;
         }
 
+        @NonNull
         public Builder setSelectedMentionTextColor(@ColorInt int selectedTextColor) {
             if (selectedTextColor != -1) {
                 this.selectedTextColor = selectedTextColor;
@@ -67,6 +71,7 @@ public class MentionSpanConfig {
             return this;
         }
 
+        @NonNull
         public Builder setSelectedMentionTextBackgroundColor(@ColorInt int selectedTextBackgroundColor) {
             if (selectedTextBackgroundColor != -1) {
                 this.selectedTextBackgroundColor = selectedTextBackgroundColor;
@@ -74,6 +79,7 @@ public class MentionSpanConfig {
             return this;
         }
 
+        @NonNull
         public MentionSpanConfig build() {
             return new MentionSpanConfig(normalTextColor, normalTextBackgroundColor,
                                          selectedTextColor, selectedTextBackgroundColor);
