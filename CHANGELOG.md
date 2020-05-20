@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+2.1.1 *(2020-05-20)*
+--------------------------
+ * Added additional nullability annotations, improving Kotlin interoperability
+
 2.1.0 *(2020-01-12)*
 --------------------------
  * Bump min sdk to 21
@@ -16,7 +20,7 @@ Change Log
 2.0.0 *(2018-11-27)*
 --------------------------
  * Migrate from Android support library to AndroidX libraries
- 
+
  1.5.0 *(2018-11-11)*
 --------------------------
  * Update versions for nearly all dependencies
