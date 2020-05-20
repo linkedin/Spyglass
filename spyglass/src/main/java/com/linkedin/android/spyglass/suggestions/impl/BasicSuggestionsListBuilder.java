@@ -58,8 +58,12 @@ public class BasicSuggestionsListBuilder implements SuggestionsListBuilder {
      */
     @NonNull
     @Override
-    public View getView(final @NonNull Suggestible suggestion, @Nullable View convertView, ViewGroup parent,
-                        final @NonNull Context context, final @NonNull LayoutInflater inflater, final @NonNull Resources resources) {
+    public View getView(final @NonNull Suggestible suggestion,
+                        @Nullable View convertView,
+                        @Nullable ViewGroup parent,
+                        final @NonNull Context context,
+                        final @NonNull LayoutInflater inflater,
+                        final @NonNull Resources resources) {
         View view;
         if (convertView == null) {
             view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);

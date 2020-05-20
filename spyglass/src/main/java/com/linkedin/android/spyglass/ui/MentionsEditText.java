@@ -92,7 +92,7 @@ public class MentionsEditText extends EditText implements TokenSource {
     private boolean mBlockCompletion = false;
     private boolean mIsWatchingText = false;
     private boolean mAvoidPrefixOnTap = false;
-    private String mAvoidedPrefix;
+    @Nullable private String mAvoidedPrefix;
 
     private MentionSpanFactory mentionSpanFactory;
     private MentionSpanConfig mentionSpanConfig;
@@ -421,7 +421,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @return the tapped {@link MentionSpan}, or null if one was not tapped
      */
     @Nullable
-    protected MentionSpan getTouchedSpan(MotionEvent event) {
+    protected MentionSpan getTouchedSpan(@NonNull MotionEvent event) {
         Layout layout = getLayout();
         // Note: Layout can be null if text or width has recently changed, see MOB-38193
         if (event == null || layout == null) {
@@ -939,7 +939,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param span the {@link MentionSpan} to update
      */
-    public void updateSpan(MentionSpan span) {
+    public void updateSpan(@NonNull MentionSpan span) {
         mBlockCompletion = true;
         Editable text = getText();
         int start = text.getSpanStart(span);
@@ -1070,7 +1070,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param watcher the {@link TextWatcher} to add
      */
     @Override
-    public void addTextChangedListener(TextWatcher watcher) {
+    public void addTextChangedListener(@NonNull TextWatcher watcher) {
         if (watcher == mInternalTextWatcher) {
             if (!mIsWatchingText) {
                 super.addTextChangedListener(mInternalTextWatcher);
@@ -1088,7 +1088,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      * @param watcher the {@link TextWatcher} to remove
      */
     @Override
-    public void removeTextChangedListener(TextWatcher watcher) {
+    public void removeTextChangedListener(@NonNull TextWatcher watcher) {
         if (watcher == mInternalTextWatcher) {
             if (mIsWatchingText) {
                 super.removeTextChangedListener(mInternalTextWatcher);
@@ -1230,6 +1230,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         }
 
         @Override
+        @NonNull
         public Editable newEditable(@NonNull CharSequence source) {
             MentionsEditable text = new MentionsEditable(source);
             Selection.setSelection(text, 0);
@@ -1264,6 +1265,7 @@ public class MentionsEditText extends EditText implements TokenSource {
 
         private static MentionsMovementMethod sInstance;
 
+        @NonNull
         public static MovementMethod getInstance() {
             if (sInstance == null)
                 sInstance = new MentionsMovementMethod();
@@ -1355,7 +1357,7 @@ public class MentionsEditText extends EditText implements TokenSource {
      *
      * @param prefix prefix to avoid suggestions
      */
-    public void setAvoidedPrefix(String prefix) {
+    public void setAvoidedPrefix(@Nullable String prefix) {
         mAvoidedPrefix = prefix;
     }
 
@@ -1373,6 +1375,7 @@ public class MentionsEditText extends EditText implements TokenSource {
     // Save & Restore State
     // --------------------------------------------------
 
+    @NonNull
     @Override
     public Parcelable onSaveInstanceState() {
         Parcelable parcelable = super.onSaveInstanceState();

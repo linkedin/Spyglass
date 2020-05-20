@@ -78,7 +78,8 @@ public class SuggestionsAdapter extends BaseAdapter {
      * @param buckets    a list of string dictating which buckets the future query results will go into
      */
 
-    public void notifyQueryTokenReceived(QueryToken queryToken, List<String> buckets) {
+    public void notifyQueryTokenReceived(@NonNull QueryToken queryToken,
+                                         @NonNull List<String> buckets) {
         synchronized (mLock) {
             Set<String> currentBuckets = mWaitingForResults.get(queryToken);
             if (currentBuckets == null) {

@@ -15,6 +15,7 @@
 package com.linkedin.android.spyglass.tokenization.interfaces;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
@@ -34,8 +35,8 @@ public interface QueryTokenReceiver {
      * if there are any ongoing queries at a given time.
      *
      * @param queryToken the {@link QueryToken} to process
-     *
      * @return a List of String representing the buckets that will be used when calling {@link SuggestionsResultListener}
      */
+    @NonNull
     List<String> onQueryReceived(final @NonNull QueryToken queryToken);
 }

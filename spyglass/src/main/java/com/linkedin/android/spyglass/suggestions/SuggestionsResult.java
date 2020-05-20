@@ -14,6 +14,8 @@
 
 package com.linkedin.android.spyglass.suggestions;
 
+import androidx.annotation.NonNull;
+
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
 
@@ -27,7 +29,8 @@ public class SuggestionsResult {
     private final QueryToken mQueryToken;
     private final List<? extends Suggestible> mSuggestions;
 
-    public SuggestionsResult(QueryToken queryToken, List<? extends Suggestible> suggestions) {
+    public SuggestionsResult(@NonNull QueryToken queryToken,
+                             @NonNull List<? extends Suggestible> suggestions) {
         mQueryToken = queryToken;
         mSuggestions = suggestions;
     }
@@ -37,6 +40,7 @@ public class SuggestionsResult {
      *
      * @return a {@link QueryToken}
      */
+    @NonNull
     public QueryToken getQueryToken() {
         return mQueryToken;
     }
@@ -46,6 +50,7 @@ public class SuggestionsResult {
      *
      * @return a List of {@link com.linkedin.android.spyglass.suggestions.interfaces.Suggestible} representing mention suggestions
      */
+    @NonNull
     public List<? extends Suggestible> getSuggestions() {
         return mSuggestions;
     }

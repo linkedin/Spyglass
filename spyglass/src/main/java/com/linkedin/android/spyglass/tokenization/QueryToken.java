@@ -14,6 +14,8 @@
 
 package com.linkedin.android.spyglass.tokenization;
 
+import androidx.annotation.NonNull;
+
 import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 
@@ -33,11 +35,11 @@ public class QueryToken implements Serializable {
     // if the query was explicit, then this was the character the user typed (otherwise, null char)
     private char mExplicitChar = 0;
 
-    public QueryToken(String tokenString) {
+    public QueryToken(@NonNull String tokenString) {
         mTokenString = tokenString;
     }
 
-    public QueryToken(String tokenString, char explicitChar) {
+    public QueryToken(@NonNull String tokenString, char explicitChar) {
         this(tokenString);
         mExplicitChar = explicitChar;
     }
@@ -45,6 +47,7 @@ public class QueryToken implements Serializable {
     /**
      * @return query as typed by the user and detected by the {@link Tokenizer}
      */
+    @NonNull
     public String getTokenString() {
         return mTokenString;
     }
@@ -55,6 +58,7 @@ public class QueryToken implements Serializable {
      *
      * @return one or more words that the {@link QueryTokenReceiver} should use for the query
      */
+    @NonNull
     public String getKeywords() {
         return (mExplicitChar != 0) ? mTokenString.substring(1) : mTokenString;
     }

@@ -54,6 +54,7 @@ import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -198,7 +199,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
 	 *
 	 * @param filters   the list of filters to apply
 	 */
-    public void setInputFilters(InputFilter... filters) {
+    public void setInputFilters(@Nullable InputFilter... filters) {
 		mMentionsEditText.setFilters(filters);
 
     }
@@ -305,15 +306,15 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
     public List<String> onQueryReceived(@NonNull QueryToken queryToken) {
-        List<String> buckets = null;
         // Pass the query token to a host receiver
         if (mHostQueryTokenReceiver != null) {
-            buckets = mHostQueryTokenReceiver.onQueryReceived(queryToken);
+            List<String> buckets = mHostQueryTokenReceiver.onQueryReceived(queryToken);
             mSuggestionsAdapter.notifyQueryTokenReceived(queryToken, buckets);
         }
-        return buckets;
+        return Collections.emptyList();
     }
 
 
@@ -481,7 +482,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
      *
      * @param span the {@link MentionSpan} to update
      */
-    public void updateSpan(MentionSpan span) {
+    public void updateSpan(@NonNull MentionSpan span) {
         if (mMentionsEditText != null) {
             mMentionsEditText.updateSpan(span);
         }
@@ -501,7 +502,7 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
      *
      * @param hostTextWatcher the {TextWatcher} to add
      */
-    public void addTextChangedListener(final @Nullable TextWatcher hostTextWatcher) {
+    public void addTextChangedListener(@NonNull final TextWatcher hostTextWatcher) {
         if (mMentionsEditText != null) {
             mMentionsEditText.addTextChangedListener(hostTextWatcher);
         }

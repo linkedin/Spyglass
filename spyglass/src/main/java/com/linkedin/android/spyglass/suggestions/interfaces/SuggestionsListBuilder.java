@@ -60,7 +60,7 @@ public interface SuggestionsListBuilder {
     @NonNull
     View getView(final @NonNull Suggestible suggestion,
                  @Nullable View convertView,
-                 ViewGroup parent,
+                 @Nullable ViewGroup parent,
                  final @NonNull Context context,
                  final @NonNull LayoutInflater inflater,
                  final @NonNull Resources resources);
