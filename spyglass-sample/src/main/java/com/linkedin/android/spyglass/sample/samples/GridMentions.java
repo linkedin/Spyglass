@@ -14,6 +14,7 @@
 
 package com.linkedin.android.spyglass.sample.samples;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.sample.R;
 import com.linkedin.android.spyglass.sample.data.models.Person;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
@@ -74,6 +76,11 @@ public class GridMentions extends AppCompatActivity implements QueryTokenReceive
         editor.setQueryTokenReceiver(this);
         editor.setSuggestionsVisibilityManager(this);
         editor.setHint(getResources().getString(R.string.type_person));
+        MentionSpanConfig mentionSpanConfig = new MentionSpanConfig.Builder()
+            .setMentionTextStyle(Typeface.BOLD)
+            .setSelectedMentionTextStyle(Typeface.ITALIC)
+            .build();
+        editor.setMentionSpanConfig(mentionSpanConfig);
 
         people = new Person.PersonLoader(getResources());
     }

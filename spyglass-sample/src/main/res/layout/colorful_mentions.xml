@@ -25,5 +25,7 @@
         app:mentionTextBackgroundColor="@color/custom_normal_mention_text_background"
         app:mentionTextColor="@color/custom_normal_mention_text"
         app:selectedMentionTextBackgroundColor="@color/custom_selected_mention_text_background"
-        app:selectedMentionTextColor="@color/custom_selected_mention_text"/>
+        app:selectedMentionTextColor="@color/custom_selected_mention_text"
+        app:mentionTextStyle="bold"
+        app:selectedMentionTextStyle="italic"/>
 </LinearLayout>
