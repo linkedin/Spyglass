@@ -4,12 +4,28 @@
     <attr name="mentionTextBackgroundColor" format="color"/>
     <attr name="selectedMentionTextColor" format="color"/>
     <attr name="selectedMentionTextBackgroundColor" format="color"/>
+    <attr name="mentionTextStyle" format="enum">
+        <!-- References the same values as in android.graphics.Typeface -->
+        <enum name="normal" value="0"/>
+        <enum name="bold" value="1"/>
+        <enum name="italic" value="2"/>
+        <enum name="bold_italic" value="3"/>
+    </attr>
+    <attr name="selectedMentionTextStyle" format="enum">
+        <!-- References the same values as in android.graphics.Typeface -->
+        <enum name="normal" value="0"/>
+        <enum name="bold" value="1"/>
+        <enum name="italic" value="2"/>
+        <enum name="bold_italic" value="3"/>
+    </attr>
 
     <declare-styleable name="MentionsEditText">
         <attr name="mentionTextColor"/>
         <attr name="mentionTextBackgroundColor"/>
         <attr name="selectedMentionTextColor"/>
         <attr name="selectedMentionTextBackgroundColor"/>
+        <attr name="mentionTextStyle"/>
+        <attr name="selectedMentionTextStyle"/>
     </declare-styleable>
 
     <declare-styleable name="RichEditorView">
@@ -17,5 +33,7 @@
         <attr name="mentionTextBackgroundColor"/>
         <attr name="selectedMentionTextColor"/>
         <attr name="selectedMentionTextBackgroundColor"/>
+        <attr name="mentionTextStyle"/>
+        <attr name="selectedMentionTextStyle"/>
     </declare-styleable>
 </resources>

@@ -182,6 +182,10 @@ public class RichEditorView extends RelativeLayout implements TextWatcher, Query
         builder.setSelectedMentionTextColor(selectedTextColor);
         @ColorInt int selectedBgColor = attributes.getColor(R.styleable.RichEditorView_selectedMentionTextBackgroundColor, -1);
         builder.setSelectedMentionTextBackgroundColor(selectedBgColor);
+        int normalTextStyle = attributes.getInt(R.styleable.RichEditorView_mentionTextStyle, -1);
+        builder.setMentionTextStyle(normalTextStyle);
+        int selectedTextStyle = attributes.getInt(R.styleable.RichEditorView_selectedMentionTextStyle, -1);
+        builder.setSelectedMentionTextStyle(selectedTextStyle);
 
         attributes.recycle();
 

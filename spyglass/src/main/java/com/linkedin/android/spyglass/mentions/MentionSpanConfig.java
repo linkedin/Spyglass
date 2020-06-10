@@ -15,6 +15,7 @@
 package com.linkedin.android.spyglass.mentions;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
@@ -28,15 +29,21 @@ public class MentionSpanConfig {
     @ColorInt public final int NORMAL_TEXT_BACKGROUND_COLOR;
     @ColorInt public final int SELECTED_TEXT_COLOR;
     @ColorInt public final int SELECTED_TEXT_BACKGROUND_COLOR;
+    public final int NORMAL_TEXT_STYLE;
+    public final int SELECTED_TEXT_STYLE;
 
     MentionSpanConfig(@ColorInt final int normalTextColor,
                       @ColorInt final int normalTextBackgroundColor,
                       @ColorInt final int selectedTextColor,
-                      @ColorInt final int selectedTextBackgroundColor) {
+                      @ColorInt final int selectedTextBackgroundColor,
+                      final int normalTextStyle,
+                      final int selectedTextStyle) {
         this.NORMAL_TEXT_COLOR = normalTextColor;
         this.NORMAL_TEXT_BACKGROUND_COLOR = normalTextBackgroundColor;
         this.SELECTED_TEXT_COLOR = selectedTextColor;
         this.SELECTED_TEXT_BACKGROUND_COLOR = selectedTextBackgroundColor;
+        this.NORMAL_TEXT_STYLE = normalTextStyle;
+        this.SELECTED_TEXT_STYLE = selectedTextStyle;
     }
 
     public static class Builder {
@@ -46,6 +53,10 @@ public class MentionSpanConfig {
         @ColorInt private int normalTextBackgroundColor = Color.TRANSPARENT;
         @ColorInt private int selectedTextColor = Color.WHITE;
         @ColorInt private int selectedTextBackgroundColor = Color.parseColor("#0077b5");
+
+        // Default text styles
+        private int normalTextStyle = Typeface.NORMAL;
+        private int selectedTextStyle = Typeface.NORMAL;
 
         @NonNull
         public Builder setMentionTextColor(@ColorInt int normalTextColor) {
@@ -80,9 +91,26 @@ public class MentionSpanConfig {
         }
 
         @NonNull
+        public Builder setMentionTextStyle(int normalTextStyle) {
+            if (normalTextStyle != -1) {
+                this.normalTextStyle = normalTextStyle;
+            }
+            return this;
+        }
+
+        @NonNull
+        public Builder setSelectedMentionTextStyle(int selectedTextStyle) {
+            if (selectedTextStyle != -1) {
+                this.selectedTextStyle = selectedTextStyle;
+            }
+            return this;
+        }
+
+        @NonNull
         public MentionSpanConfig build() {
             return new MentionSpanConfig(normalTextColor, normalTextBackgroundColor,
-                                         selectedTextColor, selectedTextBackgroundColor);
+                                         selectedTextColor, selectedTextBackgroundColor,
+                                         normalTextStyle, selectedTextStyle);
         }
     }
 }

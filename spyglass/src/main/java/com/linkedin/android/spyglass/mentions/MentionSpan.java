@@ -14,6 +14,7 @@
 
 package com.linkedin.android.spyglass.mentions;
 
+import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -83,9 +84,11 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
     @Override
     public void updateDrawState(@NonNull final TextPaint tp) {
         if (isSelected()) {
+            tp.setTypeface(Typeface.create((Typeface)null, config.SELECTED_TEXT_STYLE));
             tp.setColor(config.SELECTED_TEXT_COLOR);
             tp.bgColor = config.SELECTED_TEXT_BACKGROUND_COLOR;
         } else {
+            tp.setTypeface(Typeface.create((Typeface)null, config.NORMAL_TEXT_STYLE));
             tp.setColor(config.NORMAL_TEXT_COLOR);
             tp.bgColor = config.NORMAL_TEXT_BACKGROUND_COLOR;
         }
@@ -130,6 +133,8 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
         dest.writeInt(config.NORMAL_TEXT_BACKGROUND_COLOR);
         dest.writeInt(config.SELECTED_TEXT_COLOR);
         dest.writeInt(config.SELECTED_TEXT_BACKGROUND_COLOR);
+        dest.writeInt(config.NORMAL_TEXT_STYLE);
+        dest.writeInt(config.SELECTED_TEXT_STYLE);
 
         dest.writeInt(getDisplayMode().ordinal());
         dest.writeInt(isSelected() ? 1 : 0);
@@ -141,8 +146,11 @@ public class MentionSpan extends ClickableSpan implements Parcelable {
         int normalTextBackgroundColor = in.readInt();
         int selectedTextColor = in.readInt();
         int selectedTextBackgroundColor = in.readInt();
+        int normalTextStyle = in.readInt();
+        int selectedTextStyle = in.readInt();
         config = new MentionSpanConfig(normalTextColor, normalTextBackgroundColor,
-                                       selectedTextColor, selectedTextBackgroundColor);
+                                       selectedTextColor, selectedTextBackgroundColor,
+                                       normalTextStyle, selectedTextStyle);
 
         mDisplayMode = MentionDisplayMode.values()[in.readInt()];
         setSelected((in.readInt() == 1));
