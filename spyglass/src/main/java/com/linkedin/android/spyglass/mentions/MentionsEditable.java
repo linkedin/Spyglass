@@ -22,6 +22,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.CharacterStyle;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -84,7 +85,13 @@ public class MentionsEditable extends SpannableStringBuilder implements Parcelab
             end = 0;
         }
 
-        super.setSpan(what, start, end, flags);
+        // For added safety, check that the start and end indices are valid
+        if (start >= 0 && end >= start && end <= length()) {
+            super.setSpan(what, start, end, flags);
+        } else {
+            Log.w(getClass().getName(),
+                  "Attempted to set span at invalid indices, start=" + start + ", end=" + end);
+        }
     }
 
     @NonNull
