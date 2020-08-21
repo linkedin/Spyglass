@@ -87,8 +87,16 @@ public class MentionsEditableTest {
     }
 
     @Test
-    public void testMapToDeleteCharacterInsteadOfAppend() {
+    public void testMapToDeleteCharacterInsteadOfAppendWithoutMentionSpan() {
         mEditable = new MentionsEditable("Hello World");
+        mEditable.replace(11, 11, "Worl");
+        assertEquals("Hello WorldWorl", mEditable.toString());
+    }
+
+    @Test
+    public void testMapToDeleteCharacterInsteadOfAppendWithMentionSpan() {
+        mEditable = new MentionsEditable("Hello World");
+        mEditable.setSpan(mMentionSpan, 6, 11, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
         mEditable.replace(11, 11, "Worl");
         assertEquals("Hello Worl", mEditable.toString());
     }

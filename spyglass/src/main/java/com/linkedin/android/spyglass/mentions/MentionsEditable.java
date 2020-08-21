@@ -100,11 +100,18 @@ public class MentionsEditable extends SpannableStringBuilder implements Parcelab
         // On certain software keyboards, the editor appears to append a word minus the last character when it is really
         // trying to just delete the last character. Until we can figure out the root cause of this issue, the following
         // code remaps this situation to do a proper delete.
+        //
+        // More details: https://github.com/linkedin/Spyglass/issues/105#issuecomment-674751603
         if (start == end && start - tbend - 1 >= 0 && tb.length() > 1) {
             String insertString = tb.subSequence(tbstart, tbend).toString();
-            String previousString = subSequence(start - tbend - 1, start - 1).toString();
-            if (insertString.equals(previousString)) {
-                // Delete a character
+            int prevStart = start - tbend - 1;
+            int prevEnd = start - 1;
+            String prevString = subSequence(prevStart, prevEnd).toString();
+            MentionSpan[] prevSpans = getSpans(prevStart, prevEnd, MentionSpan.class);
+
+            // If the insert string matches the previous string and the previous string contains a mention, then
+            // we will just delete the previous character instead of appending the word.
+            if (insertString.equals(prevString) && prevSpans.length > 0) {
                 return super.replace(start - 1, start, "", 0, 0);
             }
         }
