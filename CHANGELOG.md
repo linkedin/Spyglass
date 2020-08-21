@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+2.2.0 *(2020-08-21)*
+--------------------------
+ * Improve handling of text deletion
+ * Add check to prevent IndexOutOfBoundsException
+
 2.1.1 *(2020-05-20)*
 --------------------------
  * Added additional nullability annotations, improving Kotlin interoperability
