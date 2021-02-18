@@ -1,12 +1,10 @@
-Spyglass [![Build Status](https://img.shields.io/github/workflow/status/linkedin/Spyglass/Merge%20checks)](https://img.shields.io/github/workflow/status/linkedin/Spyglass/Merge%20checks)
-========
+# Spyglass [![Build Status](https://img.shields.io/github/workflow/status/linkedin/Spyglass/Merge%20checks)](https://img.shields.io/github/workflow/status/linkedin/Spyglass/Merge%20checks)
 
 A powerful Android library that provides highly-customizable widgets (with smart defaults) to easily add social-media-esque mention (aka tag) support to your app
 
 *For a broad overview, check out our [blog post](https://engineering.linkedin.com/android/open-sourcing-spyglass-flexible-library-implementing-mentions-android) at the LinkedIn engineering blog.*
 
-Features
---------
+## Features
 
 - A subclass of `EditText` that contains enhanced functionality in order to tokenize user input and display mentions
 - A custom view, similar to a `MultiAutoCompleteTextView`, that displays suggestions in an embedded `ListView` rather than a `Popup`
@@ -14,8 +12,7 @@ Features
 - Designed to handle suggestions dynamically as are retrieved from multiple data sources
 - Supports both implicit and explicit (i.e. "@User Name") mentions
 
-Getting Started
----------------
+## Getting Started
 
 Grab via Maven:
 ```xml
@@ -30,8 +27,7 @@ or Gradle:
 api 'com.linkedin.android.spyglass:spyglass:2.2.0'
 ```
 
-Overview
----------------
+## Overview
 
 Spyglass is divided into three, customizable layers: *tokenization*, *suggestions*, and *mentions*. Together, these layers form the update lifecycle used within Spyglass:
 
@@ -66,8 +62,7 @@ As the suggestions come in from multiple data sources, the suggestions must be d
 
 All mentions that Spyglass insert must be a subclass of the `MentionSpan`. By default, you can easily tweak how your mentions appear (i.e. highlight and text colors). Additionally, you may alter how they behave when they are deleted via multi-stage deletions. We use this extensively in the LinkedIn app to allow users to delete only the last name of a mentioned member (leaving just the first name).
 
-Usage
------
+## Usage
 
 To use Spyglass, you have two options:  the `MentionsEditText` and the `RichEditorView`.
 
@@ -75,12 +70,26 @@ The `MentionsEditText` is a subclass of `EditText`. It contains extra functional
 
 The `RichEditorView` is the quickest way to add mentions into your app. It is built on top of the aforementioned `MentionsEditText` and displays suggestions in an embedded `ListView`. It serves a similar functionality as Android's `MultiAutoCompleteTextView`. Note that you can still alter how suggestion items are displayed in the list, and you can still alter the tokenization and mention displaying options used by the underlying `MentionsEditText`.
 
-Sample App
-----------
+## Sample App
 
 The ''spyglass-sample'' app contains several examples of using the library. For more detailed information, see the documentation [here](spyglass-sample/README.md).
 
-Testing
--------
+## Testing
 
 We use the Robolectric framework coupled with Mockito for our unit tests. You can run them via the `gradle clean test` command.
+
+## Snapshots
+
+You can use snapshot builds to test the latest unreleased changes. A new snapshot is published
+after every merge to the main branch by the [Deploy Snapshot Github Action workflow](.github/workflows/deploy-snapshot.yml).
+
+Just add the Sonatype snapshot repository to your Gradle scripts:
+```gradle
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
+```
+
+You can find the latest snapshot version to use in the [gradle.properties](gradle.properties) file.

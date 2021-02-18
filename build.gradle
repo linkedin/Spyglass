@@ -1,12 +1,12 @@
 buildscript {
-
     repositories {
-        jcenter()
         google()
+        mavenCentral()
+        jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:4.1.2'
     }
 }
 
@@ -22,8 +22,11 @@ ext {
 
 subprojects {
     repositories {
-        jcenter()
         google()
+        mavenCentral()
+        jcenter()
     }
-    tasks.withType(Javadoc).all { enabled = false }
+
+    group = GROUP_ID
+    version = VERSION_NAME
 }
