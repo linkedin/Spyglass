@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+3.0.0 *(2021-02-19)*
+--------------------
+ * Migrated artifact publishing from Bintray back to Maven Central
+
 2.2.0 *(2020-08-21)*
 --------------------------
  * Improve handling of text deletion
