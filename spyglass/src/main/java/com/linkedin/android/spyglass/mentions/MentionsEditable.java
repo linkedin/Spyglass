@@ -138,7 +138,9 @@ public class MentionsEditable extends SpannableStringBuilder implements Parcelab
         int len = length();
         while (len > 0 && Character.isWhitespace(charAt(len - 1))) {
             delete(len - 1, len);
-            len--;
+            //Note: we must reset len this way after delete to avoid IndexOutOfBoundsException crashes similar to what we saw
+            //happening with certain keyboards and {@link MentionsEditable#replace(int, int, CharSequence, int, int)}.
+            len = length();
         }
         return new MentionsEditable(this, 0, length());
     }
