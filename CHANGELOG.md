@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+3.0.1 *(2021-02-22)*
+--------------------
+* Fix for IndexOutOfBoundsException when trimming MentionsEditable
+
 3.0.0 *(2021-02-19)*
 --------------------
  * Migrated artifact publishing from Bintray back to Maven Central
