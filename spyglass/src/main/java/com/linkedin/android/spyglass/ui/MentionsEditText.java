@@ -629,7 +629,7 @@ public class MentionsEditText extends EditText implements TokenSource {
             for (int i = 0; i < count; i++) {
                 TextWatcher watcher = list.get(i);
                 // Self check to avoid infinite loop
-                if (watcher != this) {
+                if (watcher != null && watcher != this) {
                     watcher.beforeTextChanged(text, start, before, after);
                 }
             }
@@ -645,7 +645,7 @@ public class MentionsEditText extends EditText implements TokenSource {
             for (int i = 0; i < count; i++) {
                 TextWatcher watcher = list.get(i);
                 // Self check to avoid infinite loop
-                if (watcher != this) {
+                if (watcher != null && watcher != this) {
                     watcher.onTextChanged(text, start, before, after);
                 }
             }
@@ -661,7 +661,7 @@ public class MentionsEditText extends EditText implements TokenSource {
             for (int i = 0; i < count; i++) {
                 TextWatcher watcher = list.get(i);
                 // Self check to avoid infinite loop
-                if (watcher != this) {
+                if (watcher != null && watcher != this) {
                     watcher.afterTextChanged(text);
                 }
             }
