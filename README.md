@@ -1,4 +1,4 @@
-# Spyglass [![Build Status](https://img.shields.io/github/workflow/status/linkedin/Spyglass/Merge%20checks)](https://img.shields.io/github/workflow/status/linkedin/Spyglass/Merge%20checks)
+# Spyglass [![Build Status](https://img.shields.io/github/actions/workflow/status/nhibner/Spyglass/merge-check.yml?branch=main)](https://img.shields.io/github/actions/workflow/status/nhibner/Spyglass/merge-check.yml?branch=main)
 
 A powerful Android library that provides highly-customizable widgets (with smart defaults) to easily add social-media-esque mention (aka tag) support to your app
 
