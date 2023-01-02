@@ -16,7 +16,7 @@ ext {
     minSdkVersion = 21
     targetSdkVersion = 29
     supportLibrariesVersion = '1.1.0'
-    javaVersion = JavaVersion.VERSION_12
+    javaVersion = JavaVersion.VERSION_1_8
 }
 
 subprojects {
