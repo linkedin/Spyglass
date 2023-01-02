@@ -5,18 +5,18 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.3.1'
     }
 }
 
 ext {
     // Compilation (defined here to ensure consistency between the library and sample app)
-    compileSdkVersion = 29
-    buildToolsVersion = '29.0.2'
+    compileSdkVersion = 33
+    buildToolsVersion = '33.0.1'
     minSdkVersion = 21
     targetSdkVersion = 29
     supportLibrariesVersion = '1.1.0'
-    javaVersion = JavaVersion.VERSION_1_8
+    javaVersion = JavaVersion.VERSION_12
 }
 
 subprojects {
