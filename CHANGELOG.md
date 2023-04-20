@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+3.0.2 *(2023-04-20)*
+--------------------
+* Fix for NPE when processing TextWatchers
+
 3.0.1 *(2021-02-22)*
 --------------------
 * Fix for IndexOutOfBoundsException when trimming MentionsEditable
