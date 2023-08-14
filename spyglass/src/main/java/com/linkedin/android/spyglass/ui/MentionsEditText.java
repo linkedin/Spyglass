@@ -1379,7 +1379,9 @@ public class MentionsEditText extends EditText implements TokenSource {
     @Override
     public Parcelable onSaveInstanceState() {
         Parcelable parcelable = super.onSaveInstanceState();
-        return new SavedState(parcelable, getMentionsText());
+        // Save a copy of MentionsEditable to avoid leaking memory from persisted watchers,
+        // as is done in TextView.onSaveInstanceState().
+        return new SavedState(parcelable, new MentionsEditable(getMentionsText()));
     }
 
     @Override
