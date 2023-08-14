@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+3.0.3 *(2023-08-14)*
+--------------------
+* Fix potential memory leak in MentionsEditText
+
 3.0.2 *(2023-04-20)*
 --------------------
 * Fix for NPE when processing TextWatchers
