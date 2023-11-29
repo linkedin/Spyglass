@@ -376,12 +376,23 @@ public class WordTokenizer implements Tokenizer {
         }
 
         // Get index of the end of the last span before the cursor (or 0 if does not exist)
-        MentionSpan[] spans = text.getSpans(0, text.length(), MentionSpan.class);
-        int closestToCursor = 0;
-        for (MentionSpan span : spans) {
-            int end = text.getSpanEnd(span);
-            if (end > closestToCursor && end <= cursor) {
-                closestToCursor = end;
+        int closestLastSpanEnd = 0;
+        // iterate over all spans before the cursor
+        // we do this by finding the next span transition and looking back to find the closest span to the cursor
+        int nextSpanStart;
+        for (int searchStartIndex = 0; searchStartIndex < cursor; searchStartIndex = nextSpanStart) {
+
+            // find the next span transition
+            nextSpanStart = text.nextSpanTransition(searchStartIndex, text.length(), MentionSpan.class);
+
+            // get the spans from searchStartIndex to nextSpanStart
+            // of these, we find the closest span to the cursor
+            MentionSpan[] closestLastSpans = text.getSpans(searchStartIndex, nextSpanStart, MentionSpan.class);
+            for (MentionSpan span : closestLastSpans) {
+                int end = text.getSpanEnd(span);
+                if (end > closestLastSpanEnd && end <= cursor) {
+                    closestLastSpanEnd = end;
+                }
             }
         }
 
@@ -393,7 +404,7 @@ public class WordTokenizer implements Tokenizer {
         }
 
         // Return whichever is closer before to the cursor
-        return Math.max(closestToCursor, lineStartIndex);
+        return Math.max(closestLastSpanEnd, lineStartIndex);
     }
 
     /**
@@ -411,14 +422,7 @@ public class WordTokenizer implements Tokenizer {
         }
 
         // Get index of the start of the first span after the cursor (or text.length() if does not exist)
-        MentionSpan[] spans = text.getSpans(0, text.length(), MentionSpan.class);
-        int closestAfterCursor = text.length();
-        for (MentionSpan span : spans) {
-            int start = text.getSpanStart(span);
-            if (start < closestAfterCursor && start >= cursor) {
-                closestAfterCursor = start;
-            }
-        }
+        int closestAfterCursor = text.nextSpanTransition(cursor, text.length(), MentionSpan.class);
 
         // Get the index of the end of the line
         String textString = text.toString().substring(cursor, text.length());
